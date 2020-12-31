@@ -166,6 +166,6 @@ def add_number_bills(config, bills, entries):
             lis.append([key, index, id])
     print(lis)
     session.close()
-    time.sleep(20)
+    time.sleep(25)
     return bills, entries
 

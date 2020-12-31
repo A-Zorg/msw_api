@@ -7,7 +7,6 @@ class MainFunc():
         self.text = self.request.text
         self.json_list = eval(self.request.text)
 
-
     def check_text(self, name_list):
         check_list = [i in self.text for i in name_list]
         return all(check_list)
