@@ -2,7 +2,7 @@
 Feature: super_user permissions
 
   Scenario Outline: super_user permissions
-    Then check staff permissions for AS: <url> and <success>
+    Then check super_user permissions for AS: <url> and <success>
     Examples: urls
         |  url                                  |success |
         |  /accounting_system/agents_create/    | True   |

@@ -74,4 +74,4 @@ def stop_reconciliation(data):
 
     session.post(url, data=recon_dict, headers={"Referer": url})
     session.close()
-    time.sleep(20)
+    time.sleep(10)

@@ -9,16 +9,17 @@ config = configparser.ConfigParser()
 config.read("cred/config.ini")
 
 
-def before_feature(context, feature):
-    user_tag = feature.tags[0]
-    use_fixture(session, context, user_tag)
+# def before_feature(context, feature):
+#     user_tag = feature.tags[0]
+#     use_fixture(session, context, user_tag)
 
 def before_all(context):
     # loader(**config['server'])
+    use_fixture(session, context)
     # start_reconciliation(config['super_user'])
     # stop_reconciliation(config['super_user'])
     bills, entries = data_set_reconciliation()
-    context.bills, context.entries = add_number_bills(config['fin_user'], bills, entries)
+    context.bills, context.entries = add_number_bills(context.fin_user, bills, entries)
 
 #
 # def after_all(context):

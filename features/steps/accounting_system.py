@@ -1,18 +1,21 @@
 from behave import *
-from base.main_functions_class import MainFunc
+from base.main_functions_class import GetRequest
 
 
 @step("check not authenticated person for api {url}")
 def step_impl(context, url):
-    session = context.session
+    session = context.stranger
     template = '{"detail":"Authentication credentials were not provided.","status_code":403}'
 
     request = session.get(f'https://mytest-server.sg.com.ua:9999/api{url}')
     assert template == request.text
 
-@step("check staff permissions for AS: {url} and {success}")
-def step_impl(context, url, success):
-    session = context.session
+@step("check {user} permissions for AS: {url} and {success}")
+def step_impl(context,user, url, success):
+    if user == 'fin':
+        session = context.fin_user
+    else:
+        session = context.super_user
     request = session.options(f'https://mytest-server.sg.com.ua:9999/api{url}')
     # with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
     #     file.write(str(request.text)+'\n')
@@ -22,7 +25,7 @@ def step_impl(context, url, success):
 
 @step("check manager's permissions for AS {url}")
 def step_impl(context, url):
-    session = context.session
+    session = context.manager_user
     template = '{"detail":"You do not have permission to perform this action.","status_code":403}'
 
     request = session.get(f'https://mytest-server.sg.com.ua:9999/api{url}')
@@ -31,9 +34,9 @@ def step_impl(context, url):
 
 @step("check company bills list")
 def step_impl(context):
-    session = context.session
+    session = context.fin_user
     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
-    worker = MainFunc(session, url)
+    worker = GetRequest(session, url)
     template_list = ['Company Daily Net',
                      'Company ServComp',
                      'Company Office Fees',
@@ -45,9 +48,9 @@ def step_impl(context):
 
 @step("check user bills list")
 def step_impl(context):
-    session = context.session
+    session = context.fin_user
     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/user/types/'
-    worker = MainFunc(session, url)
+    worker = GetRequest(session, url)
     template_list = ['Current Net balance',
                      'Cash hub',
                      'SmartPoints',
@@ -60,9 +63,9 @@ def step_impl(context):
 
 @step("check users bills")
 def step_impl(context):
-    session = context.session
+    session = context.fin_user
     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/'
-    worker = MainFunc(session, url)
+    worker = GetRequest(session, url)
 
     lis = []
     for key, value in context.bills.items():
