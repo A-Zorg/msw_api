@@ -144,12 +144,22 @@ def add_number_bills(fin, bills, entries):
 
     url_user = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/'
     url_comp = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
+    url_report = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/report_fields/'
 
     response = session.get(url_user)
     user_bills = eval(response.text)
 
     response = session.get(url_comp)
     company_bills = eval(response.text)
+
+    response = session.get(url_report)
+    userdata_fields = eval(response.text)
+    userdata_fields['account_plus_minus'] = userdata_fields['change_plus_minus']
+    del userdata_fields['change_plus_minus']
+    userdata_fields['cash'] = userdata_fields['withdrawal']
+    del userdata_fields['withdrawal']
+
+
     for bill in user_bills:
         user_id = int(bill['user'])
         bill_id = int(bill['id'])
@@ -172,7 +182,26 @@ def add_number_bills(fin, bills, entries):
             if company_bill_name in entry:
                 entry.append(company_bill_id)
 
-    print(entries)
+    userdata = pd.read_csv('base/data_set/userdata.csv')
+    userdata_dict = dict()
+
+    for _, data in userdata.iterrows():
+        copy_userdata_fields = userdata_fields.copy()
+
+        for key in copy_userdata_fields.keys():
+            copy_userdata_fields[key] = data.get(key)
+        copy_userdata_fields['company_cash'] = data['total_net_month']-data['zp_cash']
+        print('aasasasasas')
+        copy_userdata_fields['change_plus_minus'] = copy_userdata_fields['account_plus_minus']
+        del copy_userdata_fields['account_plus_minus']
+        copy_userdata_fields['withdrawal'] = copy_userdata_fields['cash']
+        del copy_userdata_fields['cash']
+
+        userdata_dict[data['user_hr_id']] = copy_userdata_fields
+
+
+
+    print(userdata_dict)
     # lis=[]
     # for key, value in bills.items():
     #     for part in value:
@@ -180,5 +209,5 @@ def add_number_bills(fin, bills, entries):
     #         id = part['id']
     #         lis.append([key, index, id])
     # print(lis)
-    return bills, entries
+    return bills, entries, userdata_dict
 

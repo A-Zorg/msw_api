@@ -4,6 +4,7 @@ from base.ssh_interaction import cleaner, loader, start_reconciliation, stop_rec
 from base.data_set_creater import data_set_reconciliation, add_number_bills
 from allure_behave.hooks import allure_report
 import configparser
+import copy
 
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
@@ -19,11 +20,13 @@ def before_all(context):
     # start_reconciliation(config['super_user'])
     # stop_reconciliation(config['super_user'])
     bills, entries = data_set_reconciliation()
-    context.bills, context.entries = add_number_bills(context.fin_user, bills, entries)
+    context.bills, context.entries, context.userdata = add_number_bills(context.fin_user, bills, entries)
+    context.modified_bills = copy.deepcopy(context.bills)
 
-#
-# def after_all(context):
-#     cleaner(**config['server'])
+
+def after_all(context):
+    # cleaner(**config['server'])
+    print(context.modified_bills==context.bills)
 
 
 

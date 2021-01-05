@@ -1,5 +1,5 @@
 from behave import *
-from base.main_functions_class import GetRequest
+from base.main_functions import GetRequest
 
 
 @step("check not authenticated person for api {url}")

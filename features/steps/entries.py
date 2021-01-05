@@ -1,5 +1,5 @@
 from behave import *
-from base.main_functions_class import GetRequest
+from base.main_functions import GetRequest
 import random
 from datetime import date, datetime, timedelta
 import re
@@ -34,7 +34,6 @@ def step_impl(context):
                        'transaction_common.amount_usd': '',
                        'transaction_common.description': '',
                        'csrfmiddlewaretoken': '', }
-    context.new_bills = context.bills
 
 @step("random amount pick")
 def step_impl(context):
@@ -45,8 +44,8 @@ def step_impl(context, direction, from_bill):
 
     if from_bill == 'user':
         name_user_bill = random.choice(context.bill_list)
-        user = random.choice(list(context.new_bills.keys())[:-1])
-        user_bill = [bill for bill in context.new_bills[user] if bill.get(name_user_bill)][0]
+        user = random.choice(list(context.modified_bills.keys())[:-1])
+        user_bill = [bill for bill in context.modified_bills[user] if bill.get(name_user_bill)][0]
         bill_id = user_bill['id']
 
         """insert number bill to request form and change amount of bill"""
@@ -61,7 +60,7 @@ def step_impl(context, direction, from_bill):
     elif from_bill == 'company':
         bill_id = random.choice(context.company_bill_list)
         name_company_bill = context.company_id_name_bill[bill_id]
-        company_bill = [bill for bill in context.new_bills['company'] if bill.get(context.company_id_name_bill[bill_id])][0]
+        company_bill = [bill for bill in context.modified_bills['company'] if bill.get(context.company_id_name_bill[bill_id])][0]
 
         """insert number bill to request form and change amount of bill"""
         if direction == 'FROM':
