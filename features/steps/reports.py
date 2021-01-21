@@ -1,7 +1,7 @@
 from behave import *
 from base.main_functions import GetRequest, random_filter_generator, \
     prev_current_date
-
+from datetime import datetime, timedelta
 
 @step("get {subject} bills for reports")
 def step_impl(context, subject):
@@ -35,7 +35,8 @@ def step_impl(context, key, datum):
         day = '01'
         context.new_bills = context.bills
     elif datum == 'actual':
-        day = date_dict['current_day']
+        # day = date_dict['current_day']
+        day = (datetime.today() + timedelta(hours=2)).day
         context.new_bills = context.modified_bills
     user_url_list = [f'user[]={i}&' for i in list(context.userdata.keys())]
     user_url = ''.join(user_url_list)
@@ -85,12 +86,11 @@ def step_impl(context):
     worker = GetRequest(context.fin_user, context.url)
     actual_report = worker.json_list
     expected_report = context.expected_report
-    with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-        file.write(str(actual_report)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-        file.write(str(expected_report)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-        file.write(str('-------------------------------------')+'\n')
+    # if actual_report != expected_report:
+    #     with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
+    #         file.write(str(expected_report)+'\n')
+    #     with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
+    #         file.write(str(context.url)+'\n')
     assert actual_report == expected_report
 """-------------------------company------------------------------"""
 @step("formation of url for company report with {datum} date")
@@ -110,8 +110,6 @@ def step_impl(context, datum):
     context.url= url + account_url +\
           f'date={date_dict["current_year"]}-{date_dict["current_month"]}-{day}'
 
-    # with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-    #     file.write(str(context.url)+'\n')
 @step("get expected company report data")
 def step_impl(context):
     bills = context.new_bills

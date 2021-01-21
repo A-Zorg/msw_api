@@ -1,5 +1,7 @@
 import random
-from datetime import date
+from datetime import date, timedelta
+import re
+from telethon import TelegramClient
 
 class GetRequest():
 
@@ -7,7 +9,12 @@ class GetRequest():
         self.request = session.get(url)
         self.text = self.request.text
         try:
-            self.json_list = eval(self.request.text.replace('null', 'None'))
+            text = self.text
+            text = text.replace('null', 'None')
+            text = text.replace('false', 'False')
+            text = text.replace('true', 'True')
+
+            self.json_list = eval(text)
         except:
             self.json_list = None
 
@@ -64,3 +71,25 @@ def check_comming_entries(entries, subject_dict, key):
         elif count!=0 and key == 'inappropriate':
             return False
     return True
+
+def get_token(session, url, key='csrftoken'):
+    headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,'
+                  'image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+    }
+    html = session.get(url, headers=headers)
+    if key == 'csrftoken':
+        token = re.findall('name="csrfmiddlewaretoken" value="([a-zA-Z0-9]*)">', html.text)[0]
+    elif key == 'X-CSRFToken':
+        token = re.findall('csrfToken: "([a-zA-Z0-9]*)"', html.text)[0]
+    return token
+
+def find_button( messages, button_name):
+    for message in messages:
+        if message.buttons==None:
+            continue
+        for butt_row in message.buttons:
+            for button in butt_row:
+                if re.search(button_name,button.text ):
+                    return button
+

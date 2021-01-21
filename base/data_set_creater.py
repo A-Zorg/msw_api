@@ -136,7 +136,6 @@ def data_set_reconciliation():
             context_bills[user][2]['Account'] += data['account_plus_minus']
     return context_bills, context_entries
 
-# b, e = data_set_reconciliation()
 
 
 def add_number_bills(fin, bills, entries):
@@ -191,23 +190,12 @@ def add_number_bills(fin, bills, entries):
         for key in copy_userdata_fields.keys():
             copy_userdata_fields[key] = data.get(key)
         copy_userdata_fields['company_cash'] = data['total_net_month']-data['zp_cash']
-        print('aasasasasas')
         copy_userdata_fields['change_plus_minus'] = copy_userdata_fields['account_plus_minus']
         del copy_userdata_fields['account_plus_minus']
         copy_userdata_fields['withdrawal'] = copy_userdata_fields['cash']
         del copy_userdata_fields['cash']
 
         userdata_dict[data['user_hr_id']] = copy_userdata_fields
-
-
-
-    print(userdata_dict)
-    # lis=[]
-    # for key, value in bills.items():
-    #     for part in value:
-    #         index = value.index(part)+1
-    #         id = part['id']
-    #         lis.append([key, index, id])
-    # print(lis)
+    print(bills)
     return bills, entries, userdata_dict
 

@@ -72,11 +72,10 @@ def step_impl(context, direction, from_bill):
 
 @step("get of {time} date")
 def step_impl(context, time):
-    date_now = datetime.now()
     if time == 'PAST':
         date_pick = datetime.now()-timedelta(minutes=5)
     elif time == 'FUTURE':
-        date_pick = datetime.now() + timedelta(minutes=1)
+        date_pick = datetime.now() + timedelta(seconds=10)
     context.request['entry.date_to_execute'] = str(date_pick)
 
 @step("get csrf token")
@@ -111,7 +110,38 @@ def step_impl(context, status):
     elif status =='pending':
         assert 'selected>Pending' in html_text
 
+"""-------------------------------------"""
+@step("define template request form")
+def step_impl(context):
+    session = context.fin_user
+    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/'
+    worker = GetRequest(session, url)
+    user_bill = worker.json_list[0]['id']
+    context.request = {'transaction_out.user_bill': user_bill,
+                       'transaction_out.company_bill': '',
+                       'transaction_in.user_bill': '',
+                       'transaction_in.company_bill': 111,
+                       'entry.date_to_execute': datetime.now()-timedelta(minutes=40),
+                       'entry.description': '',
+                       'transaction_common.amount_usd': '100',
+                       'transaction_common.description': '',
+                       'csrfmiddlewaretoken': '', }
 
+@step("make post request")
+def step_impl(context):
+    session = context.super_user
+    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+    request_dict = context.request
+    response = session.post(url, data=request_dict, headers={"Referer": url})
+    context.response_entry = response.text
 
+@step("change request: field - {field}, value - {value}")
+def step_impl(context, field, value):
+    if value == 'null':
+        value=''
+    context.request[field] = value
 
+@step("check actual result with expected {result}")
+def step_impl(context, result):
+    assert result in context.response_entry
 

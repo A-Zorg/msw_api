@@ -2,7 +2,7 @@ from behave import fixture
 import configparser
 import requests
 from base.ssh_interaction import create_user_session
-import time
+from telethon import TelegramClient
 
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
@@ -24,8 +24,13 @@ def session(context):
     context.fin_user = session_dict['fin_session']
     context.manager_user = session_dict['manager_session']
     context.stranger = session_dict['stranger_session']
-
+    context.tele_user = TelegramClient('sess',
+                                       config['telegram_user']['api_id'],
+                                       config['telegram_user']['api_hash']
+                                       ).start()
     yield
+
+    context.tele_user.disconnect()
 
     for value in session_dict.values():
         value.close()

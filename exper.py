@@ -5,62 +5,112 @@ import re
 import pandas as pd
 import requests
 from base.ssh_interaction import create_user_session
-import random
+import paramiko
 import requests
+import time
+
+
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
+# host = config['server']['host']
+# port = int(config['server']['port'])
+# user = config['server']['user']
+# password = config['server']['secret']
+# """----------------------upload excel file---------------------------"""
+# transport = paramiko.Transport((host, port))
+# transport.connect(username=user, password=password)
+# sftp = paramiko.SFTPClient.from_transport(transport)
 #
 #
-# sess = create_user_session(**config['fin_user'])
+# remotepath = f'/home/alex_zatushevkiy/3/loader.py'
+# localpath = f'C:/Users/wsu/Desktop/loader222.py'
+# sftp.get(remotepath, localpath)
 #
-#
-# url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
-# bills = sess.get(url)
-# text = bills.text
-# template_list = ['Company Daily Ne',
-#                      'Company ServComp',
-#                      'Compaony Office Fees',
-#                      'Company Net Income',
-#                      'Company Social Fund'
-#                      ]
-#
-# print([i in text for i in template_list])
-# print(any([i in text for i in template_list]))
-# sess.close()
-a= {'asd':'ASD','fgh':'FGH'}
+# sftp.close()
+# transport.close()
 
-zero_date=datetime.now()
-back_date = datetime(zero_date.year, zero_date.month, 1, 21, 59, 59, 999999)
-reconciliation_date = back_date-timedelta(1)
+# """---------------------------------------------------------------"""
+# session = create_user_session(**config['manager_user'])
+# url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/'
+#
+# get = session.get(url)
+# print(get.text)
+# # csrfmiddlewaretoken = re.findall('name="csrfmiddlewaretoken" value="(.+)">', get.text)[0]
+# #
+# # recon_dict = {
+# #         'csrfmiddlewaretoken' : csrfmiddlewaretoken,
+# #         'action': 'run_tasks',
+# #         'select_across': '0',
+# #         'index': '0',
+# #         '_selected_action': '86',
+# #     }
+# #
+# # session.post(url, data=recon_dict, headers={"Referer": url})
+# time.sleep(5)
+
+# import py7zr
+#
+# with py7zr.SevenZipFile('C:/Users/wsu/Desktop/ac.7z', 'w', password='123456') as archive:
+#     archive.writeall('C:/Users/wsu/Desktop/3/users.csv', 'users.csv',)
 
 
-#
-# headers ={
-#     'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-#
-# }
-# bills = sess.get(url, headers = headers)
-#
-# asd = re.findall('name="csrfmiddlewaretoken" value="(.+)">',bills.text)[0]
-#
-# date_x = datetime.today() - timedelta(5)
-# print(date_x)
-# a= requests.get('asdasd')
 
-# recon_dict = {
-#         'csrfmiddlewaretoken': asd,
-#         'entry.date_to_execute': date_x,
-#         'entry.description': 'asdasdasd',
-#         'transaction_out.user_bill': '',
-#         'transaction_out.company_bill': '95',
-#         'transaction_in.user_bill': '',
-#         'transaction_in.company_bill': '97',
-#         'transaction_common.amount_usd': '13',
-#         'transaction_common.description':'asdasd',
-# }
-# uo = sess.post(url, data= recon_dict, headers={"Referer": url})
-# print(uo.status_code)
-# print(uo.text)
+# from openpyxl import Workbook
+# from openpyxl import load_workbook
 #
+#
+# wb1 = load_workbook('C:/Users/wsu/Desktop/3/fees.xlsx')
+# ws1 = wb1.active
+# wb2 = load_workbook('C:/Users/wsu/Desktop/december.xlsx')
+# ws2 = wb2.active
+#
+# from_file = ws1['D2':'H4']
+# to_file = ws2['K5':'O7']
+# for i in range(len(to_file)):
+#     for j in range(len(to_file[i])):
+#         to_file[i][j].value=from_file[i][j].value
+# wb2.save('C:/Users/wsu/Desktop/dec.xlsx')
+
+from base64 import b64decode
+import io
+
+# sess = context.manager_user
+# asd = sess.get('https://mytest-server.sg.com.ua:9999/api/media/contest/smartheat/image')
+# bb= eval(asd.text)['image'].split(',')
+# print(bb)
+# cc = b64decode(bb[1])
+with open('C:\\Users\\wsu\\Desktop\\xx.jpg', 'rb') as file:
+    a=file.read()
+    print(type(a))
+    dataa = io.BytesIO()
+    dataa.write(a)
+    print(type(dataa))
+
+    # a_byte_array = bytearray(bb['image'], "utf8")
+    # print(a_byte_array)
+    # # byte_list = []
+    # # for byte in a_byte_array:
+    # #     binary_representation = bin(byte)
+    # #     byte_list.append(binary_representation)
+    # with open('C:\\Users\\wsu\\Desktop\\xx.jpg','wb') as file:
+    #     file.write(cc)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

@@ -5,20 +5,41 @@ from datetime import date, timedelta
 import re
 import time
 
+def upload_server(host,user,secret,port):
+    transport = paramiko.Transport((host, int(port)))
+    transport.connect(username=user, password=secret)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+    file_list = ['accounts', 'fees', 'main_users', 'services', 'user_bills', 'userdata', 'users']
+    for name in file_list:
+        remotepath = f'/home/alex_zatushevkiy/3/{name}.csv'
+        localpath = f'C:/Users/wsu/PycharmProjects/msw_api/base/data_set/{name}.csv'
+        sftp.put(localpath, remotepath)
+
+    remotepath = '/home/alex_zatushevkiy/3/manager_id.txt'
+    localpath = 'C:/Users/wsu/PycharmProjects/msw_api/base/data_set/manager_id.txt'
+    sftp.put(localpath, remotepath)
+
+    sftp.close()
+    transport.close()
+
 def loader(host,user,secret,port):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, username=user, password=secret, port=port)
 
-    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && python3 manage.py shell < /home/alex_zatushevkiy/3/loader.py')
+    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && '
+                                                'python3 manage.py shell < /home/alex_zatushevkiy/3/loader.py')
     client.close()
     time.sleep(25)
+
 def cleaner(host,user,secret,port):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, username=user, password=secret, port=port)
 
-    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && python3 manage.py shell < /home/alex_zatushevkiy/3/cleaner.py')
+    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && '
+                                                'python3 manage.py shell < /home/alex_zatushevkiy/3/cleaner.py')
     client.close()
 
 def create_user_session(username, password, totp):
@@ -34,8 +55,8 @@ def create_user_session(username, password, totp):
     session.post(end, data=request_dict, headers={"Referer": end})
     return session
 
-def start_reconciliation(data):
-    session = create_user_session(**data)
+def start_reconciliation(sess):
+    session = sess
     url = 'https://mytest-server.sg.com.ua:9999/admin/reconciliation/statusreconciliation/1/change/'
 
     get = session.get(url)
@@ -55,10 +76,11 @@ def start_reconciliation(data):
     }
 
     session.post(url, data=recon_dict, headers={"Referer": url})
-    session.close()
-    time.sleep(30)
-def stop_reconciliation(data):
-    session = create_user_session(**data)
+
+    time.sleep(5)
+
+def stop_reconciliation(sess):
+    session = sess
     url = 'https://mytest-server.sg.com.ua:9999/admin/django_celery_beat/periodictask/'
 
     get = session.get(url)
@@ -73,5 +95,4 @@ def stop_reconciliation(data):
     }
 
     session.post(url, data=recon_dict, headers={"Referer": url})
-    session.close()
     time.sleep(10)
