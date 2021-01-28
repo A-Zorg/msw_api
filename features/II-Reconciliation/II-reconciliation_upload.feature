@@ -1,11 +1,6 @@
 @super_user @manager_user
 Feature:  reconciliation upload
 
-  Scenario: check /reconciliation/user_data/
-      Given create expected template of user_data
-       And get actual template of user_data
-      Then compare actual and expected templates
-
   Scenario: perform reconciliation
       Given manager chech the status of recopnciliation: false
        And manager try to perform reconciliation: -Reconciliation is over-

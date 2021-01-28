@@ -6,7 +6,7 @@ from allure_behave.hooks import allure_report
 from generator.total_generation import generate_data
 import configparser
 from base.google_sheet import update_gs
-from base.create_fees_riskbot import create_riskbot_fees
+from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
 import copy
 
 config = configparser.ConfigParser()
@@ -31,6 +31,9 @@ def before_all(context):
 
     """create sessions of users"""
     use_fixture(session, context)
+
+    # """make precondition steps to check ACCOUNTING"""
+    # make_accounting_precondition(config['manager_id']['hr_id'], context)
 
     # """perform reconciliation"""
     # start_reconciliation(context.super_user)

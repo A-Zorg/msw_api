@@ -138,10 +138,14 @@ def step_impl(context):
 @step("change request: field - {field}, value - {value}")
 def step_impl(context, field, value):
     if value == 'null':
-        value=''
-    context.request[field] = value
+        del context.request['transaction_out.user_bill']
+        del context.request['transaction_out.company_bill']
+    else:
+        context.request[field] = value
 
 @step("check actual result with expected {result}")
 def step_impl(context, result):
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(context.response_entry)+'\n')
     assert result in context.response_entry
 

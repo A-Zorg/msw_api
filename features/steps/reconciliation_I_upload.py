@@ -153,6 +153,10 @@ def step_impl(context):
     context.ac_template = response.json_list
 @step("compare actual and expected templates")
 def step_impl(context):
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(context.ac_template)+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(context.exp_template)+'\n')
     assert context.ac_template==context.exp_template
 
 """----------------------------------make questions in MSW----------------------------------------"""

@@ -39,12 +39,6 @@ def step_impl(context):
 
 @step("compare uploaded image with resulting image from endpoint")
 def step_impl(context):
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(context.new_image.name) + '\n')
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str('------------------------------------------------------------') + '\n')
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(context.endpoint_image.name) + '\n')
     assert context.new_image == context.endpoint_image.getvalue()
 
 @step("upload {gen_image} through endpoint: {type_image}")

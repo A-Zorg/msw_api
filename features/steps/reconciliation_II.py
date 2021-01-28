@@ -45,10 +45,6 @@ def step_impl(context):
 def step_impl(context):
     for part in context.data_list:
         if part not in context.response_list:
-            with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-                file.write(str(part)+'\n')
-            with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-                file.write(str(context.response_list)+'\n')
             assert False
     assert True
 
@@ -65,7 +61,6 @@ def step_impl(context, datum):
         request_date = today + timedelta(hours=25)
     elif datum == "next_month":
         request_date = today + timedelta(weeks=5)
-
     context.request_form = {
         'csrfmiddlewaretoken' : '',
         'date_to_start' : str(request_date)
@@ -97,8 +92,6 @@ def step_impl(context, key, answer):
     elif key == 'risk update':
         url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/status_accounts/'
     response = GetRequest(context.super_user, url)
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(response.text)+'\n')
     assert answer in response.text
 
 @step("activate upload from {key}")
@@ -122,10 +115,7 @@ def step_impl(context, key):
                     'X-Requested-With': 'XMLHttpRequest',
                     }
     response = session.post(url, headers=request_head)
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(url)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(response.text)+'\n')
+
 @step('activate upload through riskbot')
 @async_run_until_complete
 async def send_fees_to_riskbot(context):

@@ -79,12 +79,12 @@ import io
 # bb= eval(asd.text)['image'].split(',')
 # print(bb)
 # cc = b64decode(bb[1])
-with open('C:\\Users\\wsu\\Desktop\\xx.jpg', 'rb') as file:
-    a=file.read()
-    print(type(a))
-    dataa = io.BytesIO()
-    dataa.write(a)
-    print(type(dataa))
+# with open('C:\\Users\\wsu\\Desktop\\xx.jpg', 'rb') as file:
+#     a=file.read()
+#     print(type(a))
+#     dataa = io.BytesIO()
+#     dataa.write(a)
+#     print(type(dataa))
 
     # a_byte_array = bytearray(bb['image'], "utf8")
     # print(a_byte_array)
@@ -100,17 +100,58 @@ with open('C:\\Users\\wsu\\Desktop\\xx.jpg', 'rb') as file:
 
 
 
+import imaplib
+import email
+from email.header import decode_header
 
 
+# account credentials
+username = "sashella92@gmail.com"
+password = "357951123Qwe!"
+# create an IMAP4 class with SSL
+with imaplib.IMAP4_SSL("imap.gmail.com") as imap:
+    imap.login(username, password)
+
+    status, messages = imap.select("INBOX")
+    N = 1
+    messages = int(messages[0])
+
+    for i in range(messages, messages-N, -1):
+        # fetch the email message by ID
+        res, msg = imap.fetch(str(i), "(RFC822)")
+        for response in msg:
+            if isinstance(response, tuple):
+                # parse a bytes email into a message object
+                msg = email.message_from_bytes(response[1])
+                # decode the email subject
+                subject, encoding = decode_header(msg["Subject"])[0]
+                if isinstance(subject, bytes):
+                    # if it's a bytes, decode to str
+                    subject = subject.decode(encoding)
+                # decode email sender
+                From, encoding = decode_header(msg.get("From"))[0]
+                if isinstance(From, bytes):
+                    From = From.decode(encoding)
+                print("Subject:", subject)
+                print("From:", From)
+                # if the email message is multipart
+                if msg.is_multipart():
+                    # iterate over email parts
+                    for part in msg.walk():
+                        # extract content type of email
+                        content_type = part.get_content_type()
+                        content_disposition = str(part.get("Content-Disposition"))
+                        try:
+                            # get the email body
+                            body = part.get_payload(decode=True).decode()
+                            print(body)
+                        except:
+                            pass
 
 
-
-
-
-
-
-
-
+    # close the connection and logout
+    imap.close()
+    imap.logout()
 
 
 

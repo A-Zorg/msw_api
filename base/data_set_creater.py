@@ -196,6 +196,5 @@ def add_number_bills(fin, bills, entries):
         del copy_userdata_fields['cash']
 
         userdata_dict[data['user_hr_id']] = copy_userdata_fields
-    print(bills)
     return bills, entries, userdata_dict
 

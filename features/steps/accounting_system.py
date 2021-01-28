@@ -17,8 +17,6 @@ def step_impl(context,user, url, success):
     else:
         session = context.super_user
     request = session.options(f'https://mytest-server.sg.com.ua:9999/api{url}')
-    # with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-    #     file.write(str(request.text)+'\n')
 
     success_result = eval(success)
     assert request.ok==success_result

@@ -1,27 +1,26 @@
 Feature:  reconciliation check access
 
     Scenario Outline: not authenticated user
-      Given alien makes <method> request: <url>
-      Then check response of request: Authentication credentials were not provided. is <bool>
+      Then alien makes request: <url> , result: <code>
 
       Examples: cases
-      | url                                      | method          | bool |
-      | /reconciliation/                         | get             | True |
-      | /reconciliation/                         | post            | True |
-      | /reconciliation/all_users_data/          | get             | True |
-      | /reconciliation/all_users_data/xlsx      | get             | True |
-      | /reconciliation/date_of_reconciliation/  | post            | True |
-      | /reconciliation/feedback/                | post            | True |
-      | /reconciliation/import_hr/               | get             | True |
-      | /reconciliation/questions/               | post            | True |
-      | /reconciliation/reports_update/          | get             | True |
-      | /reconciliation/reports_update/          | post            | True |
-      | /reconciliation/services_compensations/  | post            | True |
-      | /reconciliation/services_compensations/  | get             | True |
-      | /reconciliation/status/                  | get             | True |
-      | /reconciliation/status/                  | post            | True |
-      | /reconciliation/status_accounts/         | get             | True |
-      | /reconciliation/user_data/               | get             | True |
+      | url                                      | code |
+      | /reconciliation/                         | 403  |
+      | /reconciliation/                         | 403  |
+      | /reconciliation/all_users_data/          | 403  |
+      | /reconciliation/all_users_data/xlsx      | 403  |
+      | /reconciliation/date_of_reconciliation/  | 403  |
+      | /reconciliation/feedback/                | 403  |
+      | /reconciliation/import_hr/               | 403  |
+      | /reconciliation/questions/               | 403  |
+      | /reconciliation/reports_update/          | 403  |
+      | /reconciliation/reports_update/          | 403  |
+      | /reconciliation/services_compensations/  | 403  |
+      | /reconciliation/services_compensations/  | 403  |
+      | /reconciliation/status/                  | 403  |
+      | /reconciliation/status/                  | 403  |
+      | /reconciliation/status_accounts/         | 403  |
+      | /reconciliation/user_data/               | 403  |
 
 
     Scenario Outline: manager user

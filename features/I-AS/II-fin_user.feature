@@ -2,17 +2,17 @@
 Feature: FIN permissions
 
   Scenario Outline: FIN permissions
-    Then check fin permissions for AS: <url> and <success>
+    Then fin makes request: <url> , result: <code>
     Examples: urls
-        |  url                                  |success|
-        |  /accounting_system/bills/company/    | True  |
-        |  /accounting_system/bills/user/types/ | True  |
-        |  /accounting_system/bills/user/1/     | True  |
-        |  /accounting_system/bills/users/      | True  |
-        |  /accounting_system/entries/          | True  |
-        |  /accounting_system/entry/            | False |
-        |  /accounting_system/report_fields/    | True  |
-        |  /accounting_system/report/           | True  |
+        |  url                                  | code |
+        |  /accounting_system/bills/company/    | 200  |
+        |  /accounting_system/bills/user/types/ | 200  |
+        |  /accounting_system/bills/user/1/     | 200  |
+        |  /accounting_system/bills/users/      | 200  |
+        |  /accounting_system/entries/          | 200  |
+        |  /accounting_system/entry/            | 403  |
+        |  /accounting_system/report_fields/    | 200  |
+        |  /accounting_system/report/           | 200  |
 
   Scenario: check company bills list
     Then check company bills list
