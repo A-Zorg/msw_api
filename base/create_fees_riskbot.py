@@ -48,7 +48,7 @@ def random_fees_creator():
     ]
     for i in range(1, len(notes)+1):
         month_dict = {
-            'datum' : date.today() - timedelta(weeks=5)*i,
+            'datum' : (date.today() - timedelta(weeks=5)*i).replace(day=25),
             'd' : random.randint(500,3000),
             'e' : random.randint(-500,1500),
             'g' : random.randint(6500,13000),
@@ -79,7 +79,6 @@ def create_7z(data_set, hr_id):
         wb_to.save(ds[0])
 
         zip_name = ds[0][:-4]+'7z'
-        print(zip_name)
         with py7zr.SevenZipFile(zip_name, 'w', password='123456') as archive:
             archive.writeall(ds[0], 'month.xlsx', )
 
@@ -114,14 +113,11 @@ def get_accounting_queque(data_set, context):
         }
       ]
     }
-    print('--------------------------------------------------')
-    print(context.queque_accounting)
-    print('--------------------------------------------------')
 
 def get_accounting_accountdata(data_set, context):
     context.account_data = []
     for ds in data_set:
-        month = ds[1]['datum'].replace(month=ds[1]['datum'].month - 1)
+        month = ds[1]['datum']-timedelta(days=31)
 
         context.account_data.insert(0, {
             "month": month.strftime("%B"),
@@ -148,7 +144,7 @@ def get_accounting_accountdata(data_set, context):
 
             ]
         })
-    print(context.account_data)
+
 
 def create_account_xlsx(context):
     wb_to = load_workbook('generator/account.xlsx')

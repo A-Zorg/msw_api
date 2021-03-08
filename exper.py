@@ -5,13 +5,14 @@ import re
 import pandas as pd
 import requests
 from base.ssh_interaction import create_user_session
+from base.main_functions import get_token
 import paramiko
 import requests
 import time
+import random
 
-
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
+# config = configparser.ConfigParser()
+# config.read("cred/config.ini")
 # host = config['server']['host']
 # port = int(config['server']['port'])
 # user = config['server']['user']
@@ -96,62 +97,183 @@ import io
     #     file.write(cc)
 
 
+# session = create_user_session(**config['fin_user'])
+
+# user_bills = [i['id'] for i in session.get('https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/').json() if i['user']>=90000 and i['user']<=90500]
+# company_bills = [i['id'] for i in session.get('https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/').json()]
+# url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+# print(user_bills)
+# for i in range(100):
+#     token = get_token(session, url)
+#     exec_date = datetime.now().replace(day=random.randint(1,28), second=0, microsecond=0)
+#     request_dict ={
+#                            'transaction_out.user_bill': '',
+#                            'transaction_out.company_bill': random.choice(company_bills),
+#                            'transaction_in.user_bill': random.choice(user_bills),
+#                            'transaction_in.company_bill': '',
+#                            'entry.date_to_execute': exec_date.__str__().replace(' ', 'T'),
+#                            'entry.description': '',
+#                            'transaction_common.amount_usd': random.randint(-50, 50),
+#                            'transaction_common.description': '',
+#                            'csrfmiddlewaretoken': token,
+#     }
+#     response = session.post(url, data=request_dict, headers={"Referer": url})
+#     print(response.status_code)
+
+
+# start = time.time()
+# url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?user[]=all&account[]=all&date_from=2021-02-19T00:00:00&date_to=2021-03-10T00:00:00'
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#     file.write(f'url - {url}'+ '\n')
+# # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+# #         file.write('Start of the requests: '+str(start) + '\n')
+# resp = session.get(url)
+# print(resp.status_code)
+# print(resp.text)
+# print(time.time()-start)
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#     file.write('status code of the request: ' + str(resp.status_code) + '\n')
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#     file.write('amount of entries: ' + str(len(resp.json())) + '\n')
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#     file.write('Time of the requests: ' + str(time.time()-start) + '\n')
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#     file.write('______________________________________________________________' + '\n')
+#
+
+
+
+# def run():
+#     import sys
+#     f1 = sys.stdin
+#     f = open('input.txt','r')
+#     sys.stdin = f
+#     a = input("name: ")
+#     print(a)
+#     f.close()
+#     sys.stdin = f1
+#
+# run()
+#
+# import sys
+#
+# for line in sys.stdin:
+#     if 'q' == line.rstrip():
+#         break
+#     print(f'Input : {line}')
+#
+# print("Exit")
+#
+# import os
+# from zipfile import ZipFile
+#
+#
+# try:
+#     bot_name = os.environ['BOT_NAME']
+# except:
+#     bot_name = "sasa"
+
+# request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+# url = "https://gitlab.com/api/v4/projects/24782639/jobs"
+# response = requests.get(url, headers=request_head)
+# job_list = response.json()
+#
+# for job in job_list:
+#     job_id = job['id']
+#     job_name = job['name']
+#     job_stage = job['stage']
+#     # print(job_id)
+#     if job_name == "pages" and job_stage == "deploy":
+#         request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+#         url = f"https://gitlab.com/api/v4/projects/24782639/jobs/{job_id}/artifacts"
+#         response = requests.get(url, headers=request_head)
+#
+#         with open('./art.zip','wb') as file:
+#             file.write(response.content)
+#
+#         with ZipFile('./art.zip') as myzip:
+#             with myzip.open('public/widgets/summary.json') as myfile:
+#                 bot_nickname = eval(myfile.read())["reportName"]
+#                 if bot_name == bot_nickname:
+#                     myzip.extractall()
+#                     break
+# with open('./public/widgets/summary.json', 'r') as file:
+#     data = str(file.read())
+# with open('./public/widgets/summary.json', 'w') as file:
+#     file.write(data.replace('Allure Report', bot_name))
+
+#
+# sess = requests.Session()
+# request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+# url = "https://gitlab.com/api/v4/projects/24782639/jobs/1076995374/artifacts"
+# response = sess.get(url, headers=request_head)
+# print(response.status_code)
+#
+# url = "https://gitlab.com/api/v4/projects/24782639/jobs/1076995374/artifacts"
+# response = sess.get(url, headers=request_head)
+# print(response.status_code)
+# with open('./art.zip', 'wb') as file:
+#     file.write(response.content)
+
+
+import os
+from zipfile import ZipFile
+import requests
+
+
+def past_report(bot_name):
+    """download past report of some bot"""
+
+    request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+    url = "https://gitlab.com/api/v4/projects/24782639/jobs"
+    response = requests.get(url, headers=request_head)
+    job_list = response.json()
+    print(response.status_code)
+
+    for job in job_list:
+        job_id = job['id']
+        job_name = job['name']
+        job_stage = job['stage']
+
+        if job_name == "pages" and job_stage == "deploy":
+            request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+            url = "https://gitlab.com/api/v4/projects/24782639/jobs/{}/artifacts".format(job_id)
+            print(url)
+            response = requests.get(url, headers=request_head)
+            print(response.status_code)
+            # download file
+            with open('./art.zip', 'wb') as file:
+                file.write(response.content)
+
+            # extract file
+            with ZipFile('./art.zip') as myzip:
+                with myzip.open('public/widgets/summary.json') as myfile:
+                    bot_nickname = eval(myfile.read())["reportName"]
+                    if bot_name == bot_nickname:
+                        myzip.extractall()
+                        break
+
+
+if __name__ == '__main__':
+
+    try:
+        bot_name = os.environ['BOT_NAME']
+    except:
+        bot_name = "all_bots"
+
+    past_report(bot_name)
 
 
 
 
-import imaplib
-import email
-from email.header import decode_header
 
 
-# account credentials
-username = "sashella92@gmail.com"
-password = "357951123Qwe!"
-# create an IMAP4 class with SSL
-with imaplib.IMAP4_SSL("imap.gmail.com") as imap:
-    imap.login(username, password)
-
-    status, messages = imap.select("INBOX")
-    N = 1
-    messages = int(messages[0])
-
-    for i in range(messages, messages-N, -1):
-        # fetch the email message by ID
-        res, msg = imap.fetch(str(i), "(RFC822)")
-        for response in msg:
-            if isinstance(response, tuple):
-                # parse a bytes email into a message object
-                msg = email.message_from_bytes(response[1])
-                # decode the email subject
-                subject, encoding = decode_header(msg["Subject"])[0]
-                if isinstance(subject, bytes):
-                    # if it's a bytes, decode to str
-                    subject = subject.decode(encoding)
-                # decode email sender
-                From, encoding = decode_header(msg.get("From"))[0]
-                if isinstance(From, bytes):
-                    From = From.decode(encoding)
-                print("Subject:", subject)
-                print("From:", From)
-                # if the email message is multipart
-                if msg.is_multipart():
-                    # iterate over email parts
-                    for part in msg.walk():
-                        # extract content type of email
-                        content_type = part.get_content_type()
-                        content_disposition = str(part.get("Content-Disposition"))
-                        try:
-                            # get the email body
-                            body = part.get_payload(decode=True).decode()
-                            print(body)
-                        except:
-                            pass
 
 
-    # close the connection and logout
-    imap.close()
-    imap.logout()
+
+
+
+
 
 
 

@@ -29,15 +29,25 @@ def step_impl(context):
 @step("formation of url for report: {key} with {datum} date")
 def step_impl(context, key, datum):
     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/report/?'
-    date_dict = prev_current_date()
+    date_dict = {
+        "year": "",
+        "month": "",
+        "day": "",
+    }
 
     if datum == 'non actual':
-        day = '01'
-        context.new_bills = context.bills
+        variable_dates = prev_current_date()
+        date_dict["year"] = variable_dates["current_year"]
+        date_dict["month"] = variable_dates["current_month"]
+        date_dict["day"] = 1
+        context.new_bills = context.bills if datetime.today().day != 1 else context.modified_bills
     elif datum == 'actual':
-        # day = date_dict['current_day']
-        day = (datetime.today() + timedelta(hours=2)).day
+        variable_dates = prev_current_date()
+        date_dict["year"] = variable_dates["current_year"]
+        date_dict["month"] = variable_dates["current_month"]
+        date_dict["day"] = variable_dates["current_day"]
         context.new_bills = context.modified_bills
+
     user_url_list = [f'user[]={i}&' for i in list(context.userdata.keys())]
     user_url = ''.join(user_url_list)
 
@@ -55,7 +65,7 @@ def step_impl(context, key, datum):
         field_url, context.picked_fields = random_filter_generator(context.report_fields_list, 'field')
 
     context.url= url + user_url + account_url + field_url +\
-          f'date={date_dict["current_year"]}-{date_dict["current_month"]}-{day}'
+          f'date={date_dict["year"]}-{date_dict["month"]}-{date_dict["day"]}'
 
 
 @step("get expected report data: {key}")
@@ -86,29 +96,43 @@ def step_impl(context):
     worker = GetRequest(context.fin_user, context.url)
     actual_report = worker.json_list
     expected_report = context.expected_report
-    # if actual_report != expected_report:
-    #     with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-    #         file.write(str(expected_report)+'\n')
-    #     with open('C:\\Users\\wsu\\Desktop\\api.txt', 'a') as file:
-    #         file.write(str(context.url)+'\n')
+    if actual_report != expected_report:
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(expected_report)+'\n')
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(actual_report)+'\n')
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(context.url)+'\n')
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str("----------------------------------------")+'\n')
     assert actual_report == expected_report
 """-------------------------company------------------------------"""
 @step("formation of url for company report with {datum} date")
 def step_impl(context, datum):
     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/report/?user[]=company&'
-    date_dict = prev_current_date()
+    date_dict = {
+        "year": "",
+        "month": "",
+        "day": "",
+    }
 
     if datum == 'non actual':
-        day = '01'
-        context.new_bills = context.bills
+        variable_dates = prev_current_date()
+        date_dict["year"] = variable_dates["current_year"]
+        date_dict["month"] = variable_dates["current_month"]
+        date_dict["day"] = 1
+        context.new_bills = context.bills if datetime.today().day != 1 else context.modified_bills
     elif datum == 'actual':
-        day = date_dict['current_day']
+        variable_dates = prev_current_date()
+        date_dict["year"] = variable_dates["current_year"]
+        date_dict["month"] = variable_dates["current_month"]
+        date_dict["day"] = variable_dates["current_day"]
         context.new_bills = context.modified_bills
 
     account_url, context.picked_accounts = random_filter_generator(context.bill_list, 'account')
 
     context.url= url + account_url +\
-          f'date={date_dict["current_year"]}-{date_dict["current_month"]}-{day}'
+          f'date={date_dict["year"]}-{date_dict["month"]}-{date_dict["day"]}'
 
 @step("get expected company report data")
 def step_impl(context):
@@ -125,12 +149,6 @@ def step_impl(context):
 
     expected_dict['company'] = {'accounts' : acc, 'fields' : {}}
     context.expected_report = expected_dict
-
-
-
-
-
-
 
 
 

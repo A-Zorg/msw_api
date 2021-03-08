@@ -1,7 +1,6 @@
 @fin_user
 Feature: report
 
-
   Scenario Outline: checking filters of REPORTS
     Given get user bills for reports
      And get report_fields
@@ -54,4 +53,32 @@ Feature: report
         |  transaction_common.amount_usd  | 99999999999.11111 |  Ensure that there are no more than 15 digits in total.                 |
         |  entry.date_to_execute          | 2020-12-12        |  Datetime has wrong format. Use one of these formats instead            |
         |  transaction_out.company_bill   | 110               |  Bill should be only one!                                               |
-        |  transaction_out.user_bill      | null              |  One side of Entry are required!                                        |
+        |  transaction_out.user_bill      | del               |  entry                                                                  |
+        |  entry.description              | null              |  description":["This field is required                                                                 |
+
+  Scenario Outline: boundary values of mass transaction fields
+    Given define template request form of mass transaction
+     And change request: <command>
+    When post request to create mass transaction
+    Then check actual result with expected <result>
+
+
+        Examples: forward
+        | command                                                                                                                                                | result                                                                    |
+        |  [['del', ["mass_transaction_in",0]]]                                                                                                                  |  entry                                                                    |
+        |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_in",0,'asd']]]                                                                     |  A valid number is required                                               |
+        |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,8]], ['del', ["mass_transaction_out",0]]]                                   |  Non null field user_bill in transaction                          |
+        |  []                                                                                                                                                    |  Not possible to create multiple transactions on both sides in one entry  |
+        |  [['del', ["mass_transaction_in",1]]]                                                                                                                  |  Sum of the transaction on both sides are not equal                       |
+        |  [['del', ["mass_transaction_in",0]],  ['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_out",0]]]   |  Need to specify both sides of the entry                                  |
+        |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,4.12345]], ['change', ["mass_transaction_out",1,3.87655]]]                  |  Ensure that there are no more than 4 decimal places                      |
+
+Scenario: boundary values of entry fields
+    Given define template request form and remember user and company bills
+     And get csrf token
+    When make post request
+     And get user and company bills before canceling entry
+    Then cancel the created entry
+     And get user and company bills after canceling entry
+     And check status of task
+     And check user and company bills after canceling

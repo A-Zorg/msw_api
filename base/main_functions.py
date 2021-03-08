@@ -46,21 +46,33 @@ def random_filter_generator(item_list, patern):
     url_parts = [f'{patern}[]={i}&' for i in new_list]
     return ''.join(url_parts), new_list
 
+# def prev_current_date():
+#     current_month = date.today().month
+#     current_year = date.today().year
+#     prev_month = current_month - 1
+#     prev_year = current_year
+#     if prev_month == 0:
+#         prev_month = 12
+#         prev_year = current_year - 1
+#     date_dict = {
+#                  'current_month':current_month,
+#                  'current_year':current_year,
+#                  'prev_month':prev_month,
+#                  'prev_year':prev_year,
+#                  'current_day': date.today().day,
+#                  }
+#     return date_dict
 def prev_current_date():
-    current_month = date.today().month
-    current_year = date.today().year
-    prev_month = current_month - 1
-    prev_year = current_year
-    if prev_month == 0:
-        prev_month = 12
-        prev_year = current_year - 1
+    current_date = date.today()
+    prev_month_date = current_date.replace(day=1) - timedelta(days=1)
     date_dict = {
-                 'current_month':current_month,
-                 'current_year':current_year,
-                 'prev_month':prev_month,
-                 'prev_year':prev_year,
-                 'current_day': date.today().day,
-                 }
+        'current_month' : current_date.month,
+        'current_year' : current_date.year,
+        'prev_month' : prev_month_date.month,
+        'prev_year' : prev_month_date.year,
+        'current_day' : current_date.day,
+        "prev_month_day" : prev_month_date.day
+}
     return date_dict
 def check_comming_entries(entries, subject_dict, key):
     for entry in entries:
@@ -138,3 +150,43 @@ def get_last_email(username, password):
                                 return body
                             except:
                                 pass
+
+"""divide the number to the list of number which sum is equal to the initial number"""
+def get_parts_from_number(number, qty):
+    numbers_list=[]
+    for i in range(qty-1):
+        x_number = random.randint(1,number//2)
+        numbers_list.append(x_number)
+        number-=x_number
+    numbers_list.append(number)
+
+    return numbers_list
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -26,7 +26,7 @@ Feature:  reconciliation upload
         |    account            |   1999 |   4000     | 781     |  700              |   30 |   1   |    "ok"                                                    |
         |    none               |   0    |   4000     | 781     |  -1000            | 1730 |   1   |    "ok"                                                    |
         |    none               |   0    |   4000     | 781     |  -1001            | 1730 |   2   |    Change (+/-) greater than account                       |
-        |    account            |   3049 |   6098     | 1       |  -49              |   0  |   0   |    "ok"                                                    |
+        |    account            |   3049 |   6098     | 1       |  -49              |   0  |   0   |    Final multiplied by Payout rate less than Office Fees while Podushka greater than 0 |
         |    account            |   3049 |   6100     | 0       |  -50              |   0  |   0   |    Podushka greater than account * 2 while account >= 2000 |
         |    prev_month_net     |  -1000 |   0        | 0       |  -50              |   0  |   0   |    "ok"                                                    |
         |    prev_month_net     |  -100  |   100      | 0       |  -50              |   0  |   0   |    Podushka is no equal to 0                               |

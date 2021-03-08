@@ -42,3 +42,35 @@ Feature:  entries
         |  user     |company|
 
 
+  Scenario Outline: creation of past mass transaction
+    Given get user number bills
+     And get company number bills
+     And define request form of mass transaction
+     And get random amount of mass transaction
+     And random choice of MASS TRANSACTION <curr_1> users bills
+     And random choice of MASS TRANSACTION <curr_2> company bill
+     And get of PAST date of mass transaction
+    When make post request to create mass transaction
+     And pause - 5 sec(s)
+    Then check status of entry: applied
+          Examples: forward
+        |  curr_1     |  curr_2   |
+        |  FROM       |  TO       |
+        |  FROM       |  TO       |
+
+  Scenario Outline: creation of past mass transaction
+    Given get user number bills
+     And get company number bills
+     And define request form of mass transaction
+     And get random amount of mass transaction
+     And random choice of MASS TRANSACTION <curr_1> users bills
+     And random choice of MASS TRANSACTION <curr_2> company bill
+     And get of FUTURE date of mass transaction
+    When make post request to create mass transaction
+    Then check status of entry: pending
+     And pause - 15 sec(s)
+     But check status of entry: applied
+          Examples: forward
+        |  curr_1     |  curr_2   |
+        |  FROM       |  TO       |
+        |  FROM       |  TO       |

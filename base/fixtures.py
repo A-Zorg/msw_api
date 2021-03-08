@@ -28,6 +28,8 @@ def session(context):
                                        config['telegram_user']['api_id'],
                                        config['telegram_user']['api_hash']
                                        ).start()
+
+    context.host = config['host']['host']
     yield
 
     context.tele_user.disconnect()

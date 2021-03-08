@@ -118,14 +118,21 @@ def step_impl(context):
                         "account_plus_minus": 30,
                         "social": 5,
                         "cash": 1000,
+                        "custom_payout_rate": None,
                         "takion_accounts": [
+                            # {
+                            #     "account": "777",
+                            #     "month_adj_net": 0.01,
+                            #     "summary_by_date": None
+                            # }
+                        ],
+                        "sterling_accounts": [
                             {
                                 "account": "777",
                                 "month_adj_net": 0.01,
                                 "summary_by_date": None
                             }
                         ],
-                        "sterling_accounts": [],
                         "services": [
                             {
                                 "name": "SERV",
@@ -149,14 +156,22 @@ def step_impl(context):
 def step_impl(context):
     url = "https://mytest-server.sg.com.ua:9999/api/reconciliation/user_data/"
     session = context.manager_user
-    response = GetRequest(session, url)
-    context.ac_template = response.json_list
+    response = session.get(url)
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(response.json())+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str('-----------------------------------')+'\n')
+    context.ac_template = response.json()
 @step("compare actual and expected templates")
 def step_impl(context):
     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
         file.write(str(context.ac_template)+'\n')
     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str('-----------------------------------')+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
         file.write(str(context.exp_template)+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str('-----------------------------------')+'\n')
     assert context.ac_template==context.exp_template
 
 """----------------------------------make questions in MSW----------------------------------------"""

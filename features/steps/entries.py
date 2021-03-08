@@ -1,5 +1,5 @@
 from behave import *
-from base.main_functions import GetRequest
+from base.main_functions import GetRequest, get_parts_from_number, get_token
 import random
 from datetime import date, datetime, timedelta
 import re
@@ -30,14 +30,20 @@ def step_impl(context):
                        'transaction_in.user_bill': '',
                        'transaction_in.company_bill': '',
                        'entry.date_to_execute': '',
-                       'entry.description': '',
+                       'entry.description': 'autotest',
                        'transaction_common.amount_usd': '',
-                       'transaction_common.description': '',
+                       'transaction_common.description': 'autotest',
                        'csrfmiddlewaretoken': '', }
 
 @step("random amount pick")
 def step_impl(context):
     context.request['transaction_common.amount_usd'] = random.randint(1,10000)
+
+"""
+    Example of context.modified_bills
+    {90000: [{'Current Net balance': 1540.0, 'id': 42976}, ...
+    'company': [{'Company ServComp': 11727, 'id': 107},...}
+"""
 
 @step("random choice TRANSACTION {direction} {from_bill} bill")
 def step_impl(context, direction, from_bill):
@@ -114,18 +120,24 @@ def step_impl(context, status):
 @step("define template request form")
 def step_impl(context):
     session = context.fin_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/'
+    url = context.host + '/api/accounting_system/bills/users/'
     worker = GetRequest(session, url)
     user_bill = worker.json_list[0]['id']
+
+    url = context.host + '/api/accounting_system/bills/company/'
+    worker = GetRequest(session, url)
+    company_bills = worker.json_list
+
     context.request = {'transaction_out.user_bill': user_bill,
                        'transaction_out.company_bill': '',
                        'transaction_in.user_bill': '',
-                       'transaction_in.company_bill': 111,
+                       'transaction_in.company_bill': company_bills[0]['id'],
                        'entry.date_to_execute': datetime.now()-timedelta(minutes=40),
-                       'entry.description': '',
+                       'entry.description': 'autotest',
                        'transaction_common.amount_usd': '100',
-                       'transaction_common.description': '',
-                       'csrfmiddlewaretoken': '', }
+                       'transaction_common.description': 'autotest',
+                       'csrfmiddlewaretoken': '',
+                       }
 
 @step("make post request")
 def step_impl(context):
@@ -137,15 +149,283 @@ def step_impl(context):
 
 @step("change request: field - {field}, value - {value}")
 def step_impl(context, field, value):
-    if value == 'null':
-        del context.request['transaction_out.user_bill']
-        del context.request['transaction_out.company_bill']
+    if value == 'del':
+        del context.request['transaction_in.user_bill']
+        del context.request['transaction_in.company_bill']
+    elif value == 'null':
+        context.request[field] = ''
     else:
         context.request[field] = value
 
 @step("check actual result with expected {result}")
 def step_impl(context, result):
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(context.response_entry)+'\n')
+    if result not in context.response_entry:
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(context.response_entry) + '\n')
     assert result in context.response_entry
+
+"""--------------------------------------------MASS TRANSACTION----------------------------------------"""
+@step("define request form of mass transaction")
+def step_impl(context):
+    context.request = {
+                        "entry": {
+                            "date_to_execute": "",
+                            "description": "autotest"
+                        },
+                        "mass_transaction_out": [],
+                        "mass_transaction_in": [],
+                        "mass_transaction_common": {
+                              "description": "autotest"
+                        }
+}
+
+
+@step("get random amount of mass transaction")
+def step_impl(context):
+    context.transaction_amount = random.randint(100, 10000)
+
+
+"""
+    Example of context.modified_bills
+    {90000: [{'Current Net balance': 1540.0, 'id': 42976}, ...
+    'company': [{'Company ServComp': 11727, 'id': 107},...}
+"""
+@step("random choice of MASS TRANSACTION {direction} users bills")
+def step_impl(context, direction):
+    qty_of_user = random.randint(2,6)
+    amounts_list = get_parts_from_number(
+                        number = context.transaction_amount,
+                        qty=qty_of_user
+                    )
+    bills_list = []
+
+    for i in range(qty_of_user):
+        while True:
+            name_user_bill = random.choice(context.bill_list)
+            user = random.choice(list(context.modified_bills.keys())[:-1])
+            user_bill = [bill for bill in context.modified_bills[user] if bill.get(name_user_bill)][0]
+            bill_id = user_bill['id']
+            if bill_id not in bills_list:
+                bills_list.append(bill_id)
+
+                """modified request form and context.modified_bills"""
+                if direction == 'FROM':
+                    context.request["mass_transaction_out"].append(
+                        {
+                            "user_bill": bill_id,
+                            "amount_usd": amounts_list[i]
+                        }
+                    )
+                    user_bill[name_user_bill] -= amounts_list[i]
+                elif direction == 'TO':
+                    context.request["mass_transaction_in"].append(
+                        {
+                            "user_bill": bill_id,
+                            "amount_usd": amounts_list[i]
+                        }
+                    )
+                    user_bill[name_user_bill] += amounts_list[i]
+                break
+
+@step("random choice of MASS TRANSACTION {direction} company bill")
+def step_impl(context, direction):
+
+    bill_id = random.choice(context.company_bill_list)
+    name_company_bill = context.company_id_name_bill[bill_id]
+    company_bill = [bill for bill in context.modified_bills['company'] if bill.get(context.company_id_name_bill[bill_id])][0]
+
+    """modified request form and context.modified_bills"""
+    if direction == 'FROM':
+        context.request["mass_transaction_out"].append(
+                        {
+                            "company_bill": bill_id,
+                            "amount_usd": context.transaction_amount
+                        }
+        )
+        company_bill[name_company_bill] -= context.transaction_amount
+    elif direction == 'TO':
+        context.request["mass_transaction_in"].append(
+                        {
+                            "company_bill": bill_id,
+                            "amount_usd": context.transaction_amount
+                        }
+        )
+        company_bill[name_company_bill] += context.transaction_amount
+@step("get of {time} date of mass transaction")
+def step_impl(context, time):
+    if time == 'PAST':
+        date_pick = datetime.now()-timedelta(minutes=5)
+    elif time == 'FUTURE':
+        date_pick = datetime.now() + timedelta(seconds=10)
+    context.request['entry']['date_to_execute'] = str(date_pick)
+
+@step("make post request to create mass transaction")
+def step_impl(context):
+    session = context.super_user
+
+    url = context.host +'/api/accounting_system/entry/multiple_transactions/'
+    token = get_token(session=session, url=url)
+    request_dict = context.request
+
+    response = session.post(
+        url,
+        json=request_dict,
+        headers={
+                "Referer": url,
+                "X-CSRFTOKEN": token}
+    )
+
+    context.response_entry = eval(response.text)['entry']
+    assert response.ok
+
+"""-------------------------------------ERROR OF MASS TRANSACTION--------------------------------------------------"""
+@step("define template request form of mass transaction")
+def step_impl(context):
+    session = context.fin_user
+
+    url = context.host+'/api/accounting_system/bills/users/'
+    worker = GetRequest(session, url)
+    user_bills = worker.json_list
+
+    url = context.host+'/api/accounting_system/bills/company/'
+    worker = GetRequest(session, url)
+    company_bills = worker.json_list
+
+    context.request = {
+        "entry": {
+            "date_to_execute": str(datetime.now()),
+            "description": "autotest"
+        },
+        "mass_transaction_out": [
+            {
+                "user_bill": user_bills[0]['id'],
+                "amount_usd": 5
+            },
+            {
+                "user_bill": user_bills[1]['id'],
+                "amount_usd": 3
+            }
+        ],
+        "mass_transaction_in": [
+            {
+                "company_bill": company_bills[0]['id'],
+                "amount_usd": 5
+            },
+            {
+                "company_bill": company_bills[1]['id'],
+                "amount_usd": 8
+            }
+        ],
+        "mass_transaction_common": {
+            "description": "autotest"
+        }
+    }
+
+@step("change request: {command}")
+def step_impl(context, command):
+    commands_list = eval(command)
+    for comm in commands_list:
+
+        if comm[0] == 'del':
+            transaction_side = comm[1][0]
+            bill = comm[1][1]
+            del context.request[transaction_side][bill]
+        elif comm[0] == 'change':
+            transaction_side = comm[1][0]
+            bill = comm[1][1]
+            amount = comm[1][2]
+            context.request[transaction_side][bill]["amount_usd"] = amount
+
+@step("post request to create mass transaction")
+def step_impl(context):
+    session = context.super_user
+
+    url = context.host +'/api/accounting_system/entry/multiple_transactions/'
+    token = get_token(session=session, url=url)
+    request_dict = context.request
+
+    response = session.post(
+        url,
+        json=request_dict,
+        headers={
+                "Referer": url,
+                "X-CSRFTOKEN": token}
+    )
+
+    context.response_entry = response.text
+
+"""------------------------------------CANCEL ENTRY--------------------------------------------------"""
+@step("define template request form and remember user and company bills")
+def step_impl(context):
+    session = context.fin_user
+    url = context.host + '/api/accounting_system/bills/users/'
+    worker = GetRequest(session, url)
+    context.user_bill = worker.json_list[0]['id']
+
+    url = context.host + '/api/accounting_system/bills/company/'
+    worker = GetRequest(session, url)
+    context.company_bills = worker.json_list[0]['id']
+
+    context.request = {'transaction_out.user_bill': context.user_bill,
+                       'transaction_out.company_bill': '',
+                       'transaction_in.user_bill': '',
+                       'transaction_in.company_bill': context.company_bills,
+                       'entry.date_to_execute': datetime.now()-timedelta(minutes=40),
+                       'entry.description': 'autotest',
+                       'transaction_common.amount_usd': '100',
+                       'transaction_common.description': 'autotest',
+                       'csrfmiddlewaretoken': '',
+                       }
+
+@step("get user and company bills {period} canceling entry")
+def step_impl(context, period):
+    session = context.super_user
+
+    user_bill_url = context.host + f'/admin/accounting_system/userbill/{context.user_bill}/change/'
+    response = session.get(user_bill_url).text
+    user_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
+
+    user_company_url = context.host + f'/admin/accounting_system/userbill/{context.user_bill}/change/'
+    response = session.get(user_company_url).text
+    company_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
+
+    if period == 'before':
+        context.user_bill_before = float(user_bill_amount)
+        context.company_bill_before = float(company_bill_amount)
+    elif period == 'after':
+        context.user_bill_after = float(user_bill_amount)
+        context.company_bill_after = float(company_bill_amount)
+
+@step("cancel the created entry")
+def step_impl(context):
+    entry_id = eval(context.response_entry)['entry']
+    session = context.super_user
+
+    url = context.host + f'/api/accounting_system/entry/cancel/{entry_id}/'
+    response = session.get(url)
+    context.task_id = response.json()['task_id']
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(response.text) + '\n')
+
+@step("check status of task")
+def step_impl(context):
+    session = context.super_user
+    user_bill_url = context.host + f'/api/accounting_system/task/status/{context.task_id}/'
+    response = session.get(user_bill_url).json()
+
+    assert response["status"] == "SUCCESS"
+
+@step("check user and company bills after canceling")
+def step_impl(context):
+    assert context.user_bill_before - context.user_bill_after == float(context.request['transaction_common.amount_usd'])
+    assert context.company_bill_after - context.company_bill_before == float(context.request['transaction_common.amount_usd'])
+
+
+
+
+
+
+
+
+
 

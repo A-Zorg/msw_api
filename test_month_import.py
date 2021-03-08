@@ -34,7 +34,7 @@ stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw &
                                             'python3 manage.py shell < /home/alex_zatushevkiy/10/cleaner_super.py && '
                                             'python3 manage.py shell < /home/alex_zatushevkiy/month_import/poo.py')
 client.close()
-time.sleep(5)
+time.sleep(15)
 """------------------------------run month import---------------------------------"""
 # session = create_user_session(**config['super_user'])
 # url = 'https://mytest-server.sg.com.ua:9999/admin/django_celery_beat/periodictask/'

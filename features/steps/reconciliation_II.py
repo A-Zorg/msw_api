@@ -32,17 +32,22 @@ def step_impl(context):
                     "hr_id": user_data['user_hr_id'],
                     "podushka": user_data['podushka'],
                     "zp_cash": user_data['zp_cash'],
+                    "total_takion": None,
+                    "total_sterling": None,
+                    "services_and_compensations_total": user_data['services_total']+user_data['compensations_total'],
                     "office_fees": user_data['office_fees'],
+                    "account": user_data['account'],
                     "account_plus_minus": user_data['account_plus_minus'],
                     "cash": user_data['cash'],
                     "social": user_data['social'],
                     "qty_of_reconciliations": user_data['qty_of_reconciliations']
                    }
         context.data_list.append(part_dict)
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(context.data_list)+'\n')
+
 @step("compare userdata lists")
 def step_impl(context):
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(context.data_list)+'\n')
     for part in context.data_list:
         if part not in context.response_list:
             assert False
@@ -184,7 +189,6 @@ def step_impl(context):
         if value == '-':
             return None
         elif type(value) == datetime:
-            value +=timedelta(hours=2)
             return str(value).replace(' ', 'T')
         else:
             return int(value)
@@ -197,7 +201,11 @@ def step_impl(context):
                     "hr_id": filter(part['ID']),
                     "podushka": filter(part['Podushka']),
                     "zp_cash": filter(part['ZP cash']),
+                    "total_takion": filter(part['Takion Total']),
+                    "total_sterling": filter(part['Sterling Total']),
+                    "services_and_compensations_total": filter(part['Services Total']),
                     "office_fees": filter(part['Office Fees']),
+                    "account": filter(part['Account']),
                     "account_plus_minus": filter(part['Change (+/-)']),
                     "cash": filter(part['Take home']),
                     "social": filter(part['Social']),

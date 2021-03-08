@@ -12,45 +12,45 @@ import copy
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
 
-
 def before_all(context):
-    # """create data set"""
-    # generate_data(10)
-    #
-    # """upload dataset to the server"""
-    # upload_server(**config['server'])
-    #
-    # """upload dataset to msw"""
-    # loader(**config['server'])
-    #
-    # """upload data to SERV&COMP table"""
-    # update_gs()
-    #
-    # """create file FEES to upload through riskbot"""
-    # create_riskbot_fees()
+    """create data set"""
+    generate_data(10)
+
+    """upload dataset to the server"""
+    upload_server(**config['server'])
+
+    """upload dataset to msw"""
+    loader(**config['server'])
+
+    """upload data to SERV&COMP table"""
+    update_gs()
+
+    """create file FEES to upload through riskbot"""
+    create_riskbot_fees()
 
     """create sessions of users"""
     use_fixture(session, context)
 
-    # """make precondition steps to check ACCOUNTING"""
-    # make_accounting_precondition(config['manager_id']['hr_id'], context)
+    # # """make precondition steps to check ACCOUNTING"""
+    # # make_accounting_precondition(config['manager_id']['hr_id'], context)
 
-    # """perform reconciliation"""
-    # start_reconciliation(context.super_user)
-    # stop_reconciliation(context.super_user)
-    #
-    # """generate vars with data"""
-    # bills, entries = data_set_reconciliation()
-    # context.bills, context.entries, context.userdata = add_number_bills(context.fin_user, bills, entries)
-    # context.modified_bills = copy.deepcopy(context.bills)
+    """perform reconciliation"""
+    start_reconciliation(context.super_user)
+    stop_reconciliation(context.super_user)
 
-
-#
-# def after_all(context):
-#     """delete all generated data"""
-#     cleaner(**config['server'])
+    """generate vars with data"""
+    bills, entries = data_set_reconciliation()
+    context.bills, context.entries, context.userdata = add_number_bills(context.fin_user, bills, entries)
+    context.modified_bills = copy.deepcopy(context.bills)
 
 
 
-"""create allure reports"""
-allure_report("reports/")
+
+def after_all(context):
+    """delete all generated data"""
+    cleaner(**config['server'])
+
+
+# #
+# """create allure reports"""
+# allure_report("reports/")

@@ -1,3 +1,4 @@
 cred
 .idea
 venv
+reports/*.json

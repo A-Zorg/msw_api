@@ -23,7 +23,7 @@ def upload_server(host,user,secret,port):
     sftp.close()
     transport.close()
 
-def loader(host,user,secret,port):
+def loader(host,user,secret,port, sec=25):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, username=user, password=secret, port=port)
@@ -31,7 +31,7 @@ def loader(host,user,secret,port):
     stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && '
                                                 'python3 manage.py shell < /home/alex_zatushevkiy/3/loader.py')
     client.close()
-    time.sleep(25)
+    time.sleep(sec)
 
 def cleaner(host,user,secret,port):
     client = paramiko.SSHClient()
@@ -76,7 +76,6 @@ def start_reconciliation(sess):
     }
 
     session.post(url, data=recon_dict, headers={"Referer": url})
-
     time.sleep(5)
 
 def stop_reconciliation(sess):
@@ -96,3 +95,41 @@ def stop_reconciliation(sess):
 
     session.post(url, data=recon_dict, headers={"Referer": url})
     time.sleep(10)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
