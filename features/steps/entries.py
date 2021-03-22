@@ -12,13 +12,13 @@ def step_impl(context, amount):
 @step("get {subject} number bills")
 def step_impl(context, subject):
     if subject == 'user':
-        url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/user/types/'
+        url = context.host + '/api/accounting_system/bills/user/types/'
         worker = GetRequest(context.fin_user, url)
         subject_dict = worker.json_list
         context.bill_list = [part['name'] for part in subject_dict]
         context.id_name_bill = {part['id']: part['name'] for part in subject_dict}
     elif subject == 'company':
-        url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
+        url = context.host +'/api/accounting_system/bills/company/'
         worker = GetRequest(context.fin_user, url)
         subject_dict = worker.json_list
         context.company_bill_list = [part['id'] for part in subject_dict]
@@ -87,7 +87,7 @@ def step_impl(context, time):
 @step("get csrf token")
 def step_impl(context):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+    url = context.host + '/api/accounting_system/entry/'
     headers = {
                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,'
                   'image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -100,7 +100,7 @@ def step_impl(context):
 @step("make post request to create entry")
 def step_impl(context):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+    url = context.host + '/api/accounting_system/entry/'
     request_dict = context.request
     response = session.post(url, data=request_dict, headers={"Referer": url})
     context.response_entry = eval(response.text)['entry']
@@ -108,7 +108,7 @@ def step_impl(context):
 @step("check status of entry: {status}")
 def step_impl(context, status):
     session = context.super_user
-    url = f'https://mytest-server.sg.com.ua:9999/admin/accounting_system/entry/{context.response_entry}/change/'
+    url = context.host + f'/admin/accounting_system/entry/{context.response_entry}/change/'
     worker = GetRequest(session, url)
     html_text = worker.text
     if status =='applied':
@@ -142,7 +142,7 @@ def step_impl(context):
 @step("make post request")
 def step_impl(context):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+    url = context.host + '/api/accounting_system/entry/'
     request_dict = context.request
     response = session.post(url, data=request_dict, headers={"Referer": url})
     context.response_entry = response.text
@@ -385,7 +385,7 @@ def step_impl(context, period):
     response = session.get(user_bill_url).text
     user_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
 
-    user_company_url = context.host + f'/admin/accounting_system/userbill/{context.user_bill}/change/'
+    user_company_url = context.host + f'/admin/accounting_system/companybill/{context.company_bills}/change/'
     response = session.get(user_company_url).text
     company_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
 

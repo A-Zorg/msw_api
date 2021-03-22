@@ -6,7 +6,7 @@ Feature: check ACCOUNTING
 
   Scenario Outline: check ACCOUNTING part of MSW api
     Then get data from accounting:<type>
-     And in accounting compare expgected with actual <type>
+     And in accounting compare s expected with actual <type>
     Examples: forward
         |  type          |
         |  account_data  |

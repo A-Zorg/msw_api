@@ -2,3 +2,4 @@ cred
 .idea
 venv
 reports/*.json
+/mark_report.py

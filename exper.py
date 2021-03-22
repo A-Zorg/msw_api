@@ -11,8 +11,8 @@ import requests
 import time
 import random
 
-# config = configparser.ConfigParser()
-# config.read("cred/config.ini")
+config = configparser.ConfigParser()
+config.read("cred/config.ini")
 # host = config['server']['host']
 # port = int(config['server']['port'])
 # user = config['server']['user']
@@ -122,11 +122,11 @@ import io
 
 
 # start = time.time()
-# url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?user[]=all&account[]=all&date_from=2021-02-19T00:00:00&date_to=2021-03-10T00:00:00'
+# url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?user[]=all&account[]=all&date_from=2021-02-01T00:00:00&date_to=2021-03-24T00:00:00'
 # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
 #     file.write(f'url - {url}'+ '\n')
-# # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-# #         file.write('Start of the requests: '+str(start) + '\n')
+# with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+#         file.write('Start of the requests: '+str(start) + '\n')
 # resp = session.get(url)
 # print(resp.status_code)
 # print(resp.text)
@@ -216,64 +216,96 @@ import io
 #     file.write(response.content)
 
 
-import os
-from zipfile import ZipFile
-import requests
+# import os
+# from zipfile import ZipFile
+# import requests
+#
+#
+# def past_report(bot_name):
+#     """download past report of some bot"""
+#
+#     request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+#     url = "https://gitlab.com/api/v4/projects/24782639/jobs"
+#     response = requests.get(url, headers=request_head)
+#     job_list = response.json()
+#     print(response.status_code)
+#
+#     for job in job_list:
+#         job_id = job['id']
+#         job_name = job['name']
+#         job_stage = job['stage']
+#
+#         if job_name == "pages" and job_stage == "deploy":
+#             request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
+#             url = "https://gitlab.com/api/v4/projects/24782639/jobs/{}/artifacts".format(job_id)
+#             print(url)
+#             response = requests.get(url, headers=request_head)
+#             print(response.status_code)
+#             # download file
+#             with open('./art.zip', 'wb') as file:
+#                 file.write(response.content)
+#
+#             # extract file
+#             with ZipFile('./art.zip') as myzip:
+#                 with myzip.open('public/widgets/summary.json') as myfile:
+#                     bot_nickname = eval(myfile.read())["reportName"]
+#                     if bot_name == bot_nickname:
+#                         myzip.extractall()
+#                         break
+#
+#
+# if __name__ == '__main__':
+#
+#     try:
+#         bot_name = os.environ['BOT_NAME']
+#     except:
+#         bot_name = "all_bots"
+#
+#     past_report(bot_name)
+#
+import datetime
+# from base.main_functions import download_from_server
+#
+# download_from_server(file_name='month_propreports_template.xlsx')
 
-
-def past_report(bot_name):
-    """download past report of some bot"""
-
-    request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
-    url = "https://gitlab.com/api/v4/projects/24782639/jobs"
-    response = requests.get(url, headers=request_head)
-    job_list = response.json()
-    print(response.status_code)
-
-    for job in job_list:
-        job_id = job['id']
-        job_name = job['name']
-        job_stage = job['stage']
-
-        if job_name == "pages" and job_stage == "deploy":
-            request_head = {"PRIVATE-TOKEN": "BWwoAwHkq8qr1gs8QMHr"}
-            url = "https://gitlab.com/api/v4/projects/24782639/jobs/{}/artifacts".format(job_id)
-            print(url)
-            response = requests.get(url, headers=request_head)
-            print(response.status_code)
-            # download file
-            with open('./art.zip', 'wb') as file:
-                file.write(response.content)
-
-            # extract file
-            with ZipFile('./art.zip') as myzip:
-                with myzip.open('public/widgets/summary.json') as myfile:
-                    bot_nickname = eval(myfile.read())["reportName"]
-                    if bot_name == bot_nickname:
-                        myzip.extractall()
-                        break
-
-
-if __name__ == '__main__':
-
-    try:
-        bot_name = os.environ['BOT_NAME']
-    except:
-        bot_name = "all_bots"
-
-    past_report(bot_name)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# phrase = "len(adj_net_list)-adj_net_list.count(0)>=2"
+# adj_net_to_be_modified = eval('["non zero->change", "non zero->change"] ')
+#
+# main_list = pd.read_excel('./base/files_for_ssh/month_propreports_template.xlsx')
+#
+# columns = list(main_list.columns)
+#
+# user_propreports_in_dict = dict()
+# for column in columns[1:]:
+#     user_propreports_in_dict[column] = list(main_list[column])
+#
+# for key, adj_net_list in user_propreports_in_dict.items():
+#     print(type(key))
+#     print(datetime.datetime)
+#     if eval(phrase) and type(key) == datetime.datetime:
+#         for adj_net_index in range(len(adj_net_list)):
+#             print(key)
+#             if 'zero->create' in adj_net_to_be_modified and adj_net_list[adj_net_index]==0:
+#                 adj_net_to_be_modified.remove('zero->create')
+#                 adj_net_list[adj_net_index] = random.randint(-100, 100)/4
+#                 print(adj_net_list)
+#                 continue
+#             elif 'non zero->delete' in adj_net_to_be_modified and adj_net_list[adj_net_index]!=0:
+#                 print("del")
+#                 adj_net_to_be_modified.remove('non zero->delete')
+#                 adj_net_list[adj_net_index] = 0
+#                 continue
+#             elif 'non zero->change' in adj_net_to_be_modified and adj_net_list[adj_net_index]!=0:
+#                 print("change")
+#                 adj_net_to_be_modified.remove('non zero->change')
+#                 adj_net_list[adj_net_index]= random.randint(-100, 100)/4
+#                 continue
+#         break
+#
+# print(user_propreports_in_dict)
+# # to_modified_user_propreports = pd.DataFrame(data=user_propreports_in_dict)
+# # to_modified_user_propreports.to_csv('base/files_for_ssh/month_propreports.csv')
+# #
+a = 'add <request> amount of rows to the fields:"Заказаное inv"'
+import re
+print(str(5) in ['5','6'])

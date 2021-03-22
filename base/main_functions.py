@@ -1,11 +1,17 @@
 import random
+import configparser
 from datetime import date, timedelta
 import re
+import time
 from telethon import TelegramClient
 import imaplib
 import email
 from email.header import decode_header
+import paramiko
+from base.sql_functions import pgsql_select
 
+config = configparser.ConfigParser()
+config.read("cred/config.ini")
 
 class GetRequest():
 
@@ -62,6 +68,29 @@ def random_filter_generator(item_list, patern):
 #                  'current_day': date.today().day,
 #                  }
 #     return date_dict
+
+def wait_periodictask_to_be_done(task_name):
+    """
+    wait for some periodic task to be done
+    take = name of the task
+    return task_state
+    after 10 min - exit from function if task would not be done
+    """
+    request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
+    start_id = pgsql_select(request=request, **config['pg_db'])[0][0]
+
+    start_time = time.time()
+    while (time.time() - start_time) < 600:
+        request = 'SELECT * FROM public.django_celery_results_taskresult ' \
+                  f'WHERE id > {start_id} and task_name=\'{task_name}\'' \
+                  'ORDER BY id ASC '
+        result = pgsql_select(request=request, **config['pg_db'])
+
+        if result:
+            return result[0][2]
+        time.sleep(1)
+    return "FAILURE"
+
 def prev_current_date():
     current_date = date.today()
     prev_month_date = current_date.replace(day=1) - timedelta(days=1)
@@ -109,8 +138,35 @@ def find_button( messages, button_name):
                 if re.search(button_name,button.text ):
                     return button
 
-def get_last_email(username, password):
+def run_periodic_task(session, task_name):
+    """run periodic task"""
+    url = config['host']['host']+ '/admin/django_celery_beat/periodictask/'
+    token = get_token(session, url)
+    task_id = config['periodic_tasks'][task_name]
 
+    recon_dict = {
+        'csrfmiddlewaretoken': token,
+        'action': 'run_tasks',
+        'select_across': '0',
+        'index': '0',
+        '_selected_action': task_id,
+    }
+    response = session.post(url, data=recon_dict, headers={"Referer": url})
+
+    return response.ok
+
+def correct_py_file(file_name, old_new_parts):
+    """change part in file"""
+    with open(f'./base/files_for_ssh/{file_name}_template.py', 'r') as file:
+        text = file.read()
+        for old_part, new_part in old_new_parts.items():
+            text = text.replace(old_part, new_part)
+        with open(f'./base/files_for_ssh/{file_name}.py', 'w') as file2:
+            file2.write(text)
+    return True
+
+
+def get_last_email(username, password):
     with imaplib.IMAP4_SSL("imap.gmail.com") as imap:
         imap.login(username, password)
 
@@ -162,9 +218,68 @@ def get_parts_from_number(number, qty):
 
     return numbers_list
 
+"""------------------------------SSH functions---------------------------------------------"""
+def uploader(host, password, username, port, file_name):
+    """upload file to the server"""
+    # upload file
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        remotepath = f'{config["server_dir"]["path"]}{file_name}'
+        localpath = f'./base/files_for_ssh/{file_name}'
+        sftp.put(localpath, remotepath)
 
+        sftp.close()
 
+def runner(host, password, username, port, file_name):
+    """run .py through the django project"""
+    with paramiko.SSHClient() as client:
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(
+            hostname=host,
+            username=username,
+            password=password,
+            port=port
+        )
+        command = f'cd {config["dir_django_proj"]["path"]} && ' \
+                  f'python3 manage.py shell < {config["server_dir"]["path"]}{file_name}'
+        stdin, stdout, stderr = client.exec_command(command)
+        exit_status = stdout.channel.recv_exit_status()  # Blocking call
+        if exit_status == 0:
+            print("The creation is finished")
+        else:
+            print("Error", exit_status)
 
+def change_db_through_django(file_name):
+    """upload .py to the server and run it"""
+    data_dict = {
+        'host': config["server"]["host"],
+        'port': config["server"]["port"],
+        'username': config["server"]["user"],
+        'password': config["server"]["secret"],
+        'file_name': file_name+'.py',
+    }
+    # upload file
+    uploader(**data_dict)
+    # run file
+    runner(**data_dict)
+
+def download_from_server(file_name):
+    """download"""
+    host = config["server"]["host"]
+    port = config["server"]["port"]
+    username = config["server"]["user"]
+    password = config["server"]["secret"]
+
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+
+        remotepath = f'{config["server_dir"]["path"]}{file_name}'
+        localpath = f'./base/files_for_ssh/{file_name}'
+        sftp.get(remotepath, localpath)
+
+        sftp.close()
 
 
 

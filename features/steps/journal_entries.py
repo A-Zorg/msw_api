@@ -7,9 +7,9 @@ from base.main_functions import GetRequest, random_filter_generator, \
 @step("get {subject} bills")
 def step_impl(context, subject):
     if subject == 'company':
-        url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
+        url = context.host + '/api/accounting_system/bills/company/'
     elif subject == 'user':
-        url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/user/types/'
+        url = context.host + '/api/accounting_system/bills/user/types/'
 
     worker = GetRequest(context.fin_user, url)
     subject_dict = worker.json_list
@@ -27,7 +27,7 @@ def step_impl(context, key):
 
     url_accounts, accounts = random_filter_generator(context.bill_list, 'account')
 
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?'\
+    url = context.host + '/api/accounting_system/entries/?'\
           +url_users\
           +url_accounts
 
@@ -71,7 +71,7 @@ def step_impl(context, key):
 """-----------------------------------------------------------------"""
 @step("create url with {key} date")
 def step_impl(context, key):
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?user[]=all&account[]=all&'
+    url = context.host + '/api/accounting_system/entries/?user[]=all&account[]=all&'
 
     date_dict = prev_current_date()
     if key == 'appropriate':
@@ -102,7 +102,7 @@ def step_impl(context):
 
 @step("result of {key} interval")
 def step_impl(context, key):
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/?user[]=all&account[]=all&'
+    url = context.host + '/api/accounting_system/entries/?user[]=all&account[]=all&'
 
     if key == 'first':
         worker = GetRequest(context.fin_user, url + context.date_one)

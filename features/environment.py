@@ -14,7 +14,7 @@ config.read("cred/config.ini")
 
 def before_all(context):
     """create data set"""
-    generate_data(10)
+    generate_data(5)
 
     """upload dataset to the server"""
     upload_server(**config['server'])
@@ -31,8 +31,8 @@ def before_all(context):
     """create sessions of users"""
     use_fixture(session, context)
 
-    # # """make precondition steps to check ACCOUNTING"""
-    # # make_accounting_precondition(config['manager_id']['hr_id'], context)
+    """make precondition steps to check ACCOUNTING"""
+    make_accounting_precondition(config['manager_id']['hr_id'], context)
 
     """perform reconciliation"""
     start_reconciliation(context.super_user)

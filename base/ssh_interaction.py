@@ -5,7 +5,7 @@ from datetime import date, timedelta
 import re
 import time
 
-def upload_server(host,user,secret,port):
+def upload_server(host, user, secret, port):
     transport = paramiko.Transport((host, int(port)))
     transport.connect(username=user, password=secret)
     sftp = paramiko.SFTPClient.from_transport(transport)
@@ -23,7 +23,7 @@ def upload_server(host,user,secret,port):
     sftp.close()
     transport.close()
 
-def loader(host,user,secret,port, sec=25):
+def loader(host, user, secret, port, sec=25):
     client = paramiko.SSHClient()
     client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
     client.connect(hostname=host, username=user, password=secret, port=port)
