@@ -1,102 +1,90 @@
 import paramiko
-import requests
-import pyotp
-from datetime import date, timedelta
-import re
-import time
+from base.main_functions import correct_py_file
 
-def upload_server(host, user, secret, port):
-    transport = paramiko.Transport((host, int(port)))
-    transport.connect(username=user, password=secret)
-    sftp = paramiko.SFTPClient.from_transport(transport)
 
-    file_list = ['accounts', 'fees', 'main_users', 'services', 'user_bills', 'userdata', 'users']
-    for name in file_list:
-        remotepath = f'/home/alex_zatushevkiy/3/{name}.csv'
-        localpath = f'C:/Users/wsu/PycharmProjects/msw_api/base/data_set/{name}.csv'
+def uploader(context, file_name, file_dir):
+    """upload file to the server"""
+    # upload file
+    host = context.custom_config['server']['host']
+    port = context.custom_config['server']['port']
+    password = context.custom_config['server']['password']
+    username = context.custom_config['server']['username']
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        remotepath = f'{context.custom_config["server_dir"]}{file_name}'
+        localpath = f'{file_dir}/{file_name}'
         sftp.put(localpath, remotepath)
+        sftp.close()
 
-    remotepath = '/home/alex_zatushevkiy/3/manager_id.txt'
-    localpath = 'C:/Users/wsu/PycharmProjects/msw_api/base/data_set/manager_id.txt'
-    sftp.put(localpath, remotepath)
+def runner(context, file_name):
+    """run .py through the django project"""
+    with paramiko.SSHClient() as client:
+        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        client.connect(
+            hostname=context.custom_config['server']['host'],
+            port=context.custom_config['server']['port'],
+            username=context.custom_config['server']['username'],
+            password=context.custom_config['server']['password']
+        )
+        command = f'cd {context.custom_config["dir_django_proj"]} && ' \
+                  f'python3 manage.py shell < {context.custom_config["server_dir"]}{file_name}'
+        stdin, stdout, stderr = client.exec_command(command)
+        exit_status = stdout.channel.recv_exit_status()  # Blocking call
+        if exit_status == 0:
+            print("The creation is finished")
+        else:
+            print("Error", exit_status)
 
-    sftp.close()
-    transport.close()
+def change_db_through_django(context, file_name, file_dir):
+    """upload .py to the server and run it"""
+    file_name = file_name + '.py'
+    # upload file
+    uploader(context, file_name, file_dir)
+    # run file
+    runner(context, file_name)
 
-def loader(host, user, secret, port, sec=25):
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname=host, username=user, password=secret, port=port)
+# def download_from_server(file_name):
+#     """download"""
+#     host = config["server"]["host"]
+#     port = config["server"]["port"]
+#     username = config["server"]["user"]
+#     password = config["server"]["secret"]
+#
+#     with paramiko.Transport((host, int(port))) as transport:
+#         transport.connect(username=username, password=password)
+#         sftp = paramiko.SFTPClient.from_transport(transport)
+#
+#         remotepath = f'{config["server_dir"]["path"]}{file_name}'
+#         localpath = f'./base/files_for_ssh/{file_name}'
+#         sftp.get(remotepath, localpath)
+#
+#         sftp.close()
+#
+#
 
-    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && '
-                                                'python3 manage.py shell < /home/alex_zatushevkiy/3/loader.py')
-    client.close()
-    time.sleep(sec)
 
-def cleaner(host,user,secret,port):
-    client = paramiko.SSHClient()
-    client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    client.connect(hostname=host, username=user, password=secret, port=port)
-
-    stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw && '
-                                                'python3 manage.py shell < /home/alex_zatushevkiy/3/cleaner.py')
-    client.close()
-
-def create_user_session(username, password, totp):
-    start = 'https://mytest-server.sg.com.ua:9999/admin/'
-    end = 'https://mytest-server.sg.com.ua:9999/admin/login/?next=/admin/'
-    session = requests.Session()
-    totp_code = pyotp.TOTP(totp)
-
-    session.get(start)
-    request_dict = {'username': username, 'password': password, 'next': '/admin/'}
-    request_dict['csrfmiddlewaretoken'] = session.cookies['csrftoken']
-    request_dict['otp_token'] = totp_code.now()
-    session.post(end, data=request_dict, headers={"Referer": end})
-    return session
-
-def start_reconciliation(sess):
-    session = sess
-    url = 'https://mytest-server.sg.com.ua:9999/admin/reconciliation/statusreconciliation/1/change/'
-
-    get = session.get(url)
-    csrfmiddlewaretoken = re.findall('name="csrfmiddlewaretoken" value="(.+)">', get.text)[0]
-
-    date_activated_0 = date.today() - timedelta(3)
-    date_stopped_0 = date.today() + timedelta(1)
-
-    recon_dict = {
-        'csrfmiddlewaretoken' : csrfmiddlewaretoken,
-        'status': 'on',
-        'date_activated_0': date_activated_0,
-        'date_activated_1': '16:18:47',
-        'date_stopped_0': date_stopped_0,
-        'date_stopped_1': '16:18:47',
-        '_save': 'Save',
+def upload_files_server(context):
+    old_new_parts={
+        '{PATH}': context.custom_config['server_dir']
+    }
+    correct_py_file("loader",old_new_parts)
+    files_list = {
+        'accounts.csv': './base/data_set',
+        'fees.csv': './base/data_set',
+        'main_users.csv': './base/data_set',
+        'services.csv': './base/data_set',
+        'user_bills.csv': './base/data_set',
+        'userdata.csv': './base/data_set',
+        'users.csv': './base/data_set',
+        'manager_id.txt': './base/data_set',
+        'loader.py': './base/files_for_ssh',
+        'cleaner.py': './base/files_for_ssh',
+        'prop.xlsx': './base/data_set'
     }
 
-    session.post(url, data=recon_dict, headers={"Referer": url})
-    time.sleep(5)
-
-def stop_reconciliation(sess):
-    session = sess
-    url = 'https://mytest-server.sg.com.ua:9999/admin/django_celery_beat/periodictask/'
-
-    get = session.get(url)
-    csrfmiddlewaretoken = re.findall('name="csrfmiddlewaretoken" value="(.+)">', get.text)[0]
-
-    recon_dict = {
-        'csrfmiddlewaretoken' : csrfmiddlewaretoken,
-        'action': 'run_tasks',
-        'select_across': '0',
-        'index': '0',
-        '_selected_action': '6',
-    }
-
-    session.post(url, data=recon_dict, headers={"Referer": url})
-    time.sleep(10)
-
-
+    for file_name, file_dir in files_list.items():
+        uploader(context, file_name=file_name, file_dir=file_dir)
 
 
 

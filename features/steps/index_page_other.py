@@ -1,23 +1,16 @@
 from behave import *
 from behave.api.async_step import async_run_until_complete
 from base.main_functions import GetRequest, get_token, find_button
-from behave.api.async_step import async_run_until_complete
-import pandas as pd
 import psycopg2
 import datetime
 import requests
 import random
-import configparser
-
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
-
 
 
 
 @step("get all books and sort by author")
 def step_impl(context):
-    url = f'https://mytest-server.sg.com.ua:9999/api/index/books/?search_string=' \
+    url = context.custom_config["host"] + f'api/index/books/?search_string=' \
           f'&sections_id=&include=themes&limit=500&offset=0&sort_by=popularity' \
           f'&sort_order=desc'
     session = context.manager_user
@@ -36,7 +29,7 @@ def step_impl(context):
     author_list = list(context.authors.keys())
     context.author = random.choice(author_list)
 
-    context.url = f'https://mytest-server.sg.com.ua:9999/api/index/books/?search_string={context.author}' \
+    context.url = context.custom_config["host"] + f'api/index/books/?search_string={context.author}' \
           f'&sections_id=&include=themes&limit=100&offset=0&sort_by=popularity' \
           f'&sort_order=desc'
 
@@ -77,8 +70,8 @@ def step_impl(context):
         url = f"https://public-holiday.p.rapidapi.com/2021/{country}"
 
         headers = {
-            'x-rapidapi-key': config['holidays_api']['x-rapidapi-key'],
-            'x-rapidapi-host': config['holidays_api']['x-rapidapi-host']
+            'x-rapidapi-key': context.custom_config['holidays_api']['x-rapidapi-key'],
+            'x-rapidapi-host': context.custom_config['holidays_api']['x-rapidapi-host']
         }
 
         response = requests.get(
@@ -88,19 +81,16 @@ def step_impl(context):
         for i in response.json():
             if holidays.get(i['name']) == '':
                 holidays[i['name']] = datetime.date.fromisoformat(i['date'])
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(holidays) + '\n')
     holidays['Labor Day'] = holidays['Labour Day']
     context.exp_holidays = holidays
 
 @step("compare holidays from endpoint")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/holidays/'
+    url = context.custom_config["host"] + 'api/index/holidays/'
     session = context.manager_user
     response = session.get(url)
 
     formating = lambda part: '-'.join(part['date'].split('.')[::-1])
-
     act_holidays = {part['name'] : datetime.date.fromisoformat(formating(part)) for part in response.json()}
     result = [act_holidays[key] == context.exp_holidays[key] for key in act_holidays.keys()]
 
@@ -109,7 +99,7 @@ def step_impl(context):
 """--------------------------------------------------CHECK SERV&COMP index_page-------------------------------------------------"""
 @step("check /api/index/services_compensations/")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/services_compensations/'
+    url = context.custom_config["host"] + 'api/index/services_compensations/'
     session = context.manager_user
     response = session.get(url)
 
@@ -135,7 +125,7 @@ def step_impl(context):
 
 @step("get users data from db")
 def step_impl(context):
-    with psycopg2.connect(**config['pg_db']) as con:
+    with psycopg2.connect(**context.custom_config['pg_db']) as con:
         cur = con.cursor()
 
         cur.execute("SELECT  g.id, g.name, array_agg(p.permission_id) "
@@ -175,7 +165,7 @@ def step_impl(context):
 @step("compare data from endpoint and db")
 def step_impl(context):
     session = context.fin_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/users/'
+    url = context.custom_config["host"] + 'api/index/users/'
     response = session.get(url)
 
     result = sorted(response.json(), key=lambda i: i['id'])
@@ -190,7 +180,7 @@ def step_impl(context):
 @step("get books categories from endpoint")
 def step_impl(context):
     session = context.manager_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/books/categories/'
+    url = context.custom_config["host"] + 'api/index/books/categories/'
     response = session.get(url)
     context.act_categories = response.json()
 
@@ -199,7 +189,7 @@ def step_impl(context):
 
 @step("compare books_categories from endpoint and template")
 def step_impl(context):
-    with open('base/data_set/book_categories.txt', 'r',encoding='utf-8') as file:
+    with open('base/data_set/book_categories.txt', 'r', encoding='utf-8') as file:
         exp_categories = eval(file.read())
 
         assert exp_categories == context.act_categories
@@ -221,7 +211,7 @@ def step_impl(context):
 @step("probe {number}")
 def step_impl(context, number):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/'
     token = get_token(session,url)
 
 

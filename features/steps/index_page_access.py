@@ -1,5 +1,4 @@
 from behave import *
-from base.main_functions import GetRequest, get_token, find_button
 import requests
 
 persons={
@@ -11,7 +10,7 @@ persons={
 
 @step("{person} makes request: {part} , result: {code}")
 def step_impl(context,person, part, code):
-    url = 'https://mytest-server.sg.com.ua:9999/api' + part
+    url = context.custom_config["host"] + 'api' + part
     session = eval(persons[person])
     response = session.options(url)
 

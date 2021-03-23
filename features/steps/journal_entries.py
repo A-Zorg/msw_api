@@ -7,9 +7,9 @@ from base.main_functions import GetRequest, random_filter_generator, \
 @step("get {subject} bills")
 def step_impl(context, subject):
     if subject == 'company':
-        url = context.host + '/api/accounting_system/bills/company/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     elif subject == 'user':
-        url = context.host + '/api/accounting_system/bills/user/types/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/user/types/'
 
     worker = GetRequest(context.fin_user, url)
     subject_dict = worker.json_list
@@ -27,14 +27,13 @@ def step_impl(context, key):
 
     url_accounts, accounts = random_filter_generator(context.bill_list, 'account')
 
-    url = context.host + '/api/accounting_system/entries/?'\
+    url = context.custom_config["host"] + 'api/accounting_system/entries/?'\
           +url_users\
           +url_accounts
 
 
     context.accounts = [ context.id_name_bill[i] for i in accounts]
     context.url = url
-
 
 @step("add date to journal entries url")
 def step_impl(context):
@@ -44,7 +43,6 @@ def step_impl(context):
     url_date = f'date_from={date_dict["prev_year"]}-{date_dict["prev_month"]}-28T00:00:00&' \
                f'date_to={date_dict["current_year"]}-{date_dict["current_month"]}-01T00:00:00'
     context.url+=url_date
-
 
 @step("{subject} entries which {key} chosen")
 def step_impl(context, subject, key):
@@ -60,7 +58,6 @@ def step_impl(context, subject, key):
     elif key == "were not" or "weren't":
         context.not_choosen_entries = [ entry for entry in context.entries if entry not in second_clean]
 
-
 @step("check {key} entries")
 def step_impl(context, key):
     worker = GetRequest(context.fin_user, context.url)
@@ -71,7 +68,7 @@ def step_impl(context, key):
 """-----------------------------------------------------------------"""
 @step("create url with {key} date")
 def step_impl(context, key):
-    url = context.host + '/api/accounting_system/entries/?user[]=all&account[]=all&'
+    url = context.custom_config["host"] + 'api/accounting_system/entries/?user[]=all&account[]=all&'
 
     date_dict = prev_current_date()
     if key == 'appropriate':
@@ -80,7 +77,7 @@ def step_impl(context, key):
     elif key == 'inappropriate':
         url_date = f'date_from={date_dict["prev_year"]}-{date_dict["prev_month"]}-24T00:00:00&' \
                    f'date_to={date_dict["prev_year"]}-{date_dict["prev_month"]}-26T00:00:00'
-    context.url = url+url_date
+    context.url = url + url_date
 
 @step("check reconciliation entries with {key} date")
 def step_impl(context, key):
@@ -102,7 +99,7 @@ def step_impl(context):
 
 @step("result of {key} interval")
 def step_impl(context, key):
-    url = context.host + '/api/accounting_system/entries/?user[]=all&account[]=all&'
+    url = context.custom_config["host"] + 'api/accounting_system/entries/?user[]=all&account[]=all&'
 
     if key == 'first':
         worker = GetRequest(context.fin_user, url + context.date_one)
@@ -117,4 +114,4 @@ def step_impl(context, key):
 @step("compare results of different time intervals")
 def step_impl(context):
     intersect = context.result_first.intersection(context.result_second)
-    assert  not intersect
+    assert not intersect

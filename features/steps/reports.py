@@ -1,14 +1,14 @@
 from behave import *
 from base.main_functions import GetRequest, random_filter_generator, \
     prev_current_date
-from datetime import datetime, timedelta
+from datetime import datetime
 
 @step("get {subject} bills for reports")
 def step_impl(context, subject):
     if subject == 'company':
-        url = context.host + '/api/accounting_system/bills/company/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     elif subject == 'user':
-        url = context.host + '/api/accounting_system/bills/user/types/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/user/types/'
     worker = GetRequest(context.fin_user, url)
     subject_dict = worker.json_list
 
@@ -18,7 +18,7 @@ def step_impl(context, subject):
 
 @step("get report_fields")
 def step_impl(context):
-    url = context.host + '/api/accounting_system/report_fields/'
+    url = context.custom_config["host"] + 'api/accounting_system/report_fields/'
 
     worker = GetRequest(context.fin_user, url)
     subject_dict = worker.json_list
@@ -28,7 +28,7 @@ def step_impl(context):
 
 @step("formation of url for report: {key} with {datum} date")
 def step_impl(context, key, datum):
-    url = context.host + '/api/accounting_system/report/?'
+    url = context.custom_config["host"] + 'api/accounting_system/report/?'
     date_dict = {
         "year": "",
         "month": "",
@@ -109,7 +109,7 @@ def step_impl(context):
 """-------------------------company------------------------------"""
 @step("formation of url for company report with {datum} date")
 def step_impl(context, datum):
-    url = context.host + '/api/accounting_system/report/?user[]=company&'
+    url = context.custom_config["host"] + 'api/accounting_system/report/?user[]=company&'
     date_dict = {
         "year": "",
         "month": "",

@@ -7,16 +7,13 @@ import psycopg2
 import io
 import requests
 from base64 import b64decode
-import configparser
 
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
 
 
 """"----------------------------------------CHECK CONTEST IMAGES-----------------------------------------"""
 @step("get endpoint image: {type_image}")
 def step_impl(context, type_image):
-    url = f'https://mytest-server.sg.com.ua:9999/api/media/contest/{type_image}/image'
+    url = context.custom_config["host"] + f'api/media/contest/{type_image}/image'
     session = context.super_user
     response = GetRequest(session, url)
 
@@ -33,7 +30,7 @@ def step_impl(context):
 
 @step("get new image")
 def step_impl(context):
-    context.new_image_file = open('base/data_set/clown.jpg','rb')
+    context.new_image_file = open('base/data_set/clown.jpg', 'rb')
     context.new_image = context.new_image_file.read()
     context.new_image_file.seek(0)
 
@@ -43,7 +40,7 @@ def step_impl(context):
 
 @step("upload {gen_image} through endpoint: {type_image}")
 def step_impl(context, gen_image, type_image):
-    url = f'https://mytest-server.sg.com.ua:9999/api/login/'
+    url = context.custom_config["host"] + f'api/login/'
     response = requests.options(url)
 
     headers = {
@@ -51,8 +48,8 @@ def step_impl(context, gen_image, type_image):
     }
 
     data = {
-        'username': config["super_user"]["username"],
-        'password': config["super_user"]["password"],
+        'username': context.custom_config["super_user"]["username"],
+        'password': context.custom_config["super_user"]["password"],
         'name_key': type_image
     }
     if gen_image == 'new image':
@@ -63,19 +60,18 @@ def step_impl(context, gen_image, type_image):
         'image': image
     }
     response = requests.post(
-        f'https://mytest-server.sg.com.ua:9999/api/media/contest/image_upload',
+        context.custom_config["host"] + f'api/media/contest/image_upload',
         headers=headers,
         data=data,
         files=files
     )
-
     assert response.ok
 
 
 @step('upload {gen_image} through Riskbot: {type_image}')
 @async_run_until_complete
 async def send_fees_to_riskbot(context, gen_image, type_image):
-    async with context.tele_user.conversation('sd_test8_bot') as conv:
+    async with context.tele_user.conversation(context.custom_config["risk_bot"]) as conv:
 
         await conv.send_message('/start')
         message = await conv.get_response()
@@ -91,7 +87,6 @@ async def send_fees_to_riskbot(context, gen_image, type_image):
         await button.click()
         await conv.get_response()
 
-
         if gen_image == 'new image':
             file = context.new_image_file
         elif gen_image == 'original image':
@@ -102,7 +97,7 @@ async def send_fees_to_riskbot(context, gen_image, type_image):
 
 @step("check contests endpoint: {cont_type}")
 def step_impl(context, cont_type):
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/contests/'
+    url = context.custom_config["host"] + 'api/index/contests/'
     session = context.manager_user
     response = GetRequest(session, url)
     contests = response.json_list
@@ -113,7 +108,7 @@ def step_impl(context, cont_type):
 
 @step("get endpoint icon: {type_icon}")
 def step_impl(context, type_icon):
-    url = f'https://mytest-server.sg.com.ua:9999/api/media/contest/{type_icon}/button'
+    url = context.custom_config["host"] + f'api/media/contest/{type_icon}/button'
     session = context.super_user
     context.response = session.get(url)
 
@@ -132,9 +127,10 @@ def step_impl(context):
     context.image = open('base/data_set/clown.jpg','rb')
     context.title = 'super news'
     context.text_news = 'A ab aspernatur at, aut cumque dicta dolore doloribus dolorum ea, error est et excepturi\n fugiat fugit harum inventore iste laudantium, minima minus molestias nesciunt perspiciatis \nquasi quis repudiandae saepe similique sit! '
+
 @step("create news")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/admin/index/news/add/'
+    url = context.custom_config["host"] + 'admin/index/news/add/'
     session = context.super_user
     token = get_token(session, url)
 
@@ -164,7 +160,7 @@ def step_impl(context):
 
 @step("get test_news id")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/news/'
+    url = context.custom_config["host"] + 'api/index/news/'
     session = context.super_user
     response = GetRequest(session, url)
     items = response.json_list['items']
@@ -180,7 +176,7 @@ def step_impl(context):
 
 @step("perform {proc} process")
 def step_impl(context, proc):
-    url = f'https://mytest-server.sg.com.ua:9999/api/index/news/{context.id}/{proc}/'
+    url = context.custom_config["host"] + f'api/index/news/{context.id}/{proc}/'
     session = context.manager_user
     token = get_token(session, url, 'X-CSRFToken')
 
@@ -188,17 +184,15 @@ def step_impl(context, proc):
         "Referer": url,
         "X-CSRFToken": token,
     }
-
     response = session.post(
         url,
         headers=headers,
     )
-
     assert response.ok
 
 @step("compare image of news with template image")
 def step_impl(context):
-    url = f'https://mytest-server.sg.com.ua:9999/api/media/news/{context.id}'
+    url = context.custom_config["host"] + f'api/media/news/{context.id}'
     session = context.manager_user
     response = session.get(url)
     context.image.seek(0)
@@ -207,7 +201,7 @@ def step_impl(context):
 
 @step("check all data of news")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/index/news/'
+    url = context.custom_config["host"] + 'api/index/news/'
     session = context.super_user
     response = GetRequest(session, url)
     items = response.json_list['items']
@@ -221,7 +215,7 @@ def step_impl(context):
 
 @step("delete created news")
 def step_impl(context):
-    with psycopg2.connect(**config['pg_db']) as con:
+    with psycopg2.connect(**context.custom_config['pg_db']) as con:
         cur = con.cursor()
 
         cur.execute(f"DELETE FROM index_postview WHERE post_id = {context.id};"

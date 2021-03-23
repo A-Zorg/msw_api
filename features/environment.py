@@ -1,26 +1,33 @@
-from behave import use_fixture
-from base.fixtures import session
-from base.ssh_interaction import cleaner, loader, start_reconciliation, stop_reconciliation, upload_server
-from base.data_set_creater import data_set_reconciliation, add_number_bills
-from allure_behave.hooks import allure_report
-from generator.total_generation import generate_data
-import configparser
-from base.google_sheet import update_gs
-from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
 import copy
+import os
+from behave import use_fixture
+from base.google_sheet import update_gs
+from allure_behave.hooks import allure_report
+from base.fixtures import session
+from base.adminka import finish_reconciliation_process
+from base.main_functions import get_custom_config
+from base.ssh_interaction import upload_files_server, runner
+from base.data_set_creater import data_set_reconciliation, add_number_bills
+from generator.total_generation import generate_data
+from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
 
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
-
+# os.environ['TEST_HOST'] = 'test'
 def before_all(context):
+    """create custom_config"""
+    try:
+        host = os.environ['TEST_HOST']
+    except:
+        host = 'test'
+    get_custom_config(context, host)
+
     """create data set"""
-    generate_data(5)
+    generate_data(10, context)
 
     """upload dataset to the server"""
-    upload_server(**config['server'])
+    upload_files_server(context)
 
     """upload dataset to msw"""
-    loader(**config['server'])
+    runner(context, "loader.py")
 
     """upload data to SERV&COMP table"""
     update_gs()
@@ -32,25 +39,19 @@ def before_all(context):
     use_fixture(session, context)
 
     """make precondition steps to check ACCOUNTING"""
-    make_accounting_precondition(config['manager_id']['hr_id'], context)
+    make_accounting_precondition(context)
 
     """perform reconciliation"""
-    start_reconciliation(context.super_user)
-    stop_reconciliation(context.super_user)
+    finish_reconciliation_process(context)
 
     """generate vars with data"""
     bills, entries = data_set_reconciliation()
-    context.bills, context.entries, context.userdata = add_number_bills(context.fin_user, bills, entries)
+    context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
     context.modified_bills = copy.deepcopy(context.bills)
-
-
-
 
 def after_all(context):
     """delete all generated data"""
-    cleaner(**config['server'])
+    runner(context, "cleaner.py")
 
-
-# #
-# """create allure reports"""
-# allure_report("reports/")
+"""create allure reports"""
+allure_report("allure-results/")

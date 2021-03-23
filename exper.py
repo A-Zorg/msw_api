@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import re
 import pandas as pd
 import requests
-from base.ssh_interaction import create_user_session
 from base.main_functions import get_token
 import paramiko
 import requests
@@ -23,7 +22,7 @@ config.read("cred/config.ini")
 # sftp = paramiko.SFTPClient.from_transport(transport)
 #
 #
-# remotepath = f'/home/alex_zatushevkiy/3/loader.py'
+# remotepath = f'/home/alex_zatushevkiy/3/loader_template.py'
 # localpath = f'C:/Users/wsu/Desktop/loader222.py'
 # sftp.get(remotepath, localpath)
 #
@@ -264,9 +263,9 @@ import io
 #     past_report(bot_name)
 #
 import datetime
-# from base.main_functions import download_from_server
-#
-# download_from_server(file_name='month_propreports_template.xlsx')
+from base.main_functions import download_from_server2
+
+download_from_server2(file_name='month_propreports.xlsx')
 
 # phrase = "len(adj_net_list)-adj_net_list.count(0)>=2"
 # adj_net_to_be_modified = eval('["non zero->change", "non zero->change"] ')

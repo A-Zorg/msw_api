@@ -1,11 +1,13 @@
+from datetime import datetime
+import random
 import pandas as pd
 from generator.dataset_generator import user_generator, bills_generator, \
     main_data_generator, accounts_generator, userdata_generator
-import random
-from datetime import datetime
-def generate_data(n):
+
+
+def generate_data(users_qty, context):
     """create file with users"""
-    user_gen = user_generator(n)
+    user_gen = user_generator(users_qty)
     to_user_file = pd.DataFrame(data=user_gen)
     to_user_file.to_csv('base/data_set/users.csv')
 
@@ -97,10 +99,6 @@ def generate_data(n):
     to_userdata_file.to_csv('base/data_set/userdata.csv')
 
     """______________________create txt with manager id___________________________"""
-    import configparser
-
-    config = configparser.ConfigParser()
-    config.read("cred/config.ini")
 
     with open('base/data_set/manager_id.txt','w') as file:
-        file.write(config['manager_id']['user_id'])
+        file.write(context.custom_config['manager_id']['user_id'])

@@ -1,12 +1,12 @@
 Feature: check "login"
 
-#  Scenario: logout-login cycle
-#    Given logout manager
-#     And get login token for authentication
-#     And perform login by manager
-#     And get 2fa token for authentication
-#    When pause - 32 sec(s)
-#    Then perform token auth. by manager
+  Scenario: logout-login cycle
+    Given logout manager
+     And get login token for authentication
+     And perform login by manager
+     And get 2fa token for authentication
+    When pause - 32 sec(s)
+    Then perform token auth. by manager
 
 
   Scenario: change password

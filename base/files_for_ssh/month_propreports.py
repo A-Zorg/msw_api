@@ -46,5 +46,5 @@ for index in range(len(active_accounts)):
 for key in month_result:
     print(str(key)+'-'+str(len(month_result[key])))
 to_userdata_file = pandas.DataFrame(data=month_result)
-to_userdata_file.to_excel('/home/alex_zatushevkiy/3/month_propreports_template.xlsx')
-to_userdata_file.to_excel('/home/alex_zatushevkiy/3/month_propreports.xlsx')
+to_userdata_file.to_excel('/home/alex_zatushevkiy/msw_api/month_propreports_template.xlsx')
+to_userdata_file.to_excel('/home/alex_zatushevkiy/msw_api/month_propreports.xlsx')

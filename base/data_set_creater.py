@@ -1,6 +1,4 @@
 import pandas as pd
-from base.ssh_interaction import create_user_session
-import time
 from datetime import datetime, timedelta
 
 def data_set_reconciliation():
@@ -138,12 +136,12 @@ def data_set_reconciliation():
 
 
 
-def add_number_bills(fin, bills, entries):
-    session = fin
+def add_number_bills(context, bills, entries):
+    session = context.fin_user
 
-    url_user = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/users/'
-    url_comp = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/bills/company/'
-    url_report = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/report_fields/'
+    url_user = context.custom_config["host"] + 'api/accounting_system/bills/users/'
+    url_comp = context.custom_config["host"] + 'api/accounting_system/bills/company/'
+    url_report = context.custom_config["host"] + 'api/accounting_system/report_fields/'
 
     response = session.get(url_user)
     user_bills = eval(response.text)

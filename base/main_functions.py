@@ -2,13 +2,10 @@ import random
 import configparser
 from datetime import date, timedelta
 import re
-import time
-from telethon import TelegramClient
 import imaplib
 import email
 from email.header import decode_header
-import paramiko
-from base.sql_functions import pgsql_select
+
 
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
@@ -32,13 +29,13 @@ class GetRequest():
         check_list = [i in self.text for i in name_list]
         return all(check_list)
 
-    def check_json(self, keys_list ):
+    def check_json(self, keys_list):
         for key in keys_list[:-5]:
             index = 0
             for part in self.json_list:
                 if all([str(i) in str(part) for i in key]):
-                    index+=1
-            if index!=1:
+                    index += 1
+            if index != 1:
                 return False
         return True
 
@@ -52,44 +49,6 @@ def random_filter_generator(item_list, patern):
     url_parts = [f'{patern}[]={i}&' for i in new_list]
     return ''.join(url_parts), new_list
 
-# def prev_current_date():
-#     current_month = date.today().month
-#     current_year = date.today().year
-#     prev_month = current_month - 1
-#     prev_year = current_year
-#     if prev_month == 0:
-#         prev_month = 12
-#         prev_year = current_year - 1
-#     date_dict = {
-#                  'current_month':current_month,
-#                  'current_year':current_year,
-#                  'prev_month':prev_month,
-#                  'prev_year':prev_year,
-#                  'current_day': date.today().day,
-#                  }
-#     return date_dict
-
-def wait_periodictask_to_be_done(task_name):
-    """
-    wait for some periodic task to be done
-    take = name of the task
-    return task_state
-    after 10 min - exit from function if task would not be done
-    """
-    request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
-    start_id = pgsql_select(request=request, **config['pg_db'])[0][0]
-
-    start_time = time.time()
-    while (time.time() - start_time) < 600:
-        request = 'SELECT * FROM public.django_celery_results_taskresult ' \
-                  f'WHERE id > {start_id} and task_name=\'{task_name}\'' \
-                  'ORDER BY id ASC '
-        result = pgsql_select(request=request, **config['pg_db'])
-
-        if result:
-            return result[0][2]
-        time.sleep(1)
-    return "FAILURE"
 
 def prev_current_date():
     current_date = date.today()
@@ -103,6 +62,7 @@ def prev_current_date():
         "prev_month_day" : prev_month_date.day
 }
     return date_dict
+
 def check_comming_entries(entries, subject_dict, key):
     for entry in entries:
         count = 0
@@ -129,16 +89,16 @@ def get_token(session, url, key='csrftoken'):
         token = re.findall('csrfToken: "([a-zA-Z0-9]*)"', html.text)[0]
     return token
 
-def find_button( messages, button_name):
+def find_button(messages, button_name):
     for message in messages:
-        if message.buttons==None:
+        if message.buttons == None:
             continue
         for butt_row in message.buttons:
             for button in butt_row:
                 if re.search(button_name,button.text ):
                     return button
 
-def run_periodic_task(session, task_name):
+def run_periodic_task(session, task_name):#sdfsdfsdfsdfsdf
     """run periodic task"""
     url = config['host']['host']+ '/admin/django_celery_beat/periodictask/'
     token = get_token(session, url)
@@ -207,6 +167,42 @@ def get_last_email(username, password):
                             except:
                                 pass
 
+def get_custom_config(context, host):
+    if host == "test":
+        context.custom_config = {
+            "super_user": config['super_user'],
+            "fin_user": config['fin_user'],
+            "manager_user": config['manager_user'],
+            "manager_id": config['manager_id'],
+            "server": config['server'],
+            "pg_db": config['pg_db'],
+            "holidays_api": config['holidays_api'],
+            "email": config['email'],
+            "host": config['host']['host'],
+            "dir_django_proj": config['dir_django_proj']['path'],
+            "server_dir": config['server_dir']['path'],
+            "telegram_user": config['telegram_user'],
+            "periodic_task": config['periodic_tasks']['test'],
+            "risk_bot": config['risk_bot']['name'],
+        }
+    elif host == "test_9999":
+        context.custom_config = {
+            "super_user": config['super_user_9999'],
+            "fin_user": config['fin_user_9999'],
+            "manager_user": config['manager_user_9999'],
+            "manager_id": config['manager_id_9999'],
+            "server": config['server'],
+            "pg_db": config['pg_db_9999'],
+            "holidays_api": config['holidays_api'],
+            "email": config['email'],
+            "host": config['host']['host_9999'],
+            "dir_django_proj": config['dir_django_proj']['path_9999'],
+            "server_dir": config['server_dir']['path'],
+            "telegram_user": config['telegram_user'],
+            "periodic_task": config['periodic_tasks']['test_9999'],
+            "risk_bot": config['risk_bot']['name'],
+        }
+
 """divide the number to the list of number which sum is equal to the initial number"""
 def get_parts_from_number(number, qty):
     numbers_list=[]
@@ -217,72 +213,6 @@ def get_parts_from_number(number, qty):
     numbers_list.append(number)
 
     return numbers_list
-
-"""------------------------------SSH functions---------------------------------------------"""
-def uploader(host, password, username, port, file_name):
-    """upload file to the server"""
-    # upload file
-    with paramiko.Transport((host, int(port))) as transport:
-        transport.connect(username=username, password=password)
-        sftp = paramiko.SFTPClient.from_transport(transport)
-        remotepath = f'{config["server_dir"]["path"]}{file_name}'
-        localpath = f'./base/files_for_ssh/{file_name}'
-        sftp.put(localpath, remotepath)
-
-        sftp.close()
-
-def runner(host, password, username, port, file_name):
-    """run .py through the django project"""
-    with paramiko.SSHClient() as client:
-        client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-        client.connect(
-            hostname=host,
-            username=username,
-            password=password,
-            port=port
-        )
-        command = f'cd {config["dir_django_proj"]["path"]} && ' \
-                  f'python3 manage.py shell < {config["server_dir"]["path"]}{file_name}'
-        stdin, stdout, stderr = client.exec_command(command)
-        exit_status = stdout.channel.recv_exit_status()  # Blocking call
-        if exit_status == 0:
-            print("The creation is finished")
-        else:
-            print("Error", exit_status)
-
-def change_db_through_django(file_name):
-    """upload .py to the server and run it"""
-    data_dict = {
-        'host': config["server"]["host"],
-        'port': config["server"]["port"],
-        'username': config["server"]["user"],
-        'password': config["server"]["secret"],
-        'file_name': file_name+'.py',
-    }
-    # upload file
-    uploader(**data_dict)
-    # run file
-    runner(**data_dict)
-
-def download_from_server(file_name):
-    """download"""
-    host = config["server"]["host"]
-    port = config["server"]["port"]
-    username = config["server"]["user"]
-    password = config["server"]["secret"]
-
-    with paramiko.Transport((host, int(port))) as transport:
-        transport.connect(username=username, password=password)
-        sftp = paramiko.SFTPClient.from_transport(transport)
-
-        remotepath = f'{config["server_dir"]["path"]}{file_name}'
-        localpath = f'./base/files_for_ssh/{file_name}'
-        sftp.get(remotepath, localpath)
-
-        sftp.close()
-
-
-
 
 
 

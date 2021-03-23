@@ -1,7 +1,7 @@
 from behave import *
 from base.main_functions import GetRequest, get_parts_from_number, get_token
 import random
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import re
 import time
 
@@ -9,20 +9,22 @@ import time
 @step("pause - {amount} sec(s)")
 def step_impl(context, amount):
     time.sleep(int(amount))
+
 @step("get {subject} number bills")
 def step_impl(context, subject):
     if subject == 'user':
-        url = context.host + '/api/accounting_system/bills/user/types/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/user/types/'
         worker = GetRequest(context.fin_user, url)
         subject_dict = worker.json_list
         context.bill_list = [part['name'] for part in subject_dict]
         context.id_name_bill = {part['id']: part['name'] for part in subject_dict}
     elif subject == 'company':
-        url = context.host +'/api/accounting_system/bills/company/'
+        url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
         worker = GetRequest(context.fin_user, url)
         subject_dict = worker.json_list
         context.company_bill_list = [part['id'] for part in subject_dict]
         context.company_id_name_bill = {part['id']: part['name'] for part in subject_dict}
+
 @step("define request form")
 def step_impl(context):
     context.request = {'transaction_out.user_bill': '',
@@ -40,9 +42,9 @@ def step_impl(context):
     context.request['transaction_common.amount_usd'] = random.randint(1,10000)
 
 """
-    Example of context.modified_bills
-    {90000: [{'Current Net balance': 1540.0, 'id': 42976}, ...
-    'company': [{'Company ServComp': 11727, 'id': 107},...}
+Example of context.modified_bills
+{90000: [{'Current Net balance': 1540.0, 'id': 42976}, ...
+'company': [{'Company ServComp': 11727, 'id': 107},...}
 """
 
 @step("random choice TRANSACTION {direction} {from_bill} bill")
@@ -57,7 +59,7 @@ def step_impl(context, direction, from_bill):
         """insert number bill to request form and change amount of bill"""
         if direction == 'FROM':
             context.request['transaction_out.user_bill'] = bill_id
-            user_bill[name_user_bill]-=context.request['transaction_common.amount_usd']
+            user_bill[name_user_bill] -= context.request['transaction_common.amount_usd']
         elif direction == 'TO':
             context.request['transaction_in.user_bill'] = bill_id
             user_bill[name_user_bill] += context.request['transaction_common.amount_usd']
@@ -76,18 +78,18 @@ def step_impl(context, direction, from_bill):
             context.request['transaction_in.company_bill'] = bill_id
             company_bill[name_company_bill] += context.request['transaction_common.amount_usd']
 
-@step("get of {time} date")
-def step_impl(context, time):
-    if time == 'PAST':
+@step("get of {time_} date")
+def step_impl(context, time_):
+    if time_ == 'PAST':
         date_pick = datetime.now()-timedelta(minutes=5)
-    elif time == 'FUTURE':
+    elif time_ == 'FUTURE':
         date_pick = datetime.now() + timedelta(seconds=10)
     context.request['entry.date_to_execute'] = str(date_pick)
 
 @step("get csrf token")
 def step_impl(context):
     session = context.super_user
-    url = context.host + '/api/accounting_system/entry/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/'
     headers = {
                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,'
                   'image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
@@ -100,7 +102,7 @@ def step_impl(context):
 @step("make post request to create entry")
 def step_impl(context):
     session = context.super_user
-    url = context.host + '/api/accounting_system/entry/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/'
     request_dict = context.request
     response = session.post(url, data=request_dict, headers={"Referer": url})
     context.response_entry = eval(response.text)['entry']
@@ -108,23 +110,23 @@ def step_impl(context):
 @step("check status of entry: {status}")
 def step_impl(context, status):
     session = context.super_user
-    url = context.host + f'/admin/accounting_system/entry/{context.response_entry}/change/'
+    url = context.custom_config["host"] + f'admin/accounting_system/entry/{context.response_entry}/change/'
     worker = GetRequest(session, url)
     html_text = worker.text
-    if status =='applied':
+    if status == 'applied':
         assert 'selected>Applied' in html_text
-    elif status =='pending':
+    elif status == 'pending':
         assert 'selected>Pending' in html_text
 
 """-------------------------------------"""
 @step("define template request form")
 def step_impl(context):
     session = context.fin_user
-    url = context.host + '/api/accounting_system/bills/users/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/users/'
     worker = GetRequest(session, url)
     user_bill = worker.json_list[0]['id']
 
-    url = context.host + '/api/accounting_system/bills/company/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     worker = GetRequest(session, url)
     company_bills = worker.json_list
 
@@ -142,7 +144,7 @@ def step_impl(context):
 @step("make post request")
 def step_impl(context):
     session = context.super_user
-    url = context.host + '/api/accounting_system/entry/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/'
     request_dict = context.request
     response = session.post(url, data=request_dict, headers={"Referer": url})
     context.response_entry = response.text
@@ -251,11 +253,11 @@ def step_impl(context, direction):
                         }
         )
         company_bill[name_company_bill] += context.transaction_amount
-@step("get of {time} date of mass transaction")
-def step_impl(context, time):
-    if time == 'PAST':
+@step("get of {time_} date of mass transaction")
+def step_impl(context, time_):
+    if time_ == 'PAST':
         date_pick = datetime.now()-timedelta(minutes=5)
-    elif time == 'FUTURE':
+    elif time_ == 'FUTURE':
         date_pick = datetime.now() + timedelta(seconds=10)
     context.request['entry']['date_to_execute'] = str(date_pick)
 
@@ -263,7 +265,7 @@ def step_impl(context, time):
 def step_impl(context):
     session = context.super_user
 
-    url = context.host +'/api/accounting_system/entry/multiple_transactions/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/multiple_transactions/'
     token = get_token(session=session, url=url)
     request_dict = context.request
 
@@ -283,11 +285,11 @@ def step_impl(context):
 def step_impl(context):
     session = context.fin_user
 
-    url = context.host+'/api/accounting_system/bills/users/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/users/'
     worker = GetRequest(session, url)
     user_bills = worker.json_list
 
-    url = context.host+'/api/accounting_system/bills/company/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     worker = GetRequest(session, url)
     company_bills = worker.json_list
 
@@ -325,7 +327,6 @@ def step_impl(context):
 def step_impl(context, command):
     commands_list = eval(command)
     for comm in commands_list:
-
         if comm[0] == 'del':
             transaction_side = comm[1][0]
             bill = comm[1][1]
@@ -340,7 +341,7 @@ def step_impl(context, command):
 def step_impl(context):
     session = context.super_user
 
-    url = context.host +'/api/accounting_system/entry/multiple_transactions/'
+    url = context.custom_config["host"] + 'api/accounting_system/entry/multiple_transactions/'
     token = get_token(session=session, url=url)
     request_dict = context.request
 
@@ -358,11 +359,11 @@ def step_impl(context):
 @step("define template request form and remember user and company bills")
 def step_impl(context):
     session = context.fin_user
-    url = context.host + '/api/accounting_system/bills/users/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/users/'
     worker = GetRequest(session, url)
     context.user_bill = worker.json_list[0]['id']
 
-    url = context.host + '/api/accounting_system/bills/company/'
+    url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     worker = GetRequest(session, url)
     context.company_bills = worker.json_list[0]['id']
 
@@ -381,11 +382,11 @@ def step_impl(context):
 def step_impl(context, period):
     session = context.super_user
 
-    user_bill_url = context.host + f'/admin/accounting_system/userbill/{context.user_bill}/change/'
+    user_bill_url = context.custom_config["host"] + f'admin/accounting_system/userbill/{context.user_bill}/change/'
     response = session.get(user_bill_url).text
     user_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
 
-    user_company_url = context.host + f'/admin/accounting_system/companybill/{context.company_bills}/change/'
+    user_company_url = context.custom_config["host"] + f'admin/accounting_system/companybill/{context.company_bills}/change/'
     response = session.get(user_company_url).text
     company_bill_amount = re.findall('<input type=\"number\" name=\"amount\" value=\"([0-9\.-]*)\" step=', response)[0]
 
@@ -401,16 +402,14 @@ def step_impl(context):
     entry_id = eval(context.response_entry)['entry']
     session = context.super_user
 
-    url = context.host + f'/api/accounting_system/entry/cancel/{entry_id}/'
+    url = context.custom_config["host"] + f'api/accounting_system/entry/cancel/{entry_id}/'
     response = session.get(url)
     context.task_id = response.json()['task_id']
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(response.text) + '\n')
 
 @step("check status of task")
 def step_impl(context):
     session = context.super_user
-    user_bill_url = context.host + f'/api/accounting_system/task/status/{context.task_id}/'
+    user_bill_url = context.custom_config["host"] + f'api/accounting_system/task/status/{context.task_id}/'
     response = session.get(user_bill_url).json()
 
     assert response["status"] == "SUCCESS"

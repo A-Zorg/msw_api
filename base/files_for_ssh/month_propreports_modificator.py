@@ -20,12 +20,12 @@ def csv_file_modificator():
     import random
     import pandas
 
-    phrase = "len(adj_net_list)-adj_net_list.count(0)==1"                            #PHRASE
-    adj_net_to_be_modified = eval('["non zero->change"]')        #MODIFICATOR_TYPES
+    phrase = "len(adj_net_list)-adj_net_list.count(0)==0"                            #PHRASE
+    adj_net_to_be_modified = eval('["zero->create", "zero->create"]')        #MODIFICATOR_TYPES
     if "without mod" in phrase:
         return True
 
-    main_list = pandas.read_excel('/home/alex_zatushevkiy/3/month_propreports_template.xlsx')                               #PATH
+    main_list = pandas.read_excel('/home/alex_zatushevkiy/msw_api/month_propreports_template.xlsx')                               #PATH
     columns = list(main_list.columns)
     user_propreports_in_dict = dict()
     for column in columns[1:]:
@@ -51,7 +51,7 @@ def csv_file_modificator():
 
 
     to_modified_user_propreports = pandas.DataFrame(data=user_propreports_in_dict)
-    to_modified_user_propreports.to_excel('/home/alex_zatushevkiy/3/month_propreports.xlsx')                                               #PATH
+    to_modified_user_propreports.to_excel('/home/alex_zatushevkiy/msw_api/month_propreports.xlsx')                                               #PATH
 
 
 
@@ -86,7 +86,7 @@ except:
 csv_file_modificator()
 
 """get data(amount) from accounts for last month"""
-result_accounts = pandas.read_excel('/home/alex_zatushevkiy/3/month_propreports.xlsx')                                         # path
+result_accounts = pandas.read_excel('/home/alex_zatushevkiy/msw_api/month_propreports.xlsx')                                         # path
 columns = list(result_accounts.columns)[1:]
 account_month_dict = {}
 for _, account in result_accounts.iterrows():

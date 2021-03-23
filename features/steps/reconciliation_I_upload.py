@@ -1,26 +1,22 @@
+import random
+import json
+import re
 from behave import *
 from base.main_functions import GetRequest, get_token, find_button
 from behave.api.async_step import async_run_until_complete
-import random
-from datetime import date, datetime, timedelta
-import json
-import re
-import configparser
 
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
 
 
 """-------------------------activate reconciliation-----------------------------------"""
 @step("manager chech the status of recopnciliation: {answer}")
 def step_impl(context, answer):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/status/'
+    url = context.custom_config["host"] + 'api/reconciliation/status/'
     response = GetRequest(context.manager_user, url)
     assert answer in response.text
 
 @step("manager try to perform reconciliation: -{answer}-")
 def step_impl(context, answer):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/'
+    url = context.custom_config["host"] + 'api/reconciliation/'
     token = get_token(context.manager_user, url)
     request_form = {'csrfmiddlewaretoken': token,
                     'zp_cash': '',
@@ -36,7 +32,7 @@ def step_impl(context, answer):
 
 @step("superuser activate reconciliation")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/status/'
+    url = context.custom_config["host"] + 'api/reconciliation/status/'
     session = context.super_user
     token = get_token(session, url)
     request_form = {'csrfmiddlewaretoken': token,
@@ -49,20 +45,20 @@ def step_impl(context):
 @step("get userdata row of the MANAGER")
 def step_impl(context):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/admin/reconciliation/userdata/'
+    url = context.custom_config["host"] + 'admin/reconciliation/userdata/'
     worker = GetRequest(session, url)
     html = worker.text
-    hr_id = config['manager_id']['hr_id']
+    hr_id = context.custom_config['manager_id']['hr_id']
     context.part_url = re.findall(r'<a href="([a-z0-9/]*)">{0}</a>'.format(hr_id), html)[0]
 
 @step("create url of userdata row and get token")
 def step_impl(context):
-    context.url = 'https://mytest-server.sg.com.ua:9999' + context.part_url
+    context.url = context.custom_config["host"][:-1] + context.part_url
     context.token = get_token(context.super_user, context.url)
 
 @step("define request userdata form")
 def step_impl(context):
-    context.request = {'user': config['manager_id']['user_id'],
+    context.request = {'user': context.custom_config['manager_id']['user_id'],
                        'csrfmiddlewaretoken':context.token,
                        'prev_month_net': '6000',
                        'account': '1000',
@@ -85,7 +81,7 @@ def step_impl(context):
 
 @step("make post request to make reconciliation {podushka} {zp_cash} {account_plus_minus} {cash} {social}")
 def step_impl(context, podushka, zp_cash, account_plus_minus, cash, social):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/'
+    url = context.custom_config["host"] + 'api/reconciliation/'
     token = get_token(context.manager_user, url)
     request_form = {'csrfmiddlewaretoken': token,
                     'zp_cash': zp_cash,
@@ -109,7 +105,7 @@ def step_impl(context, er):
 
 @step("create expected template of user_data")
 def step_impl(context):
-    hr_id = int(config['manager_id']['hr_id'])
+    hr_id = int(context.custom_config['manager_id']['hr_id'])
     context.exp_template={
                         "user__hr_id": hr_id,
                         "prev_month_net": 1500,
@@ -154,7 +150,7 @@ def step_impl(context):
                     }
 @step("get actual template of user_data")
 def step_impl(context):
-    url = "https://mytest-server.sg.com.ua:9999/api/reconciliation/user_data/"
+    url = context.custom_config["host"] + "api/reconciliation/user_data/"
     session = context.manager_user
     response = session.get(url)
     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
@@ -172,7 +168,7 @@ def step_impl(context):
         file.write(str(context.exp_template)+'\n')
     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
         file.write(str('-----------------------------------')+'\n')
-    assert context.ac_template==context.exp_template
+    assert context.ac_template == context.exp_template
 
 """----------------------------------make questions in MSW----------------------------------------"""
 
@@ -193,17 +189,19 @@ def step_impl(context, type_q):
                                 "csrfmiddlewaretoken": ""
                             }
 
-
 @step("make post request to make question")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/questions/'
+    url = context.custom_config["host"] + 'api/reconciliation/questions/'
     session = context.manager_user
     token = get_token(session, url)
     context.request_form['csrfmiddlewaretoken'] = token
 
     json_data = json.dumps(context.request_form)
-    response = session.post(url, data=json_data, headers={"Referer": url, "X-CSRFToken": token,
-                                                             'Content-Type': 'application/json;charset=UTF-8'})
+    response = session.post(url, data=json_data, headers={
+        "Referer": url,
+        "X-CSRFToken": token,
+        'Content-Type': 'application/json;charset=UTF-8'
+    })
     assert response.ok
 
 @step('check that {form} comes to telegram_bot {bot}')
@@ -219,14 +217,14 @@ async def send_fees_to_riskbot(context,form, bot):
     messages = await context.tele_user.get_messages(bot,limit=3)
     answer = False
     for message in messages:
-        if question  and header in message.text:
+        if question and header in message.text:
             answer = True
     assert answer
 
 @step('cancel ticket in telegram_bot {bot}')
 @async_run_until_complete
 async def send_fees_to_riskbot(context, bot):
-    texts=['Отменить тикет','Да']
+    texts=['Отменить тикет', 'Да']
     for text in texts:
         messages = await context.tele_user.get_messages(bot, limit=2)
         for message in messages:
@@ -238,19 +236,18 @@ async def send_fees_to_riskbot(context, bot):
 def step_impl(context):
     context.text_f = "asdasdasd"
     context.request_form = {
-                                "text" : context.text_f
+                                "text": context.text_f
                             }
 
 @step("make post request to create feedback")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/feedback/'
+    url = context.custom_config["host"] + 'api/reconciliation/feedback/'
     session = context.manager_user
     token = get_token(session, url)
 
     files={
             'file' : ''
           }
-
     headers = {
         'Accept': 'application/octet-stream,application/xhtml+xml,application/xml;q=0.9,image/avif,'
                   'image/png,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',

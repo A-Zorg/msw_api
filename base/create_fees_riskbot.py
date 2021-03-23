@@ -65,7 +65,7 @@ def create_7z(data_set, hr_id):
         wb_to = load_workbook(ds[0])
         ws_to = wb_to.active
 
-        ws_to['C2'] = ds[1]['datum'].month - 1
+        ws_to['C2'] = (ds[1]['datum'].replace(day=1) - timedelta(days=2)).month
         ws_to['C3'] = ds[1]['datum']
         ws_to['B5'] = int(hr_id)
         ws_to['D5'] = ds[1]['d']
@@ -108,7 +108,7 @@ def get_accounting_queque(data_set, context):
             "amount": abs(data_set[0][1]['j']),
             "left": data_set[0][1]['g'],
             "total": None,
-            "current": False,
+            "current": True,
             "next": False
         }
       ]
@@ -177,11 +177,11 @@ def create_queue_xlsx(context):
 
     wb_to.save('base/data_set/account_queue_template.xlsx')
 
-def make_accounting_precondition(hr_id, context):
+def make_accounting_precondition(context):
     """get data_set"""
     data_set = random_fees_creator()
     """create .7z archives with fees"""
-    create_7z(data_set, hr_id)
+    create_7z(data_set, context.custom_config['manager_id']['hr_id'])
     """create accounting_queque template"""
     get_accounting_queque(data_set, context)
     """create account_data template"""

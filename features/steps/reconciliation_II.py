@@ -7,10 +7,6 @@ from datetime import date, datetime, timedelta
 import re
 import psycopg2
 import mimetypes
-import configparser
-
-config = configparser.ConfigParser()
-config.read("cred/config.ini")
 
 """add mime type to upload .7z"""
 mimetypes.add_type('application/x-7z-compressed', '.7z')
@@ -18,7 +14,7 @@ mimetypes.add_type('application/x-7z-compressed', '.7z')
 """-------------------------check all_users_data-----------------------------------"""
 @step("get all user_data")
 def step_impl(context):
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/all_users_data/'
+    url = context.custom_config["host"] + 'api/reconciliation/all_users_data/'
     response = GetRequest(context.super_user, url)
     context.response_list = response.json_list
     for part in context.response_list:
@@ -74,7 +70,7 @@ def step_impl(context, datum):
 @step("make posr request /reconciliation/date_of_reconciliation/")
 def step_impl(context):
     session = context.super_user
-    url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/date_of_reconciliation/'
+    url = context.custom_config["host"] + 'api/reconciliation/date_of_reconciliation/'
 
     token = get_token(session, url)
     context.request_form['csrfmiddlewaretoken'] = token
@@ -91,20 +87,20 @@ def step_impl(context, data):
 @step('check status of "{key}": {answer}')
 def step_impl(context, key, answer):
     if key == 'reports update':
-        url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/reports_update/'
+        url = context.custom_config["host"] + 'api/reconciliation/reports_update/'
     elif key == 'services and compensations update':
-        url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/services_compensations/'
+        url = context.custom_config["host"] + 'api/reconciliation/services_compensations/'
     elif key == 'risk update':
-        url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/status_accounts/'
+        url = context.custom_config["host"] + 'api/reconciliation/status_accounts/'
     response = GetRequest(context.super_user, url)
     assert answer in response.text
 
 @step("activate upload from {key}")
 def step_impl(context, key):
     if key == 'propreports':
-        url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/reports_update/'
+        url = context.custom_config["host"] + 'api/reconciliation/reports_update/'
     elif key == 'services and compensations googlesheet':
-        url = 'https://mytest-server.sg.com.ua:9999/api/reconciliation/services_compensations/'
+        url = context.custom_config["host"] + 'api/reconciliation/services_compensations/'
 
     session = context.super_user
 
@@ -141,14 +137,14 @@ async def send_fees_to_riskbot(context):
 def step_impl(context):
     context.ex_time = datetime.today()
 
-    url = "https://mytest-server.sg.com.ua:9999/api/reconciliation/import_hr/"
+    url = context.custom_config["host"] + "api/reconciliation/import_hr/"
     session = context.super_user
     response = session.get(url)
     assert response.text
 
 @step("clear reconciliationuserpropaccount table")
 def step_impl(context):
-    with psycopg2.connect(**config['pg_db']) as con:
+    with psycopg2.connect(**context.custom_config['pg_db']) as con:
         cur = con.cursor()
 
         cur.execute("DELETE FROM reconciliation_reconciliationuserpropaccount WHERE id >0")
@@ -161,7 +157,7 @@ def step_impl(context):
 
 @step("check reconciliationuserpropaccount table after hr import")
 def step_impl(context):
-    with psycopg2.connect(**config['pg_db']) as con:
+    with psycopg2.connect(**context.custom_config['pg_db']) as con:
         cur = con.cursor()
 
         cur.execute("SELECT * FROM reconciliation_reconciliationuserpropaccount")
@@ -173,7 +169,7 @@ def step_impl(context):
 
 @step("download all_users_data.xlsx")
 def step_impl(context):
-    url = "https://mytest-server.sg.com.ua:9999/api/reconciliation/all_users_data/xlsx"
+    url = context.custom_config["host"] + "api/reconciliation/all_users_data/xlsx"
     session = context.super_user
     response = session.get(url)
     assert response.ok
@@ -216,7 +212,7 @@ def step_impl(context):
 
 @step("compare downloaded data with data from /reconciliation/all_users_data/")
 def step_impl(context):
-    url = "https://mytest-server.sg.com.ua:9999/api/reconciliation/all_users_data/"
+    url = context.custom_config["host"] + "api/reconciliation/all_users_data/"
     session = context.super_user
     response = GetRequest(session, url)
     expected_result = response.json_list
