@@ -1,7 +1,13 @@
 ,user_hr_id,bill_id,amount
-0,90000,Investments,1118
-1,90000,SmartPoints,864
-2,90000,Withdrawal,596
-3,90000,Account,446
-4,90000,Cash hub,445
-5,90000,Current Net balance,257
+0,90000,Investments,544
+1,90000,SmartPoints,132
+2,90000,Withdrawal,537
+3,90000,Account,935
+4,90000,Cash hub,660
+5,90000,Current Net balance,635
+6,90001,Investments,-39
+7,90001,SmartPoints,20
+8,90001,Withdrawal,720
+9,90001,Account,1125
+10,90001,Cash hub,250
+11,90001,Current Net balance,745

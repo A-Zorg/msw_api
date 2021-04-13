@@ -7,7 +7,8 @@ Feature: import from propreports
      And run the task: import_HR_module
      And wait for task is finished: import_HR_module
      And run the task: import_from_propreports_monthly
-     And wait for task is finished: import_from_propreports_monthly
+     And pause - 20 sec(s)
+#     And wait for task is finished: import_from_propreports_monthly
     When upload to the server some file and run it: month_propreports
      And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - without mod - None
     Then get amount of users (90000, 90001) Current Net balance
