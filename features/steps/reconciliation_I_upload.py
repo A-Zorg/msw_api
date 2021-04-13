@@ -8,7 +8,7 @@ from behave.api.async_step import async_run_until_complete
 
 
 """-------------------------activate reconciliation-----------------------------------"""
-@step("manager chech the status of recopnciliation: {answer}")
+@step("manager check the status of reconciliation: {answer}")
 def step_impl(context, answer):
     url = context.custom_config["host"] + 'api/reconciliation/status/'
     response = GetRequest(context.manager_user, url)
@@ -101,6 +101,22 @@ def step_impl(context, er):
     text = context.response.text
     assert er in text
 
+@step("by RISKMAN make post request to make reconciliation {podushka} {zp_cash} {account_plus_minus} {cash} {social}")
+def step_impl(context, podushka, zp_cash, account_plus_minus, cash, social):
+    url = context.custom_config["host"] + f'api/reconciliation/{context.custom_config["manager_id"]["hr_id"]}/'
+    token = get_token(context.super_user, url)
+    request_form = {
+        'csrfmiddlewaretoken': token,
+        'zp_cash': zp_cash,
+        'podushka': podushka,
+        'account_plus_minus': account_plus_minus,
+        'cash': cash,
+        'social': social,
+    }
+
+    session = context.super_user
+    context.response = session.post(url, data=request_form, headers={"Referer": url})
+
 """----------------------------------check /reconciliation/user_data/----------------------------------------"""
 
 @step("create expected template of user_data")
@@ -109,12 +125,14 @@ def step_impl(context):
     context.exp_template={
                         "user__hr_id": hr_id,
                         "prev_month_net": 1500,
+                        "custom_podushka": False,
                         "podushka": 100,
                         "account": 2000,
                         "account_plus_minus": 30,
                         "social": 5,
                         "cash": 1000,
                         "custom_payout_rate": None,
+                        'date_reconciliation': None,
                         "takion_accounts": [
                             # {
                             #     "account": "777",
@@ -148,26 +166,23 @@ def step_impl(context):
                             }
                         ]
                     }
+
 @step("get actual template of user_data")
 def step_impl(context):
     url = context.custom_config["host"] + "api/reconciliation/user_data/"
     session = context.manager_user
     response = session.get(url)
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(response.json())+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str('-----------------------------------')+'\n')
     context.ac_template = response.json()
+
+@step("by RISKMAN get actual template of user_data")
+def step_impl(context):
+    url = context.custom_config["host"] + f'api/reconciliation/user_data/{context.custom_config["manager_id"]["hr_id"]}/'
+    session = context.super_user
+    response = session.get(url)
+    context.ac_template = response.json()
+
 @step("compare actual and expected templates")
 def step_impl(context):
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(context.ac_template)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str('-----------------------------------')+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(context.exp_template)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str('-----------------------------------')+'\n')
     assert context.ac_template == context.exp_template
 
 """----------------------------------make questions in MSW----------------------------------------"""

@@ -6,7 +6,7 @@ def data_set_reconciliation():
     context_bills={ 90000+i:[] for i in range(len(user_bills.index)//6)}
 
     zero_date = datetime.now()
-    back_date = datetime(zero_date.year, zero_date.month, 1, 21, 59, 59)
+    back_date = datetime(zero_date.year, zero_date.month, 1, 20, 59, 59)
     reconciliation_date = str(back_date - timedelta(1))
     modified_date = reconciliation_date.replace(' ', 'T')
 
@@ -23,7 +23,7 @@ def data_set_reconciliation():
     context_entries=list()
     userdata = pd.read_csv('base/data_set/userdata.csv')
     for _, data in userdata.iterrows():
-        if data['zp_cash']!=0:
+        if data['zp_cash'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -37,7 +37,7 @@ def data_set_reconciliation():
             context_bills[user][0]['Current Net balance']-=data['zp_cash']
             context_bills[user][1]['Cash hub'] += data['zp_cash']
 
-        if data['services_total']!=0:
+        if data['services_total'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -50,7 +50,7 @@ def data_set_reconciliation():
             ])
             context_bills[user][0]['Current Net balance'] -= -data['services_total']
             context_bills['company'][0]['Company ServComp'] += -data['services_total']
-        if data['compensations_total']!=0:
+        if data['compensations_total'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -63,21 +63,21 @@ def data_set_reconciliation():
             ])
             context_bills[user][0]['Current Net balance'] -= -data['compensations_total']
             context_bills['company'][0]['Company ServComp'] += -data['compensations_total']
-        if data['total_net_month'] - data['zp_cash']!=0:
+        if data['total_net_month'] - data['zp_cash'] != 0 and data['total_net_month'] > 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
-                float(data['total_net_month'] - data['zp_cash']),
+                float(data['total_net_month'] - data['zp_cash'] - data['podushka']),
                 'Current Net balance',
                 'Company Net Income',
                 'Reconciliation',
                 'Applied',
                 modified_date
             ])
-            context_bills[user][0]['Current Net balance'] -= data['total_net_month'] - data['zp_cash']
-            context_bills['company'][2]['Company Net Income'] += data['total_net_month'] - data['zp_cash']
+            context_bills[user][0]['Current Net balance'] -= data['total_net_month'] - data['zp_cash'] - data['podushka']
+            context_bills['company'][2]['Company Net Income'] += data['total_net_month'] - data['zp_cash'] - data['podushka']
 
-        if data['cash']!=0:
+        if data['cash'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -91,7 +91,7 @@ def data_set_reconciliation():
             context_bills[user][1]['Cash hub'] -= data['cash']
             context_bills[user][3]['Withdrawal'] += data['cash']
 
-        if data['office_fees']!=0:
+        if data['office_fees'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -105,7 +105,7 @@ def data_set_reconciliation():
             context_bills[user][1]['Cash hub'] -= -data['office_fees']
             context_bills['company'][1]['Company Office Fees'] += -data['office_fees']
 
-        if data['social']!=0:
+        if data['social'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,
@@ -119,7 +119,7 @@ def data_set_reconciliation():
             context_bills[user][1]['Cash hub'] -= data['social']
             context_bills['company'][3]['Company Social Fund'] += data['social']
 
-        if data['account_plus_minus']!=0:
+        if data['account_plus_minus'] != 0:
             user = data['user_hr_id']
             context_entries.append([
                 user,

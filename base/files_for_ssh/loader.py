@@ -286,5 +286,7 @@ userdata_object.account=2000
 userdata_object.account_plus_minus=30
 userdata_object.cash=1000
 userdata_object.social=5
+userdata_object.custom_payout_rate=None
+userdata_object.date_reconciliation=None
 userdata_object.save()
 logger.info('finish creation of datasets')

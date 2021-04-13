@@ -11,7 +11,7 @@ from base.data_set_creater import data_set_reconciliation, add_number_bills
 from generator.total_generation import generate_data
 from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
 
-# os.environ['TEST_HOST'] = 'test'
+os.environ['TEST_HOST'] = 'test_9999'
 def before_all(context):
     """create custom_config"""
     try:
@@ -21,7 +21,7 @@ def before_all(context):
     get_custom_config(context, host)
 
     """create data set"""
-    generate_data(10, context)
+    generate_data(1, context)
 
     """upload dataset to the server"""
     upload_files_server(context)
@@ -38,8 +38,8 @@ def before_all(context):
     """create sessions of users"""
     use_fixture(session, context)
 
-    """make precondition steps to check ACCOUNTING"""
-    make_accounting_precondition(context)
+    # """make precondition steps to check ACCOUNTING"""
+    # make_accounting_precondition(context)
 
     """perform reconciliation"""
     finish_reconciliation_process(context)
@@ -48,10 +48,11 @@ def before_all(context):
     bills, entries = data_set_reconciliation()
     context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
     context.modified_bills = copy.deepcopy(context.bills)
+    print(context.bills)
 
-def after_all(context):
-    """delete all generated data"""
-    runner(context, "cleaner.py")
+# def after_all(context):
+#     """delete all generated data"""
+#     runner(context, "cleaner.py")
 
-"""create allure reports"""
-allure_report("allure-results/")
+# """create allure reports"""
+# allure_report("allure-results/")

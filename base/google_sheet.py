@@ -28,7 +28,7 @@ class GSpread:
             pass
         new_worksheet = sh.add_worksheet(title=ws_name, rows="1000", cols="30")
 
-        df = pd.read_csv('base\data_set\services.csv')
+        df = pd.read_csv('./base/data_set/services.csv')
 
         services_lis = [df.columns.values.tolist()] + df.values.tolist()
         services_str = str([row[2:] for row in services_lis]).replace('nan', '\'\'')

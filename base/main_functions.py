@@ -67,13 +67,13 @@ def check_comming_entries(entries, subject_dict, key):
     for entry in entries:
         count = 0
         for part in subject_dict:
-            str_enytr = str(part)
-            result = all([str(i) in str_enytr for i in entry])
+            str_entry = str(part)
+            result = all([str(i) in str_entry for i in entry])
             if result:
-                count+=1
-        if count!=1 and key == 'appropriate':
+                count += 1
+        if count != 1 and key == 'appropriate':
             return False
-        elif count!=0 and key == 'inappropriate':
+        elif count != 0 and key == 'inappropriate':
             return False
     return True
 
@@ -216,7 +216,23 @@ def get_parts_from_number(number, qty):
 
 
 
+import paramiko
+def download_from_server2(file_name):
+    """download"""
+    host = config["server"]["host"]
+    port = config["server"]["port"]
+    username = config["server"]["username"]
+    password = config["server"]["password"]
 
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+
+        remotepath = f'/home/alex_zatushevkiy/msw_api/{file_name}'
+        localpath = f'./base/files_for_ssh/{file_name}'
+        sftp.get(remotepath, localpath)
+
+        sftp.close()
 
 
 

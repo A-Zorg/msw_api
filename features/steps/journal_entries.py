@@ -48,15 +48,15 @@ def step_impl(context):
 def step_impl(context, subject, key):
 
     if subject == 'users':
-        first_clean = [ entry for entry in context.entries if entry[0] in context.users]
+        first_clean = [entry for entry in context.entries if entry[0] in context.users]
     elif subject == 'company':
         first_clean = context.entries
-    second_clean = [ entry for entry in first_clean if entry[2] in context.accounts or entry[3] in context.accounts]
+    second_clean = [entry for entry in first_clean if entry[2] in context.accounts or entry[3] in context.accounts]
 
     if key == "were":
         context.choosen_entries = second_clean
     elif key == "were not" or "weren't":
-        context.not_choosen_entries = [ entry for entry in context.entries if entry not in second_clean]
+        context.not_choosen_entries = [entry for entry in context.entries if entry not in second_clean]
 
 @step("check {key} entries")
 def step_impl(context, key):

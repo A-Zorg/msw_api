@@ -1,19 +1,19 @@
 Feature: import from propreports
 
 
-#  Scenario: prepare conditions for testing import from propreports
-#    Given clear db table: reconciliation_reconciliationuserpropaccount
-#     And clear db table: reconciliation_userpropaccount
-#     And run the task: import_HR_module
-#     And wait for task is finished: import_HR_module
-#     And run the task: import_from_propreports_monthly
-#     And wait for task is finished: import_from_propreports_monthly
-#    When upload to the server some file and run it: month_propreports
-#     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - without mod - None
-#    Then get amount of users (90000, 90001) Current Net balance
-#     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
-#
-#
+  Scenario: prepare conditions for testing import from propreports
+    Given clear db table: reconciliation_reconciliationuserpropaccount
+     And clear db table: reconciliation_userpropaccount
+     And run the task: import_HR_module
+     And wait for task is finished: import_HR_module
+     And run the task: import_from_propreports_monthly
+     And wait for task is finished: import_from_propreports_monthly
+    When upload to the server some file and run it: month_propreports
+     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - without mod - None
+    Then get amount of users (90000, 90001) Current Net balance
+     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
+
+
 #  Scenario Outline: checking different types of corrections after month import from propreports
 #    Given check that 2 active accounts exist
 #     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>
@@ -36,8 +36,8 @@ Feature: import from propreports
 #        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   [ "non zero->delete", "non zero->change"] |  2  |
 #        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete", "zero->create"]      |  2  |
 #        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change", "zero->create"]      |  2  |
-#
-#
+
+
 #  Scenario Outline: checking different types of corrections after month import from propreports
 #    Given check that 1 active accounts exist
 #     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>

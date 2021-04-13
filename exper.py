@@ -263,9 +263,9 @@ import io
 #     past_report(bot_name)
 #
 import datetime
-from base.main_functions import download_from_server2
-
-download_from_server2(file_name='month_propreports.xlsx')
+# from base.main_functions import download_from_server2
+#
+# download_from_server2(file_name='month_propreports_template.xlsx')
 
 # phrase = "len(adj_net_list)-adj_net_list.count(0)>=2"
 # adj_net_to_be_modified = eval('["non zero->change", "non zero->change"] ')
@@ -305,6 +305,3 @@ download_from_server2(file_name='month_propreports.xlsx')
 # # to_modified_user_propreports = pd.DataFrame(data=user_propreports_in_dict)
 # # to_modified_user_propreports.to_csv('base/files_for_ssh/month_propreports.csv')
 # #
-a = 'add <request> amount of rows to the fields:"Заказаное inv"'
-import re
-print(str(5) in ['5','6'])

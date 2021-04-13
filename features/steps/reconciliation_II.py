@@ -19,6 +19,7 @@ def step_impl(context):
     context.response_list = response.json_list
     for part in context.response_list:
         del part['date_reconciliation']
+
 @step("get user_data from dataset")
 def step_impl(context):
     userdata_set = pd.read_csv('base/data_set/userdata.csv')
@@ -42,8 +43,6 @@ def step_impl(context):
 
 @step("compare userdata lists")
 def step_impl(context):
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(context.data_list)+'\n')
     for part in context.data_list:
         if part not in context.response_list:
             assert False
@@ -62,6 +61,8 @@ def step_impl(context, datum):
         request_date = today + timedelta(hours=25)
     elif datum == "next_month":
         request_date = today + timedelta(weeks=5)
+    elif datum == "aftertomorrow":
+        request_date = today + timedelta(hours=48)
     context.request_form = {
         'csrfmiddlewaretoken' : '',
         'date_to_start' : str(request_date)

@@ -46,13 +46,6 @@ def step_impl(context, type_):
         expected_data = context.account_data
     elif type_ == "account_queue":
         expected_data = context.queque_accounting
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(context.act_data)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(expected_data)+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str('-----------------------------------')+'\n')
-
     assert context.act_data == expected_data
 
 @step("in accounting compare expected with actual {type_} file")

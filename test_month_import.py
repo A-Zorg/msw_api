@@ -1,16 +1,17 @@
 import configparser
 import re
-from base.ssh_interaction import create_user_session
+from base.adminka import create_user_session, wait_periodictask_to_be_done2
 import paramiko
 import time
+import datetime
 
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
 
 host = config['server']['host']
 port = int(config['server']['port'])
-user = config['server']['user']
-password = config['server']['secret']
+user = config['server']['username']
+password = config['server']['password']
 """----------------------upload excel file---------------------------"""
 transport = paramiko.Transport((host, port))
 transport.connect(username=user, password=password)
@@ -36,7 +37,7 @@ stdin, stdout, stderr = client.exec_command('cd /smartteam/msw_server_9999/msw &
 client.close()
 time.sleep(15)
 """------------------------------run month import---------------------------------"""
-# session = create_user_session(**config['super_user'])
+# session = create_user_session(config['host']['host_9999'], **config['super_user_9999'])
 # url = 'https://mytest-server.sg.com.ua:9999/admin/django_celery_beat/periodictask/'
 #
 # get = session.get(url)
@@ -49,6 +50,13 @@ time.sleep(15)
 #         'index': '0',
 #         '_selected_action': '86',
 #     }
-#
+# print(datetime.datetime.now())
 # session.post(url, data=recon_dict, headers={"Referer": url})
-# time.sleep(5)
+# print(datetime.datetime.now())
+# asd = config["pg_db_9999"]
+#
+# print(wait_periodictask_to_be_done2('import_from_propreports_monthly', asd))
+# print(datetime.datetime.now())
+#
+# print(wait_periodictask_to_be_done2('entries_for_prop_month_correction', asd))
+# print(datetime.datetime.now())

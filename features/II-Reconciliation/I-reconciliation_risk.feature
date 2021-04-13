@@ -12,15 +12,21 @@ Feature:  check all user_data
        And make posr request /reconciliation/date_of_reconciliation/
       Then check data of response: <exp_res>
     Examples: forward
-        |  date       |exp_res                              |
-        |  yesterday  |Specified day is less or equal       |
-        |  today      |Specified day is less or equal       |
-        |  next_month |Specified day is not from this month |
-        |  tomorrow   |Tasks created                        |
+        |  date         | exp_res                              |
+        |  yesterday    | Specified day is less or equal       |
+        |  today        | Specified day is less or equal       |
+        |  next_month   | Specified day is not from this month |
+        |  tomorrow     | Specified day is less or equal       |
+        |  aftertomorrow| Tasks created                        |
 
   Scenario: check /reconciliation/user_data/
       Given create expected template of user_data
        And get actual template of user_data
+      Then compare actual and expected templates
+
+  Scenario: check /reconciliation/user_data/ by RISKMAN(MSW-397)
+      Given create expected template of user_data
+       And by RISKMAN get actual template of user_data
       Then compare actual and expected templates
 
 #    Scenario: check reports update

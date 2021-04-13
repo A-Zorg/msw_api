@@ -136,7 +136,7 @@ def check_users_presence(session, config):
     return '90000' in response.text
 
 
-def finish_reconciliation_process(context):
+def finish_reconciliation_process(context, wait_time=1200):
     session = context.super_user
     start_reconciliation(session=session, host=context.custom_config["host"])
     task_configuration(session, context.custom_config, "auto_stop_reconciliation")
@@ -144,7 +144,7 @@ def finish_reconciliation_process(context):
     result = wait_periodictask_to_be_done(
         task_name="create_and_apply_all_reconciliation_entries",
         context=context,
-        wait_time=1200
+        wait_time=wait_time
     )
 
     if result == "FAILURE":
@@ -153,7 +153,26 @@ def finish_reconciliation_process(context):
         print("reconciliation was finished")
 
 
+def wait_periodictask_to_be_done2(task_name, pgsql, wait_time=3600):
+    """
+    wait for some periodic task to be done
+    take = name of the task
+    return task_state
+    after 10 min - exit from function if task would not be done
+    """
+    request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
+    start_id = pgsql_select(request=request, **pgsql)[0][0]
 
+    start_time = time.time()
+    while (time.time() - start_time) < wait_time:
+        request = 'SELECT * FROM public.django_celery_results_taskresult ' \
+                  f'WHERE id > {start_id} and task_name=\'{task_name}\'' \
+                  'ORDER BY id ASC '
+        result = pgsql_select(request=request, **pgsql)
+
+        if result:
+            return result[0][2]
+    return "FAILURE"
 
 
 

@@ -4,7 +4,6 @@ from base.main_functions import correct_py_file
 
 def uploader(context, file_name, file_dir):
     """upload file to the server"""
-    # upload file
     host = context.custom_config['server']['host']
     port = context.custom_config['server']['port']
     password = context.custom_config['server']['password']
@@ -68,7 +67,7 @@ def upload_files_server(context):
     old_new_parts={
         '{PATH}': context.custom_config['server_dir']
     }
-    correct_py_file("loader",old_new_parts)
+    correct_py_file("loader", old_new_parts)
     files_list = {
         'accounts.csv': './base/data_set',
         'fees.csv': './base/data_set',

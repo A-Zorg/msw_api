@@ -11,6 +11,11 @@ def step_impl(context, table):
     request = f"DELETE FROM {table}"
     assert pgsql_del(request, **context.custom_config["pg_db"])
 
+@step("clean db table: {table} where user_id {user_id}")
+def step_impl(context, table, user_id):
+    request = f"DELETE FROM {table} WHERE user_id = {user_id}"
+    assert pgsql_del(request, **context.custom_config["pg_db"])
+
 @step("run the task: {task_name}")
 def step_impl(context, task_name):
     session = context.super_user
@@ -74,8 +79,8 @@ def step_impl(context, qty):
     )
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(monthpropreportstransaction_result)+'\n')
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(monthpropreportstransaction_result)+'\n')
     assert int(qty) == len(monthpropreportstransaction_result)
     assert suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result) == suma(context.config.userdata["current_net_balance"])
 
@@ -91,15 +96,21 @@ def step_impl(context):
         response
     )
     suma = lambda amount: round(sum(map(float, amount)), 2)
-    assert suma(accounts_amounts)== suma(context.config.userdata["current_net_balance"])
+
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(accounts_amounts))+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
+
+    assert suma(accounts_amounts) == suma(context.config.userdata["current_net_balance"])
 
 
 
 @step("wait for task is finished: {task_name}")
 def step_impl(context, task_name):
     assert wait_periodictask_to_be_done(task_name, context) == "SUCCESS"
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(time.time()-context.start_time) + '\n')
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(time.time()-context.start_time) + '\n')
 
 @step("check that {number} active accounts exist")
 def step_impl(context, number):
