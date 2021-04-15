@@ -100,5 +100,5 @@ def generate_data(users_qty, context):
 
     """______________________create txt with manager id___________________________"""
 
-    with open('base/data_set/manager_id.txt','w') as file:
+    with open('base/data_set/manager_id.txt', 'w') as file:
         file.write(context.custom_config['manager_id']['user_id'])

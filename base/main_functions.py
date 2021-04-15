@@ -184,6 +184,7 @@ def get_custom_config(context, host):
             "telegram_user": config['telegram_user'],
             "periodic_task": config['periodic_tasks']['test'],
             "risk_bot": config['risk_bot']['name'],
+            "sb_user": config['SB_user'],
         }
     elif host == "test_9999":
         context.custom_config = {
@@ -201,6 +202,7 @@ def get_custom_config(context, host):
             "telegram_user": config['telegram_user'],
             "periodic_task": config['periodic_tasks']['test_9999'],
             "risk_bot": config['risk_bot']['name'],
+            "sb_user": config['SB_user'],
         }
 
 """divide the number to the list of number which sum is equal to the initial number"""

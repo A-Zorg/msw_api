@@ -29,6 +29,7 @@ def step_impl(context):
 @step("formation of url for report: {key} with {datum} date")
 def step_impl(context, key, datum):
     url = context.custom_config["host"] + 'api/accounting_system/report/?'
+    url_xlsx = context.custom_config["host"] + 'api/accounting_system/report/?file_format=xlsx&'
     date_dict = {
         "year": "",
         "month": "",
@@ -66,7 +67,8 @@ def step_impl(context, key, datum):
 
     context.url= url + user_url + account_url + field_url +\
           f'date={date_dict["year"]}-{date_dict["month"]}-{date_dict["day"]}'
-
+    context.url_xlsx = url_xlsx + user_url + account_url + field_url + \
+                  f'date={date_dict["year"]}-{date_dict["month"]}-{date_dict["day"]}'
 
 @step("get expected report data: {key}")
 def step_impl(context, key):

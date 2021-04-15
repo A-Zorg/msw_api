@@ -58,7 +58,7 @@ Feature:  entries
         |  FROM       |  TO       |
         |  FROM       |  TO       |
 
-  Scenario Outline: creation of past mass transaction
+  Scenario Outline: creation of future mass transaction
     Given get user number bills
      And get company number bills
      And define request form of mass transaction

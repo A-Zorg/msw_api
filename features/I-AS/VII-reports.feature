@@ -82,3 +82,26 @@ Scenario: boundary values of entry fields
      And get user and company bills after canceling entry
      And check status of task
      And check user and company bills after canceling
+
+
+  Scenario Outline: checking filters of REPORTS
+    Given get user bills for reports
+     And get report_fields
+     And formation of url for report: <filter> with actual date
+    When [AS] download report xlsx
+    Then [AS] compare xlsx with api results
+    Examples: filter
+        |  filter   |
+        |  user     |
+        |  account  |
+        |  field    |
+
+
+
+
+
+
+
+
+
+

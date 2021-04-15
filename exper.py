@@ -305,3 +305,49 @@ import datetime
 # # to_modified_user_propreports = pd.DataFrame(data=user_propreports_in_dict)
 # # to_modified_user_propreports.to_csv('base/files_for_ssh/month_propreports.csv')
 # #
+import requests
+
+url = 'https://hrtest-server.sg.com.ua/api/user/login'
+req_dict = {
+    'login': "Admin_Zatush",
+    'password': "123123"
+}
+
+asd = requests.Session()
+qwe = asd.post(
+    url=url,
+    data=req_dict
+)
+tipo = asd.get('https://hrtest-server.sg.com.ua/api/dictionary/platform').json()['values'][0]['id']
+
+url_acc = 'https://hrtest-server.sg.com.ua/api/contact/677/accounts'
+result = asd.post(
+    url=url_acc,
+    data={"platform": tipo,"account": "12345678"}
+)
+print(result.status_code)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

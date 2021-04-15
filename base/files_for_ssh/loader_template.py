@@ -276,7 +276,7 @@ Service.objects.create(user=user,
 ReconciliationUserPropAccount.objects.filter(user=user).delete()
 ReconciliationUserPropAccount.objects.create(user=user,
                        account='777',
-                       # propreports_subdomain='vector',
+                       account_type=AccountType.objects.get(account_regexp=r'^3454[0-9]{4}$'),
                        month_adj_net=0.01,
                        ).save()
 userdata_object = UserData.objects.get(user=user)
