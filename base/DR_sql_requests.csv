@@ -1,0 +1,3 @@
+"id","request"
+1,"SELECT * FROM public.review_unrealizedpertickeraccount WHERE ticker = '{ticker}' and review_date = date '{review_date}' and unreal_position != 0 and session = 'POS'"
+2,"SELECT * FROM public.review_propreportsdata WHERE review_date = date '{review_date}' and ticker = '{ticker}' and execution_time < time '10:00:00'  ORDER BY account, execution_time, propreports_id"

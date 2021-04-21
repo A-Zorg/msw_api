@@ -21,14 +21,14 @@ def before_all(context):
     get_custom_config(context, host)
 
     # """create data set"""
-    # generate_data(5, context)
+    # generate_data(10, context)
     #
     # """upload dataset to the server"""
     # upload_files_server(context)
     #
     # """upload dataset to msw"""
     # runner(context, "loader.py")
-
+    #
     # """upload data to SERV&COMP table"""
     # update_gs()
     #
@@ -40,7 +40,7 @@ def before_all(context):
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-    #
+
     # """perform reconciliation"""
     # finish_reconciliation_process(context)
 
@@ -49,9 +49,9 @@ def before_all(context):
     context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
     context.modified_bills = copy.deepcopy(context.bills)
 
-def after_all(context):
-    """delete all generated data"""
-    runner(context, "cleaner.py")
+# def after_all(context):
+#     """delete all generated data"""
+#     runner(context, "cleaner.py")
 
 # """create allure reports"""
 # allure_report("allure-results/")

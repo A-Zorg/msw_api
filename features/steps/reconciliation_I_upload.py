@@ -134,18 +134,18 @@ def step_impl(context):
                         "custom_payout_rate": None,
                         'date_reconciliation': None,
                         "takion_accounts": [
-                            # {
-                            #     "account": "777",
-                            #     "month_adj_net": 0.01,
-                            #     "summary_by_date": None
-                            # }
-                        ],
-                        "sterling_accounts": [
                             {
                                 "account": "777",
                                 "month_adj_net": 0.01,
                                 "summary_by_date": None
                             }
+                        ],
+                        "sterling_accounts": [
+                            # {
+                            #     "account": "777",
+                            #     "month_adj_net": 0.01,
+                            #     "summary_by_date": None
+                            # }
                         ],
                         "services": [
                             {

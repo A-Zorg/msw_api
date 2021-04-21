@@ -20,8 +20,8 @@ def csv_file_modificator():
     import random
     import pandas
 
-    phrase = "without mod"                            #PHRASE
-    adj_net_to_be_modified = eval('None')        #MODIFICATOR_TYPES
+    phrase = "len(adj_net_list)-adj_net_list.count(0)==1"                            #PHRASE
+    adj_net_to_be_modified = eval('["non zero->change", "zero->create"]')        #MODIFICATOR_TYPES
     if "without mod" in phrase:
         return True
 

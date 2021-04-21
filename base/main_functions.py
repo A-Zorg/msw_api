@@ -185,6 +185,7 @@ def get_custom_config(context, host):
             "periodic_task": config['periodic_tasks']['test'],
             "risk_bot": config['risk_bot']['name'],
             "sb_user": config['SB_user'],
+            "propreports": config['propreports'],
         }
     elif host == "test_9999":
         context.custom_config = {
@@ -203,6 +204,7 @@ def get_custom_config(context, host):
             "periodic_task": config['periodic_tasks']['test_9999'],
             "risk_bot": config['risk_bot']['name'],
             "sb_user": config['SB_user'],
+            "propreports": config['propreports'],
         }
 
 """divide the number to the list of number which sum is equal to the initial number"""

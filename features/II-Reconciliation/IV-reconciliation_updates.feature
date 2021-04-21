@@ -1,19 +1,19 @@
 @super_user @manager_user
 Feature:  reconciliation update
 
-#  Scenario Outline: check "Entries created" feature(MSW-398)
-#      Given get bills id of user 90000
-#       And get all transactions of user 90000 before reconciliation
-#       And field -entries created- == <entries created>
-#       And field -date_reconciliation- == <reconciliation date>
-#      When perform RECONCILIATION
-#       And get all transactions of user 90000 after reconciliation
-#      Then compare transactions qty before and after RECONCILIATION <equality>
-#       And field -entries created- should be equal to <result>
-#
-#    Examples:
-#      | entries created  | reconciliation date | equality   | result  |
-#      | false            | today late          |  false     | True    |
+  Scenario Outline: check "Entries created" feature(MSW-398)
+      Given get bills id of user 90000
+       And get all transactions of user 90000 before reconciliation
+       And field -entries created- == <entries created>
+       And field -date_reconciliation- == <reconciliation date>
+      When perform RECONCILIATION
+       And get all transactions of user 90000 after reconciliation
+      Then compare transactions qty before and after RECONCILIATION <equality>
+       And field -entries created- should be equal to <result>
+
+    Examples:
+      | entries created  | reconciliation date | equality   | result  |
+      | false            | today late          |  false     | True    |
 #      | false            | today early         |  false     | True    |
 #      | true             | today midday        |  true      | True    |
 #      | false            | yesterday           |  true      | False   |
@@ -45,8 +45,8 @@ Feature:  reconciliation update
 #     | -150000    | true             | null                |  true      | 0        |
 #     | 150000     | false            | null                |  true      | 0        |
 #     | -150000    | true             | null                |  true      | 1        |
-
-
+#
+#
 #  Scenario Outline: Bonuses(MSW-510)
 #      Given clear db table: reconciliation_bonus
 #       And clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
@@ -71,54 +71,54 @@ Feature:  reconciliation update
 #     | 0           | 0.4        | none     |  -300       | none     |
 #     | -100        | 0.1        | none     |  3345.25    | 334.525  |
 #     | -35         | 0.13       | none     |  0          | none     |
-
-  Scenario Outline: Rounding(MSW-549)
-    Given clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
-     And clean DB table: reconciliation_service where user_id 90000
-     And change field -prev_month_net- in UserData table of user with hr_id 90000 to 1000
-     And get random account_type: -takion-
-     And create or update user -90000- propaccount -takion_1- with <first_number>
-     And create or update user -90000- propaccount -takion_2- with <second_number>
-     And get random account_type: -sterling-
-     And create or update user -90000- propaccount -sterling_1- with <first_number>
-     And create or update user -90000- propaccount -sterling_2- with <second_number>
-     And create or update user -90000- -service- with name -serv_1-, value -<first_number>-
-     And create or update user -90000- -service- with name -serv_2-, value -<second_number>-
-     And create or update user -90000- -compensation- with name -comp_1-, value -<first_number>-
-     And create or update user -90000- -compensation- with name -comp_2-, value -<second_number>-
-     And create or update user -90000- -fee- with name -fee_1-, value -<first_number>-
-     And create or update user -90000- -fee- with name -fee_2-, value -<second_number>-
-    When run the task: update_user_totals_before_reconciliation
-     And wait for task is finished: update_user_totals_before_reconciliation
-    Then check total_takion in UserData table: <first_number> and <second_number>
-     And check total_sterling in UserData table: <first_number> and <second_number>
-     And check services_total in UserData table: <first_number> and <second_number>
-     And check compensations_total in UserData table: <first_number> and <second_number>
-     And check office_fees in UserData table: <first_number> and <second_number>
-     And check total_net_month in UserData table: <total_net_month> and 0
-
-    Examples:
-     | first_number | second_number | total_net_month |
-     | 0.25         | 0.25          | 1004            |
-     | 123.4        | 904.0999      | 5108            |
-     | 8.0001       | 3             | 1044            |
-     | 23.75        | 99.2499       | 1492            |
-     | -0.3         | -0.2          | 996             |
-     | -6.25        | -99.2499      | 580             |
-     | -1.8         | -1000.1999    | -3008           |
-     | -0.7         | -76.6         | 692             |
-     | 0.6          | -0.2          | 1000            |
-
-
-
-
-
-
-
-
-
-
-
+#
+#  Scenario Outline: Rounding(MSW-549)
+#    Given clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
+#     And clean DB table: reconciliation_service where user_id 90000
+#     And change field -prev_month_net- in UserData table of user with hr_id 90000 to 1000
+#     And get random account_type: -takion-
+#     And create or update user -90000- propaccount -takion_1- with <first_number>
+#     And create or update user -90000- propaccount -takion_2- with <second_number>
+#     And get random account_type: -sterling-
+#     And create or update user -90000- propaccount -sterling_1- with <first_number>
+#     And create or update user -90000- propaccount -sterling_2- with <second_number>
+#     And create or update user -90000- -service- with name -serv_1-, value -<first_number>-
+#     And create or update user -90000- -service- with name -serv_2-, value -<second_number>-
+#     And create or update user -90000- -compensation- with name -comp_1-, value -<first_number>-
+#     And create or update user -90000- -compensation- with name -comp_2-, value -<second_number>-
+#     And create or update user -90000- -fee- with name -fee_1-, value -<first_number>-
+#     And create or update user -90000- -fee- with name -fee_2-, value -<second_number>-
+#    When run the task: update_user_totals_before_reconciliation
+#     And wait for task is finished: update_user_totals_before_reconciliation
+#    Then check total_takion in UserData table: <first_number> and <second_number>
+#     And check total_sterling in UserData table: <first_number> and <second_number>
+#     And check services_total in UserData table: <first_number> and <second_number>
+#     And check compensations_total in UserData table: <first_number> and <second_number>
+#     And check office_fees in UserData table: <first_number> and <second_number>
+#     And check total_net_month in UserData table: <total_net_month> and 0
+#
+#    Examples:
+#     | first_number | second_number | total_net_month |
+#     | 0.25         | 0.25          | 1004            |
+#     | 123.4        | 904.0999      | 5108            |
+#     | 8.0001       | 3             | 1044            |
+#     | 23.75        | 99.2499       | 1492            |
+#     | -0.3         | -0.2          | 996             |
+#     | -6.25        | -99.2499      | 580             |
+#     | -1.8         | -1000.1999    | -3008           |
+#     | -0.7         | -76.6         | 692             |
+#     | 0.6          | -0.2          | 1000            |
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 
 
 

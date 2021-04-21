@@ -51,8 +51,8 @@ def task_configuration(session, config, regtask, arg=[], kwarg={}):
         'task': '',
         'description': '',
         'interval': '1',
-        'args': str(arg),
-        'kwargs': str(kwarg),
+        'args': str(arg).replace('\'', '"'),
+        'kwargs': str(kwarg).replace('\'', '"'),
         'expires_0': '',
         'expires_1': '',
         'expire_seconds': '',
@@ -63,7 +63,6 @@ def task_configuration(session, config, regtask, arg=[], kwarg={}):
         'headers': '{}',
         '_save': 'Save',
     }
-
     response = session.post(url, data=recon_dict, headers={"Referer": url})
     return response.ok
 

@@ -67,16 +67,21 @@ def step_impl(context, filter):
     response = session.get(url)
     context.config.userdata[filter+'_dr'] = response.json()
 
-@step("create url with filters: {company}, {broker}, {clearing}")
+@step("create url with filters: {company}, {broker}, {clearing}, {side}")
 def step_impl(context, **filters):
     for id, bill in context.id_name_bill.items():
         if bill == 'Current Net balance':
             bill_id = id
     url = context.custom_config["host"] + f'api/accounting_system/entries/?user[]=90000&account[]={bill_id}'
+
+    side = filters.pop('side')
+    if side != 'all':
+        url = url + f'&transaction_side={side}'
+
     for filter, body in filters.items():
         if body == 'all':
             for part in context.config.userdata[filter + '_dr']:
-                url = url + '&acc_' + filter + '[]=' +str(part['id'])
+                url = url + '&acc_' + filter + '[]=' + str(part['id'])
         else:
             for part in context.config.userdata[filter + '_dr']:
                 if part['name'] == body:
@@ -96,9 +101,6 @@ def step_impl(context, result):
         amount = entry['transactions'][0]['amount']
         entries_sum += float(amount)
     assert float(result) == entries_sum
-
-
-
 @step("get {user_id} user bills: {ub1}, {ub2} and company bill: {cb1}")
 def step_impl(context, user_id, ub1, ub2, cb1):
     context.bills_list={}

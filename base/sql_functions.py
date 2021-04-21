@@ -1,5 +1,6 @@
 import time
 import psycopg2
+from psycopg2 import extras
 from mysql.connector import connection
 
 def mysql_select(request, user, password, port, host, database):
@@ -26,6 +27,21 @@ def pgsql_select(request, user, password, port, host, database):
             database=database
     ) as connect:
         cursor = connect.cursor()
+        if request.startswith('SELECT'):
+            cursor.execute(request)
+            response = cursor.fetchall()
+            time.sleep(0.5)
+            return response
+
+def pgsql_select_as_dict(request, user, password, port, host, database):
+    with psycopg2.connect(
+            user=user,
+            host=host,
+            port=port,
+            password=password,
+            database=database
+    ) as connect:
+        cursor = connect.cursor(cursor_factory=extras.RealDictCursor)
         if request.startswith('SELECT'):
             cursor.execute(request)
             response = cursor.fetchall()

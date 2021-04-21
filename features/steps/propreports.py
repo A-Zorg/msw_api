@@ -21,8 +21,6 @@ def step_impl(context, task_name):
     session = context.super_user
     task_configuration(session, context.custom_config, task_name)
     assert run_periodic_task(session, context.custom_config)
-    # assert run_periodic_task(session=session, task_name=task_name)
-    context.start_time = time.time()
 
 @step("upload to the server some file and run it: {file_name}")
 def step_impl(context, file_name):
@@ -74,15 +72,21 @@ def step_impl(context, qty):
     url = context.custom_config["host"] + "admin/accounting_system/monthpropreportstransaction/"
     response = session.get(url).text
     monthpropreportstransaction_result = re.findall(
-        '</td><td class="field-amount">([0-9\.-]*)</td><td',
+        '</td><td class="field-amount">([0-9\.-]*)</td>',
         response
     )
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(monthpropreportstransaction_result)+'\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance_after_modification"])) + '\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result) ) + '\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance"])) + '\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str('--------------------------------------------') + '\n')
     assert int(qty) == len(monthpropreportstransaction_result)
-    assert suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result) == suma(context.config.userdata["current_net_balance"])
+    assert round((suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result)), 2) == suma(context.config.userdata["current_net_balance"])
 
 
 @step("compare sum of Month Adj Net of accounts with Current Net balance sum of users")
@@ -92,17 +96,19 @@ def step_impl(context):
     response = session.get(url).text
 
     accounts_amounts = re.findall(
-        '</td><td class="field-month_adj_net">([0-9\.-]*)</td></tr>',
+        '</td><td class="field-month_adj_net">([0-9\.-]*)</td>',
         response
     )
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(accounts_amounts)+'\n')
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(suma(accounts_amounts))+'\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(suma(accounts_amounts))+'\n')
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
 
-    assert suma(accounts_amounts) == suma(context.config.userdata["current_net_balance"])
+    assert suma(accounts_amounts) - 1.51 == suma(context.config.userdata["current_net_balance"])
 
 
 

@@ -54,8 +54,6 @@ def step_impl(context, reconciliation_date):
     request = f"UPDATE public.reconciliation_userdata " \
               f"SET date_reconciliation = {datum} " \
               f"WHERE user_id = 90000"
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(request)+'\n')
     assert pgsql_update(request, **context.custom_config['pg_db'])
 
 @step("perform RECONCILIATION")
@@ -115,8 +113,6 @@ def step_impl(context, period):
                   f'WHERE user_id = 90000'
         response = pgsql_select(request, **context.custom_config['pg_db'])
         results.append(bool(response[0][0]))
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(results)+'\n')
     if period == 'before' and True not in results:
         assert False
     elif period == 'after' and True in results:

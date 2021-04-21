@@ -7,7 +7,7 @@ Feature: import from propreports
      And run the task: import_HR_module
      And wait for task is finished: import_HR_module
      And run the task: import_from_propreports_monthly
-     And pause - 20 sec(s)
+     And pause - 30 sec(s)
 #     And wait for task is finished: import_from_propreports_monthly
     When upload to the server some file and run it: month_propreports
      And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - without mod - None
@@ -15,40 +15,42 @@ Feature: import from propreports
      And compare sum of Month Adj Net of accounts with Current Net balance sum of users
 
 
-#  Scenario Outline: checking different types of corrections after month import from propreports
-#    Given check that 2 active accounts exist
-#     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>
-#     And get amount of users (90000, 90001) Current Net balance
-#    When run the task: import_from_propreports_monthly
-#     And wait for task is finished: entries_for_prop_month_correction
-#     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
-#     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
-#    Examples:
-#        |  phrase                                       |   modifier                                  | qty |
-#        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create", "zero->create"]          |  2  |
-#        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["zero->create"]                          |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]                          |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change", "non zero->change"]  |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change"]                      |  1  |
-#        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["non zero->change"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete", "non zero->delete"]  |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   [ "non zero->delete", "non zero->change"] |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete", "zero->create"]      |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change", "zero->create"]      |  2  |
+  Scenario Outline: checking different types of corrections after month import from propreports
+    Given check that 2 active accounts exist
+     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>
+     And get amount of users (90000, 90001) Current Net balance
+    When run the task: import_from_propreports_monthly
+     And pause - 30 sec(s)
+     And run the task: entries_for_prop_month_correction
+    And pause - 20 sec(s)
+     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
+     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
+    Examples:
+        |  phrase                                       |   modifier                                  | qty |
+        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create", "zero->create"]          |  2  |
+        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["zero->create"]                          |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]                          |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change", "non zero->change"]  |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change"]                      |  1  |
+        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["non zero->change"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete", "non zero->delete"]  |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   [ "non zero->delete", "non zero->change"] |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete", "zero->create"]      |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change", "zero->create"]      |  2  |
 
 
-#  Scenario Outline: checking different types of corrections after month import from propreports
-#    Given check that 1 active accounts exist
-#     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>
-#     And get amount of users (90000, 90001) Current Net balance
-#    When run the task: import_from_propreports_monthly
-#     And wait for task is finished: entries_for_prop_month_correction
-#     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
-#     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
-#    Examples:
-#        |  phrase                                       |   modifier             | qty |
-#        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]     |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"] |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change"] |  1  |
+  Scenario Outline: checking different types of corrections after month import from propreports
+    Given check that 1 active accounts exist
+     And modification of msw db to provoke running of bills_corrections by month_propreports_modificator - <phrase> - <modifier>
+     And get amount of users (90000, 90001) Current Net balance
+    When run the task: import_from_propreports_monthly
+     And wait for task is finished: entries_for_prop_month_correction
+     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
+     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
+    Examples:
+        |  phrase                                       |   modifier             | qty |
+        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]     |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"] |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change"] |  1  |

@@ -32,17 +32,15 @@ def step_impl(context, key):
           +url_accounts
 
 
-    context.accounts = [ context.id_name_bill[i] for i in accounts]
+    context.accounts = [context.id_name_bill[i] for i in accounts]
     context.url = url
 
 @step("add date to journal entries url")
 def step_impl(context):
-
     date_dict = prev_current_date()
-
     url_date = f'date_from={date_dict["prev_year"]}-{date_dict["prev_month"]}-28T00:00:00&' \
                f'date_to={date_dict["current_year"]}-{date_dict["current_month"]}-01T00:00:00'
-    context.url+=url_date
+    context.url += url_date
 
 @step("{subject} entries which {key} chosen")
 def step_impl(context, subject, key):
