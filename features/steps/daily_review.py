@@ -186,16 +186,16 @@ def step_impl(context):
             if cur_pos < prev_pos:
                 real_list.append(0)
             elif cur_pos > 0:
-                real_list.append(round((avg_lis[-1] - data['price']) * abs(prev_pos), 7))
+                real_list.append(round((avg_lis[-2] - data['price']) * abs(prev_pos), 7))
             elif cur_pos > prev_pos:
-                real_list.append(round((avg_lis[-1] - data['price']) * data['shares_amount'], 7))
+                real_list.append(round((avg_lis[-2] - data['price']) * data['shares_amount'], 7))
         elif prev_pos > 0:
             if cur_pos > prev_pos:
                 real_list.append(0)
             elif cur_pos < 0:
-                real_list.append(round(-(avg_lis[-1] - data['price']) * abs(prev_pos), 7))
+                real_list.append(round(-(avg_lis[-2] - data['price']) * abs(prev_pos), 7))
             elif cur_pos < prev_pos:
-                real_list.append(round(-(avg_lis[-1] - data['price']) * data['shares_amount'], 7))
+                real_list.append(round(-(avg_lis[-2] - data['price']) * data['shares_amount'], 7))
 
         prev_pos = cur_pos
         prev_data = data
@@ -220,10 +220,6 @@ def step_impl(context):
         #
         #
         #
-
-
-
-
 
 
 
