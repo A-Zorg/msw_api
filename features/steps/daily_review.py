@@ -130,9 +130,6 @@ def step_impl(context, req_number, number, execution_date):
 
 @step("[DR] check calculation: avg_price ans real in PropreportsData")
 def step_impl(context):
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(datetime.now()) + '\n')
-
     unreal_dict = {}
     for row in context.first_req:
         unreal_dict[row[3]] = [row[4], row[5]]
@@ -186,43 +183,23 @@ def step_impl(context):
             if cur_pos < prev_pos:
                 real_list.append(0)
             elif cur_pos > 0:
-                real_list.append(round((avg_lis[-1] - data['price']) * abs(prev_pos), 7))
+                real_list.append(round((avg_lis[-2] - data['price']) * abs(prev_pos), 7))
             elif cur_pos > prev_pos:
-                real_list.append(round((avg_lis[-1] - data['price']) * data['shares_amount'], 7))
+                real_list.append(round((avg_lis[-2] - data['price']) * data['shares_amount'], 7))
         elif prev_pos > 0:
             if cur_pos > prev_pos:
                 real_list.append(0)
             elif cur_pos < 0:
-                real_list.append(round(-(avg_lis[-1] - data['price']) * abs(prev_pos), 7))
+                real_list.append(round(-(avg_lis[-2] - data['price']) * abs(prev_pos), 7))
             elif cur_pos < prev_pos:
-                real_list.append(round(-(avg_lis[-1] - data['price']) * data['shares_amount'], 7))
+                real_list.append(round(-(avg_lis[-2] - data['price']) * data['shares_amount'], 7))
 
         prev_pos = cur_pos
         prev_data = data
-        # if avg_lis[-1] != round(data['avg_price'], 7):
-        #     with open('./xxx.txt', 'a') as file:
-        #         file.write(str(context.ticker) + str('  ') + str(data['account']) + str('  ') + str(data['execution_time']) + '\n')
-        #     with open('./xxx.txt', 'a') as file:
-        #         file.write(str(avg_lis[-1]) + str('avg ') + str(round(data['avg_price'], 7)) + '\n')
-        # if real_list[-1] != round(data['real'], 7):
-        #     with open('./xxx.txt', 'a') as file:
-        #         file.write(str(context.ticker) + str('  ') + str(data['account']) + str('  ') + str(data['execution_time'])+ '\n')
-        #     with open('./xxx.txt', 'a') as file:
-        #         file.write(str(real_list[-1]) + str('real ') + str(round(data['real'], 7)) + '\n')
-        if data['account'] == 'STS039N':
-            with open('./xxx.txt', 'a') as file:
-                file.write(str(real_list[-1]) + str('       ') + str(round(data['real'], 7)) + '\n')
+        # with open('./xxx.txt', 'a') as file:
+        #     file.write(str(avg_lis[-1]) + str('     ') + str(round(data['avg_price'], 7)) + '\n')
         assert avg_lis[-1] == round(data['avg_price'], 7)
         assert real_list[-1] == round(data['real'], 7)
-        # with open('./xxx.txt', 'a') as file:
-        #     file.write(str(avg_lis[-1]) + str('   ') + str(round(data['avg_price'], 7)) + '\n')
-        #
-        #
-        #
-        #
-
-
-
 
 
 
