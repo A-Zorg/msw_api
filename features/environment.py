@@ -10,6 +10,7 @@ from base.ssh_interaction import upload_files_server, runner
 from base.data_set_creater import data_set_reconciliation, add_number_bills
 from generator.total_generation import generate_data
 from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
+from base.behave_upgrade import scenario_repeat
 
 os.environ['TEST_HOST'] = 'test_9999'
 def before_all(context):
@@ -52,6 +53,12 @@ def before_all(context):
 # def after_all(context):
 #     """delete all generated data"""
 #     runner(context, "cleaner.py")
+
+def before_feature(context, feature):
+    for scenario in feature.walk_scenarios():
+        if "autorepeat" in scenario.effective_tags:
+            attempt = int(scenario.effective_tags[1])
+            scenario_repeat(scenario, max_attempts=attempt)
 
 # """create allure reports"""
 # allure_report("allure-results/")
