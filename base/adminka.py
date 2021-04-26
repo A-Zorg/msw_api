@@ -1,8 +1,10 @@
 import re
 import time
+import datetime
 import requests
 import pyotp
-from base.sql_functions import pgsql_select
+import pandas
+from base.sql_functions import pgsql_select, pgsql_insert, pgsql_del
 
 
 def get_token(session, url, key='csrftoken'):
@@ -150,6 +152,100 @@ def finish_reconciliation_process(context, wait_time=1200):
         raise Exception
     else:
         print("reconciliation was finished")
+
+def dr_dataset_uploader(db_creds, date_list, reviewed_days=2):
+    """
+    upoload dataset for DR for dates which are in date_list
+    """
+    dataset = pandas.read_csv('./generator/dataset_dr.csv')
+    for i in range(reviewed_days):
+        fields = ', '.join(dataset.columns[1:])
+        request_template = f'INSERT INTO public.review_propreportsdata({fields}) VALUES '
+        request = request_template
+        for index, row in dataset.iterrows():
+            row['review_date'] = date_list[1+i]
+            if datetime.time.fromisoformat(row['execution_time']) >= datetime.time(10, 0, 0):
+                row['execution_date'] = date_list[0+i]
+            else:
+                row['execution_date'] = date_list[1+i]
+            unit = list(row)
+            unit[11] = unit[12] = unit[13] = 0
+            unit = str(unit[1:])
+            request = request + '(' + unit[1:-1] + '),'
+
+            if index % 5000 == 0:
+                pgsql_insert(request[:-1], **db_creds)
+                request = request_template
+        response = pgsql_insert(request[:-1], **db_creds)
+        assert response
+
+def calculation_starter(context, date_list, days=2):
+    """
+    run task 'start_session_calculations' for dates which are in date_list
+    """
+    session = context.super_user
+    interaction_dict = {
+        "INT": "update_postmarket_unrealized",
+        "PRE": "start_session_calculations",
+    }
+
+    for i in range(days):
+        working_date = date_list[1+i]
+        for key, value in interaction_dict.items():
+            task_configuration(
+                session=session,
+                config=context.custom_config,
+                regtask='start_session_calculations',
+                arg=f'["{key}", "{working_date}"]'
+            )
+
+            print(f'["{key}", "{str(working_date)}"]')
+            run_periodic_task(
+                session=session,
+                config=context.custom_config,
+            )
+            result = wait_periodictask_to_be_done(task_name=value, context=context)
+            print(result)
+
+def perform_dr_calculation(context, calculation_date):
+    """
+    Perform DR calculation for chosen date
+    :param context: Behave context
+    :param calculation_date: chosen date
+    :return:
+    """
+    target_date = datetime.datetime.fromisoformat(calculation_date)
+    target_date_week_day = target_date.weekday()
+
+    if target_date_week_day == 0:
+        prev_date = target_date - datetime.timedelta(days=3)
+        next_date = target_date + datetime.timedelta(days=1)
+    elif target_date_week_day == 4:
+        prev_date = target_date - datetime.timedelta(days=1)
+        next_date = target_date + datetime.timedelta(days=3)
+    else:
+        prev_date = target_date - datetime.timedelta(days=1)
+        next_date = target_date + datetime.timedelta(days=1)
+
+    context.dr_dates = {
+        "prev_date": str(prev_date.date()),
+        "target_date": str(target_date.date()),
+        "next_date": str(next_date.date())
+    }
+    # for cleared_date in context.dr_dates.values():
+    #     request = "DELETE FROM public.review_propreportsdata " \
+    #               f"WHERE review_date = date'{cleared_date}'"
+    #     assert pgsql_del(request, **context.custom_config['pg_db'])
+    #
+    # dr_dataset_uploader(
+    #     db_creds=context.custom_config['pg_db'],
+    #     date_list=list(context.dr_dates.values())
+    # )
+    # calculation_starter(
+    #     context=context,
+    #     date_list=list(context.dr_dates.values())
+    # )
+    print('DR_dataset is uploaded')
 
 
 def wait_periodictask_to_be_done2(task_name, pgsql, wait_time=3600):

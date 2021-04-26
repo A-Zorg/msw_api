@@ -305,32 +305,10 @@ import datetime
 # # to_modified_user_propreports = pd.DataFrame(data=user_propreports_in_dict)
 # # to_modified_user_propreports.to_csv('base/files_for_ssh/month_propreports.csv')
 # #
-
-
-import requests
-
-url = 'https://smart.propreports.com/login.php'
-req_dict = {
-    'user': 'SMRT046-2',
-    'password': 'Z4mn230L'
-}
-
-session = requests.Session()
-response = session.post(
-    url=url,
-    data=req_dict
-)
-print(response.status_code)
-url_x = 'https://smart.propreports.com/report.php?startDate=2021-01-15&endDate=2021-04-15&groupId=-4&accountId=1025&reportType=summaryByDate&mode=1&baseCurrency=USD&export=1'
-response = session.get(url_x)
-with open('./xxx.xls', 'wb') as file:
-    file.write(response.content)
-
-
-
-
-
-
+class Volo():
+      asd = '123'
+a = Volo()
+print(hasattr(a, 'ash'))
 
 
 

@@ -81,3 +81,19 @@ def pgsql_update(request, user, password, port, host, database):
             return True
         else:
             return False
+
+def pgsql_insert(request, user, password, port, host, database):
+    with psycopg2.connect(
+            user=user,
+            host=host,
+            port=port,
+            password=password,
+            database=database,
+    ) as connect:
+        try:
+            cursor = connect.cursor()
+            if request.startswith('INSERT'):
+                cursor.execute(request)
+                return cursor.statusmessage
+        except:
+            return False

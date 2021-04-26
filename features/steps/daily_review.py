@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, time
+import json
 import re
 import random
 import pandas
@@ -90,22 +91,24 @@ def step_impl(context):
             assert False
 
 
-@step("get random ticker (review_date=={execution_date})")
-def step_impl(context, execution_date):
+@step("get random ticker")
+def step_impl(context):
+    review_date = context.dr_dates['target_date']
     request = "SELECT DISTINCT(ticker) FROM public.review_propreportsdata " \
-              f"WHERE execution_date = date '{execution_date}'"
+              f"WHERE execution_date = date '{review_date}'"
     raw_result = pgsql_select(request, **context.custom_config['pg_db'])
-    all_result = [ticker[0] for ticker in raw_result]
+    clear_result = [ticker[0] for ticker in raw_result]
 
-    context.ticker = random.choice(all_result)
-    # context.ticker = "NCLH"
+    context.ticker = random.choice(clear_result)
 
-@step("get from db {req_number} DR_data_tuple: request_#=={number}, review_date=={execution_date}")
-def step_impl(context, req_number, number, execution_date):
+    # context.ticker = "ZTO"
+
+@step("get from db {req_number} DR_data_tuple: request_#=={number}, review_date=={review_date}")
+def step_impl(context, req_number, number, review_date):
     sql_requests = pandas.read_csv('./base/DR_sql_requests.csv')
     request = sql_requests['request'][int(number)-1].format(
         ticker=context.ticker,
-        review_date=execution_date
+        review_date=review_date
     )
     response = pgsql_select(request, **context.custom_config['pg_db'])
 
@@ -113,13 +116,15 @@ def step_impl(context, req_number, number, execution_date):
         context.first_req = response
     elif req_number == 'second':
         context.second_req = response
+    elif req_number == 'third':
+        context.third_req = response
 
-@step("get from db {req_number} DR_data_dictionary: request_#=={number}, review_date=={execution_date}")
-def step_impl(context, req_number, number, execution_date):
+@step("get from db {req_number} DR_data_dictionary: request_#=={number}, review_date=={review_date}")
+def step_impl(context, req_number, number, review_date):
     sql_requests = pandas.read_csv('./base/DR_sql_requests.csv')
     request = sql_requests['request'][int(number)-1].format(
         ticker=context.ticker,
-        review_date=execution_date
+        review_date=review_date
     )
     response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
 
@@ -127,18 +132,20 @@ def step_impl(context, req_number, number, execution_date):
         context.first_req = response
     elif req_number == 'second':
         context.second_req = response
+    elif req_number == 'third':
+        context.third_req = response
 
 @step("[DR] check calculation: avg_price ans real in PropreportsData")
 def step_impl(context):
     unreal_dict = {}
-    for row in context.first_req:
+    for row in context.sql_responses['first']:
         unreal_dict[row[3]] = [row[4], row[5]]
 
     avg_lis = []
     real_list = []
     prev_data = None
     prev_pos = 0
-    for data in context.second_req:
+    for data in context.sql_responses['second']:
         try:
             if prev_data['account'] != data['account']:
                 prev_data = None
@@ -196,10 +203,221 @@ def step_impl(context):
 
         prev_pos = cur_pos
         prev_data = data
-        # with open('./xxx.txt', 'a') as file:
-        #     file.write(str(avg_lis[-1]) + str('     ') + str(round(data['avg_price'], 7)) + '\n')
+
         assert avg_lis[-1] == round(data['avg_price'], 7)
         assert real_list[-1] == round(data['real'], 7)
+
+@step("[DR] check calculation: unrealizedpertickeraccount")
+def step_impl(context):
+    prop_list = context.sql_responses['first']
+    account = None
+    account_list = []
+    expected_list = []
+    while prop_list:
+        account = prop_list[-1]['account']
+        account_list.append(account)
+        if prop_list[-1]['position'] != 0:
+            expected_list.append([
+                prop_list[-1]['account'],
+                prop_list[-1]['position'],
+                prop_list[-1]['avg_price'],
+                True
+            ])
+        prop_list = [row for row in prop_list if row['account'] != account]
+
+    prev_unreal = context.sql_responses['third']
+    for row in prev_unreal:
+        if row['account'] not in account_list:
+            expected_list.append([
+                row['account'],
+                row['unreal_position'],
+                row['unreal_avg_price'],
+                False
+            ])
+
+    cur_unreal = context.sql_responses['second']
+    actual_list = []
+    for row in cur_unreal:
+        actual_list.append([
+            row['account'],
+            row['unreal_position'],
+            row['unreal_avg_price'],
+            row['traded']
+        ])
+
+    for obj in actual_list:
+        if obj not in expected_list:
+            assert False
+    assert True
+
+@step("[DR] check calculation: unrealizedperticker")
+def step_impl(context):
+    unrealized_sum_expected = 0
+    traded_expected = False
+    if context.sql_responses['first']:
+        unrealized_sum_expected = sum([row['unreal_position']for row in context.sql_responses['first']])
+        traded_expected = any([row['traded']for row in context.sql_responses['first']])
+
+    unrealized_sum_actual = context.sql_responses['second'][0]['unrealized_sum']
+    traded_actual = context.sql_responses['second'][0]['traded']
+
+    assert unrealized_sum_expected == unrealized_sum_actual
+    assert traded_expected == traded_actual
+
+
+@step("[DR] check calculation: intervalsperticker({session})")
+def step_impl(context, session):
+    def create_expected_dict (start_time, intervals):
+        expected_dict = {}
+        for interval in range(intervals):
+            interval_date = start_time + timedelta(minutes=interval*5)
+            interval_time = str(interval_date.time())
+            expected_dict[interval_time] = {
+                "position": 0,
+                "B": 0,
+                "S": 0,
+                "T": 0
+            }
+        return expected_dict
+
+    if session == 'PRE':
+        start_time = datetime.fromisoformat('0001-01-01 04:00:00')
+        expected_dict = actual_dict = create_expected_dict(start_time, 72)
+    elif session == 'INT':
+        start_time = datetime.fromisoformat('0001-01-01 10:00:00')
+        expected_dict = actual_dict = create_expected_dict(start_time, 72)
+    elif session == 'POS':
+        start_time = datetime.fromisoformat('0001-01-01 16:00:00')
+        expected_dict = actual_dict = create_expected_dict(start_time, 48)
+
+    try:
+        prev_position = context.sql_responses['second'][0]['unrealized_sum']
+    except:
+        prev_position = 0
+    prev_interval_position = 0
+
+    for row in context.sql_responses['first']:
+        real_time = row['execution_time']
+        coef = real_time.minute // 5
+        interval_time = str(real_time.replace(minute=coef*5, second=0))
+        expected_dict[interval_time][row['side']] += row["shares_amount"]
+
+    for interval in expected_dict.values():
+        if prev_position:
+            interval['position'] = prev_position + interval['B'] - interval['S'] - interval['T']
+            prev_position = 0
+        else:
+            interval['position'] = prev_interval_position + interval['B'] - interval['S'] - interval['T']
+        prev_interval_position = interval['position']
+
+    for row in context.sql_responses['third']:
+        actual_dict[str(row['interval_time'])] = {
+            "position": row['position'],
+            "B": row['buy'],
+            "S": row['sell'],
+            "T": row['short']
+        }
+    # if expected_dict != actual_dict:
+    #     with open('./xxx.txt', 'a') as file:
+    #         file.write(str(expected_dict) + '\n')
+    #
+    #     with open('./xxx.txt', 'a') as file:
+    #         file.write(str(actual_dict) + '\n')
+    assert expected_dict == actual_dict
+
+@step("[DR] check calculation: datepertickeraccount")
+def step_impl(context):
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.sql_responses['first']) + '\n')
+    assert context.sql_responses['first'] == context.sql_responses['second']
+
+@step("[DR] check calculation: dateperticker(result, shares_traded, result_in_points)")
+def step_impl(context):
+    if context.sql_responses['first'] == [(None, None, None)]:
+        first_req = []
+    else:
+        result = context.sql_responses['first'][0][0]
+        shares_traded = context.sql_responses['first'][0][1]
+        result_in_points = context.sql_responses['first'][0][2]
+        if (abs(result)>=0.2 and shares_traded>=10000) or (abs(result)>=1 and shares_traded<10000):
+            to_be_showed = True
+        else:
+            to_be_showed = False
+        first_req = [(result, shares_traded, result_in_points, to_be_showed)]
+    assert first_req == context.sql_responses['second']
+
+
+@step("from db get {response_number} DR_data_dictionary: request_name=={req_name}, review_date=={review_date}, session=={session}")
+def step_impl(context, response_number, req_name, review_date, session):
+    with open('./base/dr_sql_requests.json', 'r') as json_file:
+        sql_requests = json.load(json_file)
+    request = sql_requests[req_name]
+    session = session.upper()
+    if 'and execution_time' in request or 'WHERE execution_time' in request:
+        if session == "PRE":
+            session = "< time '10:00:00'"
+        elif session == "INT":
+            session = "< time '16:00:00' and execution_time >= time '10:00:00'"
+        elif session == "POS":
+            session = ">= time '16:00:00'"
+
+    request = sql_requests[req_name].format(
+        ticker=context.ticker,
+        review_date=context.dr_dates[review_date],
+        session=session
+    )
+    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
+
+
+    if hasattr(context, 'sql_responses'):
+        context.sql_responses[response_number] = response
+    else:
+        context.sql_responses = {}
+        context.sql_responses[response_number] = response
+
+@step("from db get {response_number} DR_data_tuple: request_name=={req_name}, review_date=={review_date}, session=={session}")
+def step_impl(context, response_number, req_name, review_date, session):
+    with open('./base/dr_sql_requests.json', 'r') as json_file:
+        sql_requests = json.load(json_file)
+    request = sql_requests[req_name]
+    session = session.upper()
+    if 'and execution_time' in request or 'WHERE execution_time' in request:
+        if session == "PRE":
+            session = "< time '10:00:00'"
+        elif session == "INT":
+            session = "< time '16:00:00' and execution_time >= time '10:00:00'"
+        elif session == "POS":
+            session = ">= time '16:00:00'"
+
+    request = sql_requests[req_name].format(
+        ticker=context.ticker,
+        review_date=context.dr_dates[review_date],
+        session=session
+    )
+    response = pgsql_select(request, **context.custom_config['pg_db'])
+
+    if hasattr(context, 'sql_responses'):
+        context.sql_responses[response_number] = response
+    else:
+        context.sql_responses = {}
+        context.sql_responses[response_number] = response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

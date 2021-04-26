@@ -4,7 +4,7 @@ from behave import use_fixture
 from base.google_sheet import update_gs
 from allure_behave.hooks import allure_report
 from base.fixtures import session
-from base.adminka import finish_reconciliation_process
+from base.adminka import finish_reconciliation_process, perform_dr_calculation
 from base.main_functions import get_custom_config
 from base.ssh_interaction import upload_files_server, runner
 from base.data_set_creater import data_set_reconciliation, add_number_bills
@@ -44,6 +44,8 @@ def before_all(context):
 
     # """perform reconciliation"""
     # finish_reconciliation_process(context)
+
+    perform_dr_calculation(context, '2020-08-18')
 
     """generate vars with data"""
     bills, entries = data_set_reconciliation()
