@@ -6,6 +6,11 @@
   "intervalsperticker": "SELECT * FROM public.review_intervalsperticker WHERE ticker = '{ticker}' and review_date = date '{review_date}' and session = '{session}' ORDER BY interval_time ASC",
   "datapertickeraccount_1": "SELECT SUM(total_real)/10000, SUM(total_shares_traded), ROUND((SUM(total_real)/SUM(total_shares_traded))::DECIMAL, 7) FROM public.review_datapertickeraccount WHERE review_date=date'{review_date}' and ticker='{ticker}' and session='{session}'",
   "datapertickeraccount_2": "SELECT account, ROUND( total_real::DECIMAL, 7), total_shares_traded FROM public.review_datapertickeraccount WHERE review_date=date'{review_date}' and ticker='{ticker}' and session='{session}' ORDER BY account",
-  "dataperticker": "SELECT result, shares_traded, ROUND(result_in_points::DECIMAL, 7), to_be_showed FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and ticker='{ticker}'",
-  "propreportsdata_pertickeraccount": "SELECT account, ROUND(SUM(real)::DECIMAL, 7) as real, SUM(shares_amount) FROM public.review_propreportsdata WHERE review_date = date '{review_date}' and ticker = '{ticker}' and execution_time {session} GROUP BY account ORDER BY account"
+  "dataperticker": "SELECT result, shares_traded, ROUND(result_in_points::DECIMAL, 7), to_be_showed, max_pos FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and ticker='{ticker}'",
+  "propreportsdata_pertickeraccount": "SELECT account, ROUND(SUM(real)::DECIMAL, 7) as real, SUM(shares_amount) FROM public.review_propreportsdata WHERE review_date = date '{review_date}' and ticker = '{ticker}' and execution_time {session} GROUP BY account ORDER BY account",
+  "dataperticker_shares_traded": "SELECT SUM(shares_traded) FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' ",
+  "dataperticker_pos_result": "SELECT SUM(result) FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and result >0",
+  "dataperticker_neg_result": "SELECT SUM(result) FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and result <0",
+  "datapersession": "SELECT * FROM public.review_datapersession WHERE review_date=date'{review_date}' and session='{session}'",
+  "dataperticker_all": "SELECT * FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and ticker='{ticker}' ORDER BY id ASC "
 }

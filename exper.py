@@ -305,13 +305,6 @@ import datetime
 # # to_modified_user_propreports = pd.DataFrame(data=user_propreports_in_dict)
 # # to_modified_user_propreports.to_csv('base/files_for_ssh/month_propreports.csv')
 # #
-class Volo():
-      asd = '123'
-a = Volo()
-print(hasattr(a, 'ash'))
-
-
-
 
 
 

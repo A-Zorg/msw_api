@@ -217,6 +217,11 @@ def perform_dr_calculation(context, calculation_date):
     target_date = datetime.datetime.fromisoformat(calculation_date)
     target_date_week_day = target_date.weekday()
 
+    if target_date_week_day in [5, 6]:
+        target_date = target_date + datetime.timedelta(days=2)
+        target_date_week_day = target_date.weekday()
+        print("DR date is not business day, so it was changed to another")
+
     if target_date_week_day == 0:
         prev_date = target_date - datetime.timedelta(days=3)
         next_date = target_date + datetime.timedelta(days=1)

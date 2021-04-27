@@ -99,16 +99,18 @@ def step_impl(context):
         '</td><td class="field-month_adj_net">([0-9\.-]*)</td>',
         response
     )
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(accounts_amounts)+'\n')
+    while '-' in accounts_amounts:
+        accounts_amounts.remove('-')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(accounts_amounts)+'\n')
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(suma(accounts_amounts))+'\n')
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(suma(accounts_amounts))+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
 
-    assert suma(accounts_amounts) - 1.51 == suma(context.config.userdata["current_net_balance"])
+    assert suma(accounts_amounts) == suma(context.config.userdata["current_net_balance"])
 
 
 

@@ -344,7 +344,93 @@ def step_impl(context):
         else:
             to_be_showed = False
         first_req = [(result, shares_traded, result_in_points, to_be_showed)]
-    assert first_req == context.sql_responses['second']
+
+    if context.sql_responses['second']:
+        second_req = [context.sql_responses['second'][0][0:4]]
+    else:
+        second_req = []
+
+    assert first_req == second_req
+
+@step("[DR] check calculation: dateperticker NON(result, shares_traded, result_in_points)")
+def step_impl(context):
+    if context.sql_responses['third']:
+        nonmark = list(context.sql_responses['third'][0])
+        nonmark.insert(2, round(float(nonmark.pop(2)),5))
+    else:
+        return True
+    premark = context.sql_responses['first'][0] if context.sql_responses['first'] \
+        else (0, 0, 0, 0, 0)
+    postmark = context.sql_responses['second'][0] if context.sql_responses['second'] \
+        else (0, 0, 0, 0, 0)
+    max_pos_dict = {
+        abs(premark[4]): premark[4],
+        abs(postmark[4]): postmark[4]
+    }
+    exp_result = [
+        premark[0] + postmark[0],
+        premark[1] + postmark[1],
+        round((nonmark[0] / nonmark[1])*10000, 5),
+        any([premark[3], postmark[3]]),
+        max_pos_dict[max(max_pos_dict.keys())],
+    ]
+
+    assert nonmark == exp_result
+
+
+@step("[DR] check calculation: dateperticker(result_in_percents, office_volume)")
+def step_impl(context):
+    try:
+        dataperticker = context.sql_responses['second'][0]
+    except:
+        return True
+    ticker_result = dataperticker['result']
+    ticker_result_in_percent = round(dataperticker['result_in_percents'], 8)
+    ticker_shares = dataperticker['shares_traded']
+    ticker_office_volume = round(dataperticker['office_volume'], 8)
+
+    session_data = context.sql_responses['first'][0]
+    all_shares = session_data['shares_traded']
+    all_pos_result = session_data['pos_total_result']
+    all_neg_result = session_data['neg_total_result']
+
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(ticker_office_volume) + '\n')
+
+    if ticker_result > 0:
+        assert round((ticker_result/all_pos_result)*1000000, 8) == ticker_result_in_percent
+    else:
+        assert -round((ticker_result/all_neg_result)*1000000, 8) == ticker_result_in_percent
+
+    assert ticker_office_volume == round((ticker_shares / all_shares) * 100, 8)
+
+@step("[DR] check calculation: datapersession")
+def step_impl(context):
+    exp_result = {
+        'shares_traded': context.sql_responses['first'][0][0],
+        'pos_total_result': round(context.sql_responses['second'][0][0]*10000,5),
+        'neg_total_result': round(context.sql_responses['third'][0][0]*10000,5),
+    }
+    exp_result['positive_percent'] = round(exp_result['pos_total_result'] * 100 / \
+                                     (exp_result['pos_total_result'] - exp_result['neg_total_result']), 7)
+    exp_result['negative_percent'] = round(exp_result['neg_total_result'] * 100 / \
+                                     (exp_result['neg_total_result'] - exp_result['pos_total_result']), 7)
+
+    act_result = {
+        'shares_traded': context.sql_responses['forth'][0]['shares_traded'],
+        'pos_total_result': round(context.sql_responses['forth'][0]['pos_total_result'], 5),
+        'neg_total_result': round(context.sql_responses['forth'][0]['neg_total_result'], 5),
+        'positive_percent': round(context.sql_responses['forth'][0]['positive_percent'], 7),
+        'negative_percent': round(context.sql_responses['forth'][0]['negative_percent'], 7),
+    }
+
+
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(exp_result) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(act_result) + '\n')
+    assert exp_result == act_result
+
 
 
 @step("from db get {response_number} DR_data_dictionary: request_name=={req_name}, review_date=={review_date}, session=={session}")

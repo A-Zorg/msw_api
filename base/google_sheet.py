@@ -4,7 +4,7 @@ import pandas as pd
 import datetime
 
 
-GOOGLE_ACCOUNT_CREDS = 'cred/creds.json'
+GOOGLE_ACCOUNT_CREDS = 'cred/msw-gs-creds.json'
 SERVICES_SPREADSHEET_ID_2 = '1AYD-JXNcxd0K9avN9qrOqsiDBJSf8s4mhYNYRTvjET0'
 
 class GSpread:
