@@ -45,7 +45,12 @@ def before_all(context):
     # """perform reconciliation"""
     # finish_reconciliation_process(context)
 
-    perform_dr_calculation(context, '2020-08-18')
+    """perform dr calculation"""
+    perform_dr_calculation(
+        context=context,
+        calculation_date='2021-02-08',
+        calculation=False
+    )
 
     """generate vars with data"""
     bills, entries = data_set_reconciliation()

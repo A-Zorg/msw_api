@@ -2,13 +2,14 @@ from datetime import datetime, timedelta, time
 import json
 import re
 import random
+import numpy
 import pandas
 import requests
 from behave import *
-from base.main_functions import correct_py_file
+from base.sql_request import dr
+from base.tools.dr_fun import get_time_param, previous_business_day, write_log
 from base.sql_functions import pgsql_del, pgsql_select, pgsql_select_as_dict
-from base.adminka import task_configuration, run_periodic_task, wait_periodictask_to_be_done
-from base.ssh_interaction import change_db_through_django
+from base.adminka import task_configuration, run_periodic_task
 
 
 @step("from propreports get data of selected {account} for {selected_data}")
@@ -26,13 +27,14 @@ def step_impl(context, account, selected_data):
     )
     assert response.status_code
     xls_url = context.custom_config['propreports']['host'] + 'report.php?' \
-              f"startDate={context.custom_config['propreports']['execution_date']}" \
-              f"&endDate={context.custom_config['propreports']['execution_date']}" \
-               '&groupId=-4&accountId=1025&reportType=detailed&mode=1' \
-               '&baseCurrency=USD&export=1'
+                                                             f"startDate={context.custom_config['propreports']['execution_date']}" \
+                                                             f"&endDate={context.custom_config['propreports']['execution_date']}" \
+                                                             '&groupId=-4&accountId=1025&reportType=detailed&mode=1' \
+                                                             '&baseCurrency=USD&export=1'
 
     get_response = session.get(xls_url)
     context.binary_data_response = get_response.content.replace(b'\xff\xfe', b'\xfe\xff', 1)
+
 
 @step("parse data from xls file")
 def step_impl(context):
@@ -60,11 +62,13 @@ def step_impl(context):
             ))
     context.propreports_result = propreportsdata_list
 
+
 @step("clear review_propreportsdata db table for {selected_data}")
 def step_impl(context, selected_data):
-    request ="DELETE FROM public.review_propreportsdata " \
+    request = "DELETE FROM public.review_propreportsdata " \
               f"WHERE execution_date = date '{context.custom_config['propreports']['execution_date']}' "
     assert pgsql_del(request, **context.custom_config['pg_db'])
+
 
 @step("run {task_name} for {selected_data}")
 def step_impl(context, task_name, selected_data):
@@ -75,12 +79,14 @@ def step_impl(context, task_name, selected_data):
     task_configuration(session, context.custom_config, task_name, arg=datum)
     assert run_periodic_task(session, context.custom_config)
 
+
 @step("from db get data of selected {account} for {selected_data}")
 def step_impl(context, account, selected_data):
     request = "SELECT review_date, execution_date, execution_time, ticker, account, side, shares_amount, price  " \
-               "FROM public.review_propreportsdata " \
-               f"WHERE execution_date = date '{context.custom_config['propreports']['execution_date']}'"
+              "FROM public.review_propreportsdata " \
+              f"WHERE execution_date = date '{context.custom_config['propreports']['execution_date']}'"
     context.db_result = pgsql_select(request, **context.custom_config['pg_db'])
+
 
 @step("compare data from propreports and db")
 def step_impl(context):
@@ -102,38 +108,6 @@ def step_impl(context):
     context.ticker = random.choice(clear_result)
 
     # context.ticker = "ZTO"
-
-@step("get from db {req_number} DR_data_tuple: request_#=={number}, review_date=={review_date}")
-def step_impl(context, req_number, number, review_date):
-    sql_requests = pandas.read_csv('./base/DR_sql_requests.csv')
-    request = sql_requests['request'][int(number)-1].format(
-        ticker=context.ticker,
-        review_date=review_date
-    )
-    response = pgsql_select(request, **context.custom_config['pg_db'])
-
-    if req_number == 'first':
-        context.first_req = response
-    elif req_number == 'second':
-        context.second_req = response
-    elif req_number == 'third':
-        context.third_req = response
-
-@step("get from db {req_number} DR_data_dictionary: request_#=={number}, review_date=={review_date}")
-def step_impl(context, req_number, number, review_date):
-    sql_requests = pandas.read_csv('./base/DR_sql_requests.csv')
-    request = sql_requests['request'][int(number)-1].format(
-        ticker=context.ticker,
-        review_date=review_date
-    )
-    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
-
-    if req_number == 'first':
-        context.first_req = response
-    elif req_number == 'second':
-        context.second_req = response
-    elif req_number == 'third':
-        context.third_req = response
 
 @step("[DR] check calculation: avg_price ans real in PropreportsData")
 def step_impl(context):
@@ -170,7 +144,7 @@ def step_impl(context):
         elif prev_pos < 0:
             if cur_pos < prev_pos:
                 avg_lis.append(round((avg_lis[-1] * abs(prev_pos) + data['price'] * data['shares_amount']) / (
-                            data['shares_amount'] + abs(prev_pos)), 7))
+                        data['shares_amount'] + abs(prev_pos)), 7))
             elif cur_pos > 0:
                 avg_lis.append(round(data['price'], 7))
             elif cur_pos > prev_pos:
@@ -178,7 +152,7 @@ def step_impl(context):
         elif prev_pos > 0:
             if cur_pos > prev_pos:
                 avg_lis.append(round((avg_lis[-1] * abs(prev_pos) + data['price'] * data['shares_amount']) / (
-                            data['shares_amount'] + abs(prev_pos)), 7))
+                        data['shares_amount'] + abs(prev_pos)), 7))
             elif cur_pos < 0:
                 avg_lis.append(round(data['price'], 7))
             elif cur_pos < prev_pos:
@@ -203,6 +177,14 @@ def step_impl(context):
 
         prev_pos = cur_pos
         prev_data = data
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(avg_lis[-1]) +'     '+ str(round(data['avg_price'], 7))+'\n')
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(real_list[-1]) +'     '+ str(round(data['real'], 7))+'\n')
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(data['account']) + '\n')
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(context.ticker) + '\n')
 
         assert avg_lis[-1] == round(data['avg_price'], 7)
         assert real_list[-1] == round(data['real'], 7)
@@ -262,6 +244,12 @@ def step_impl(context):
     traded_actual = context.sql_responses['second'][0]['traded']
 
     assert unrealized_sum_expected == unrealized_sum_actual
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.ticker) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(traded_expected) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(traded_actual) + '\n')
     assert traded_expected == traded_actual
 
 
@@ -349,7 +337,10 @@ def step_impl(context):
         second_req = [context.sql_responses['second'][0][0:4]]
     else:
         second_req = []
-
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(first_req) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(second_req) + '\n')
     assert first_req == second_req
 
 @step("[DR] check calculation: dateperticker NON(result, shares_traded, result_in_points)")
@@ -394,8 +385,8 @@ def step_impl(context):
     all_pos_result = session_data['pos_total_result']
     all_neg_result = session_data['neg_total_result']
 
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(ticker_office_volume) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(ticker_office_volume) + '\n')
 
     if ticker_result > 0:
         assert round((ticker_result/all_pos_result)*1000000, 8) == ticker_result_in_percent
@@ -506,9 +497,80 @@ def step_impl(context, response_number, req_name, review_date, session):
 
 
 
+# --------------------------------------------------------------------------review_datapertickeraccount (all columns)---
+@given("get random account (review_date: {review_date}, session: {session})")
+def step_impl(context, review_date, session):
+    context.review_date = review_date
+    context.session = session
+
+    sql_request = dr['review_propreportsdata_random_acc']
+    raw_result = pgsql_select(sql_request, **context.custom_config['pg_db'],
+                              param=[review_date] + get_time_param(session))
+
+    context.account = raw_result[0][0]
+    context.ticker = raw_result[0][1]
 
 
+@step("get actual data from review_datapertickeraccount")
+def step_impl(context):
+    sql_request = dr['review_datapertickeraccount']
+    raw_result = pgsql_select(sql_request, **context.custom_config['pg_db'],
+                              param=[context.account, context.review_date])
+
+    actual = [[dic[0], round(float(dic[1]), 2), dic[2]] for dic in raw_result if dic[3] == context.session]
+    context.actual = sorted(actual, key=lambda x: x[0])
 
 
+@then("check calculation: total_real, total_shares_traded")
+def step_impl(context):
+    if context.session == 'PRE': execution_date = context.review_date
+    else: execution_date = previous_business_day(context.review_date)
+
+    sql_request = dr['calc_real_and_shares_amount']
+    raw_result = pgsql_select(sql_request, **context.custom_config['pg_db'],
+                              param=[context.account, execution_date] + get_time_param(context.session))
+
+    fact = [[dic[0], round(float(dic[1]), 2), dic[2]] for dic in raw_result]
+    context.fact = sorted(fact, key=lambda x: x[0])
+
+    result = numpy.array_equal(context.actual, context.fact)
+    if result: write_log([context.session, context.account, context.ticker])
+    else: write_log([context.session, context.account, context.actual, context.fact])
+
+    assert result
 
 
+# ----------------------------------------------------review_dataperticker (total_real, total_shares_traded, max_pos)---
+@given("save input data (review_date: {review_date}, session: {session})")
+def step_impl(context, review_date, session):
+    context.review_date = review_date
+    context.session = session
+
+
+@step("get actual data from review_dataperticker")
+def step_impl(context):
+    sql_request = dr['review_dataperticker']
+    raw_result = pgsql_select(sql_request, **context.custom_config['pg_db'],
+                              param=[context.review_date])
+
+    actual = [[dic[0], round(float(dic[1]), 2), dic[2]] for dic in raw_result if dic[7] == context.session]
+    context.actual = sorted(actual, key=lambda x: x[0])
+
+
+@then("check calculation: total_real, total_shares_traded, max_pos")
+def step_impl(context):
+    if context.session == 'PRE': execution_date = context.review_date
+    else: execution_date = previous_business_day(context.review_date)
+
+    sql_request = dr['calc_real_shares_max_pos']
+    raw_result = pgsql_select(sql_request, **context.custom_config['pg_db'],
+                              param=[execution_date] + get_time_param(context.session))
+
+    fact = [[dic[0], round(float(dic[1]), 2), dic[2]] for dic in raw_result]
+    context.fact = sorted(fact, key=lambda x: x[0])
+
+    result = numpy.array_equal(context.actual, context.fact)
+    if result: write_log([context.session])
+    else: write_log([context.session, context.actual, context.fact])
+
+    assert result

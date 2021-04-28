@@ -207,7 +207,7 @@ def calculation_starter(context, date_list, days=2):
             result = wait_periodictask_to_be_done(task_name=value, context=context)
             print(result)
 
-def perform_dr_calculation(context, calculation_date):
+def perform_dr_calculation(context, calculation_date, calculation):
     """
     Perform DR calculation for chosen date
     :param context: Behave context
@@ -237,19 +237,20 @@ def perform_dr_calculation(context, calculation_date):
         "target_date": str(target_date.date()),
         "next_date": str(next_date.date())
     }
-    # for cleared_date in context.dr_dates.values():
-    #     request = "DELETE FROM public.review_propreportsdata " \
-    #               f"WHERE review_date = date'{cleared_date}'"
-    #     assert pgsql_del(request, **context.custom_config['pg_db'])
-    #
-    # dr_dataset_uploader(
-    #     db_creds=context.custom_config['pg_db'],
-    #     date_list=list(context.dr_dates.values())
-    # )
-    # calculation_starter(
-    #     context=context,
-    #     date_list=list(context.dr_dates.values())
-    # )
+    if calculation:
+        for cleared_date in context.dr_dates.values():
+            request = "DELETE FROM public.review_propreportsdata " \
+                      f"WHERE review_date = date'{cleared_date}'"
+            assert pgsql_del(request, **context.custom_config['pg_db'])
+
+        dr_dataset_uploader(
+            db_creds=context.custom_config['pg_db'],
+            date_list=list(context.dr_dates.values())
+        )
+        calculation_starter(
+            context=context,
+            date_list=list(context.dr_dates.values())
+        )
     print('DR_dataset is uploaded')
 
 
