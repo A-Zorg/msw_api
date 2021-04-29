@@ -1,12 +1,14 @@
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
+from dateutil import tz
 
 def data_set_reconciliation():
     user_bills = pd.read_csv('base/data_set/user_bills.csv')
     context_bills={ 90000+i:[] for i in range(len(user_bills.index)//6)}
 
-    zero_date = datetime.now()
-    back_date = datetime(zero_date.year, zero_date.month, 1, 20, 59, 59)
+    utc= timezone.utc
+    back_date = datetime(datetime.now().year, datetime.now().month, 1, 20, 59, 59, tzinfo=utc)
+    back_date = back_date.astimezone(tz.gettz('Europe/Kiev')).replace(tzinfo=None)
     reconciliation_date = str(back_date - timedelta(1))
     modified_date = reconciliation_date.replace(' ', 'T')
 

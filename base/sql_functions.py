@@ -25,8 +25,6 @@ def mysql_select(request, user, password, port, host, database):
 
 
 def pgsql_select(request, user, password, port, host, database, param=None):
-    if param is None:
-        param = []
     with psycopg2.connect(
             user=user,
             host=host,
@@ -36,7 +34,7 @@ def pgsql_select(request, user, password, port, host, database, param=None):
     ) as connect:
         cursor = connect.cursor()
         if request.startswith('SELECT'):
-            cursor.execute(request, param)
+            cursor.execute(query=request, vars=param)
             response = cursor.fetchall()
             time.sleep(0.5)
             return response

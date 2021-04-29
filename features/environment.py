@@ -23,7 +23,7 @@ def before_all(context):
 
     # """create data set"""
     # generate_data(10, context)
-
+    #
     # """upload dataset to the server"""
     # upload_files_server(context)
     #
@@ -32,7 +32,7 @@ def before_all(context):
     #
     # """upload data to SERV&COMP table"""
     # update_gs()
-
+    #
     # """create file FEES to upload through riskbot"""
     # create_riskbot_fees()
 
@@ -41,14 +41,14 @@ def before_all(context):
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-
+    #
     # """perform reconciliation"""
     # finish_reconciliation_process(context)
 
     """perform dr calculation"""
     perform_dr_calculation(
         context=context,
-        calculation_date='2021-02-08',
+        calculation_date='2021-02-07',
         calculation=False
     )
 

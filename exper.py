@@ -56,12 +56,15 @@ if __name__ == '__main__':
 
 import holidays
 us_holidays = holidays.CountryHoliday('US', state='NY')
-print(dir(us_holidays))
-print('2021-02-15' in us_holidays)
-print('1/1/2014' in us_holidays)
 print(us_holidays)
+print('2021-02-15' in us_holidays)
+# print('1/1/2014' in us_holidays)
+print(us_holidays)
+from base.tools.dr_fun import check_business_day, next_or_prev_business_day
 
+print(check_business_day('2021-02-15'))
 
+print(next_or_prev_business_day('2021-02-15', -1))
 
 
 

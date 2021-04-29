@@ -1,12 +1,30 @@
-[(20.673024999999996, 2042, Decimal('101.2391038'), True)]
-[(20.673024999999996, 2042, Decimal('101.2391038'), True)]
-[(-36.073635003, 6406, Decimal('-56.3122619'), True)]
-[(-36.073635003, 6406, Decimal('-56.3122619'), True)]
-[(0.328731, 26, Decimal('126.4350000'), False)]
-[(0.328731, 26, Decimal('126.4350000'), False)]
-[(-0.013977999980000001, 14, Decimal('-9.9842857'), False)]
-[(-0.013977999980000001, 14, Decimal('-9.9842857'), False)]
-[(61.7550929882, 8068, Decimal('76.5432486'), True)]
-[(61.7550929882, 8068, Decimal('76.5432486'), True)]
-[(1.1953079850000001, 4709, Decimal('2.5383478'), True)]
-[(1.1953079850000001, 4709, Decimal('2.5383478'), False)]
+TWOU
+-100
+{'max_number': 100, 'min_number': -100}
+100
+TWOU
+-100
+{'max_number': 100, 'min_number': -100}
+100
+
+
+ result = []
+    for index, part in user_bill.iterrows():
+        if index > 195:
+            result.append(
+                {
+                    "hr_id": filter(part['ID']),
+                    "podushka": filter(part['Podushka']),
+                    "zp_cash": filter(part['ZP cash']),
+                    "total_takion": filter(part['Takion Total']),
+                    "total_sterling": filter(part['Sterling Total']),
+                    "services_and_compensations_total": filter(part['Services Total']),
+                    "office_fees": filter(part['Office Fees']),
+                    "account": filter(part['Account']),
+                    "account_plus_minus": filter(part['Change (+/-)']),
+                    "cash": filter(part['Take home']),
+                    "social": filter(part['Social']),
+                    "date_reconciliation": filter(part['Date Reconciliation']),
+                }
+            )
+    context.actual_result = result[:-1]

@@ -55,13 +55,12 @@ def step_impl(context):
                 execution_date,
                 moment_time,
                 ticker,
-                'SMRT046N',
+                context.custom_config['propreports']['account'],
                 row[5],
                 row[6],
                 row[7],
             ))
     context.propreports_result = propreportsdata_list
-
 
 @step("clear review_propreportsdata db table for {selected_data}")
 def step_impl(context, selected_data):
@@ -87,16 +86,13 @@ def step_impl(context, account, selected_data):
               f"WHERE execution_date = date '{context.custom_config['propreports']['execution_date']}'"
     context.db_result = pgsql_select(request, **context.custom_config['pg_db'])
 
-
 @step("compare data from propreports and db")
 def step_impl(context):
     for part in context.propreports_result:
         if part not in context.db_result:
-            with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-                file.write(str(part) + '\n')
             assert False
 
-
+#-----------------------------------------CALCULATION--------------------------------------------
 @step("get random ticker")
 def step_impl(context):
     review_date = context.dr_dates['target_date']
@@ -107,7 +103,35 @@ def step_impl(context):
 
     context.ticker = random.choice(clear_result)
 
-    # context.ticker = "ZTO"
+@step("from db get {response_number} DR_data_{req_type}: request_name=={req_name}, review_date=={review_date}, session=={session}")
+def step_impl(context, response_number,req_type, req_name, review_date, session):
+    with open('./base/dr_sql_requests.json', 'r') as json_file:
+        sql_requests = json.load(json_file)
+    request = sql_requests[req_name]
+    session = session.upper()
+    if 'and execution_time' in request or 'WHERE execution_time' in request:
+        if session == "PRE":
+            session = "< time '10:00:00'"
+        elif session == "INT":
+            session = "< time '16:00:00' and execution_time >= time '10:00:00'"
+        elif session == "POS":
+            session = ">= time '16:00:00'"
+
+    request = sql_requests[req_name].format(
+        ticker=context.ticker,
+        review_date=context.dr_dates[review_date],
+        session=session
+    )
+    if req_type == 'dictionary':
+        response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
+    elif req_type == 'tuple':
+        response = pgsql_select(request, **context.custom_config['pg_db'])
+
+    if hasattr(context, 'sql_responses'):
+        context.sql_responses[response_number] = response
+    else:
+        context.sql_responses = {}
+        context.sql_responses[response_number] = response
 
 @step("[DR] check calculation: avg_price ans real in PropreportsData")
 def step_impl(context):
@@ -174,17 +198,8 @@ def step_impl(context):
                 real_list.append(round(-(avg_lis[-2] - data['price']) * abs(prev_pos), 7))
             elif cur_pos < prev_pos:
                 real_list.append(round(-(avg_lis[-2] - data['price']) * data['shares_amount'], 7))
-
         prev_pos = cur_pos
         prev_data = data
-        with open('./xxx.txt', 'a') as file:
-            file.write(str(avg_lis[-1]) +'     '+ str(round(data['avg_price'], 7))+'\n')
-        with open('./xxx.txt', 'a') as file:
-            file.write(str(real_list[-1]) +'     '+ str(round(data['real'], 7))+'\n')
-        with open('./xxx.txt', 'a') as file:
-            file.write(str(data['account']) + '\n')
-        with open('./xxx.txt', 'a') as file:
-            file.write(str(context.ticker) + '\n')
 
         assert avg_lis[-1] == round(data['avg_price'], 7)
         assert real_list[-1] == round(data['real'], 7)
@@ -244,12 +259,6 @@ def step_impl(context):
     traded_actual = context.sql_responses['second'][0]['traded']
 
     assert unrealized_sum_expected == unrealized_sum_actual
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(context.ticker) + '\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(traded_expected) + '\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(traded_actual) + '\n')
     assert traded_expected == traded_actual
 
 
@@ -305,12 +314,7 @@ def step_impl(context, session):
             "S": row['sell'],
             "T": row['short']
         }
-    # if expected_dict != actual_dict:
-    #     with open('./xxx.txt', 'a') as file:
-    #         file.write(str(expected_dict) + '\n')
-    #
-    #     with open('./xxx.txt', 'a') as file:
-    #         file.write(str(actual_dict) + '\n')
+
     assert expected_dict == actual_dict
 
 @step("[DR] check calculation: datepertickeraccount")
@@ -319,41 +323,61 @@ def step_impl(context):
     #     file.write(str(context.sql_responses['first']) + '\n')
     assert context.sql_responses['first'] == context.sql_responses['second']
 
-@step("[DR] check calculation: dateperticker(result, shares_traded, result_in_points)")
-def step_impl(context):
+@step("[DR] check calculation: dateperticker:{session} (result, shares_traded, result_in_points)")
+def step_impl(context, session):
     if context.sql_responses['first'] == [(None, None, None)]:
         first_req = []
     else:
         result = context.sql_responses['first'][0][0]
         shares_traded = context.sql_responses['first'][0][1]
         result_in_points = context.sql_responses['first'][0][2]
-        if (abs(result)>=0.2 and shares_traded>=10000) or (abs(result)>=1 and shares_traded<10000):
-            to_be_showed = True
-        else:
-            to_be_showed = False
+
+        if session == "INT":
+            if abs(result) >= 0.5 and shares_traded >= 10000:
+                to_be_showed = True
+            elif abs(result) >= 1 and shares_traded <= 10000:
+                to_be_showed = True
+            elif shares_traded >= 50000:
+                to_be_showed = True
+            else:
+                to_be_showed = False
+        elif session in ['PRE', 'POS', 'NON']:
+            if abs(result) >= 0.6 and shares_traded >= 30000:
+                to_be_showed = True
+            elif abs(result) >= 2 and shares_traded <= 30000:
+                to_be_showed = True
+            elif shares_traded >= 100000:
+                to_be_showed = True
+            else:
+                to_be_showed = False
+
         first_req = [(result, shares_traded, result_in_points, to_be_showed)]
 
     if context.sql_responses['second']:
         second_req = [context.sql_responses['second'][0][0:4]]
     else:
         second_req = []
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(first_req) + '\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(second_req) + '\n')
+
     assert first_req == second_req
 
 @step("[DR] check calculation: dateperticker NON(result, shares_traded, result_in_points)")
 def step_impl(context):
     if context.sql_responses['third']:
         nonmark = list(context.sql_responses['third'][0])
-        nonmark.insert(2, round(float(nonmark.pop(2)),5))
+        nonmark.insert(2, round(float(nonmark.pop(2)), 4))
     else:
         return True
-    premark = context.sql_responses['first'][0] if context.sql_responses['first'] \
-        else (0, 0, 0, 0, 0)
-    postmark = context.sql_responses['second'][0] if context.sql_responses['second'] \
-        else (0, 0, 0, 0, 0)
+
+    if context.sql_responses['first']:
+        premark = context.sql_responses['first'][0]
+    else:
+        premark = (0, 0, 0, 0, 0)
+
+    if context.sql_responses['second']:
+        postmark = context.sql_responses['second'][0]
+    else:
+        postmark = (0, 0, 0, 0, 0)
+
     max_pos_dict = {
         abs(premark[4]): premark[4],
         abs(postmark[4]): postmark[4]
@@ -361,7 +385,7 @@ def step_impl(context):
     exp_result = [
         premark[0] + postmark[0],
         premark[1] + postmark[1],
-        round((nonmark[0] / nonmark[1])*10000, 5),
+        round((nonmark[0] / nonmark[1])*10000, 4),
         any([premark[3], postmark[3]]),
         max_pos_dict[max(max_pos_dict.keys())],
     ]
@@ -385,15 +409,29 @@ def step_impl(context):
     all_pos_result = session_data['pos_total_result']
     all_neg_result = session_data['neg_total_result']
 
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(ticker_office_volume) + '\n')
-
     if ticker_result > 0:
         assert round((ticker_result/all_pos_result)*1000000, 8) == ticker_result_in_percent
     else:
         assert -round((ticker_result/all_neg_result)*1000000, 8) == ticker_result_in_percent
 
     assert ticker_office_volume == round((ticker_shares / all_shares) * 100, 8)
+
+@step("[DR] check max_pos for {period_type}")
+def step_impl(context, period_type):
+    if context.sql_responses['first']:
+        actual_maxpos = context.sql_responses['first'][0][4]
+    else:
+        return True
+
+    exp_dict={
+        'max_number': context.sql_responses['third'][0][0],
+        'min_number': context.sql_responses['third'][0][1],
+        # 'unreal_number': context.sql_responses['second'][0][3]
+    }
+    exp_maxpos = max(exp_dict.values(), key=lambda x: abs(x))
+
+    assert actual_maxpos == exp_maxpos or abs(actual_maxpos) == abs(exp_maxpos)
+
 
 @step("[DR] check calculation: datapersession")
 def step_impl(context):
@@ -415,80 +453,7 @@ def step_impl(context):
         'negative_percent': round(context.sql_responses['forth'][0]['negative_percent'], 7),
     }
 
-
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(exp_result) + '\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(act_result) + '\n')
     assert exp_result == act_result
-
-
-
-@step("from db get {response_number} DR_data_dictionary: request_name=={req_name}, review_date=={review_date}, session=={session}")
-def step_impl(context, response_number, req_name, review_date, session):
-    with open('./base/dr_sql_requests.json', 'r') as json_file:
-        sql_requests = json.load(json_file)
-    request = sql_requests[req_name]
-    session = session.upper()
-    if 'and execution_time' in request or 'WHERE execution_time' in request:
-        if session == "PRE":
-            session = "< time '10:00:00'"
-        elif session == "INT":
-            session = "< time '16:00:00' and execution_time >= time '10:00:00'"
-        elif session == "POS":
-            session = ">= time '16:00:00'"
-
-    request = sql_requests[req_name].format(
-        ticker=context.ticker,
-        review_date=context.dr_dates[review_date],
-        session=session
-    )
-    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
-
-
-    if hasattr(context, 'sql_responses'):
-        context.sql_responses[response_number] = response
-    else:
-        context.sql_responses = {}
-        context.sql_responses[response_number] = response
-
-@step("from db get {response_number} DR_data_tuple: request_name=={req_name}, review_date=={review_date}, session=={session}")
-def step_impl(context, response_number, req_name, review_date, session):
-    with open('./base/dr_sql_requests.json', 'r') as json_file:
-        sql_requests = json.load(json_file)
-    request = sql_requests[req_name]
-    session = session.upper()
-    if 'and execution_time' in request or 'WHERE execution_time' in request:
-        if session == "PRE":
-            session = "< time '10:00:00'"
-        elif session == "INT":
-            session = "< time '16:00:00' and execution_time >= time '10:00:00'"
-        elif session == "POS":
-            session = ">= time '16:00:00'"
-
-    request = sql_requests[req_name].format(
-        ticker=context.ticker,
-        review_date=context.dr_dates[review_date],
-        session=session
-    )
-    response = pgsql_select(request, **context.custom_config['pg_db'])
-
-    if hasattr(context, 'sql_responses'):
-        context.sql_responses[response_number] = response
-    else:
-        context.sql_responses = {}
-        context.sql_responses[response_number] = response
-
-
-
-
-
-
-
-
-
-
-
 
 
 

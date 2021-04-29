@@ -13,12 +13,12 @@ Feature:  reconciliation update
 
     Examples:
       | entries created  | reconciliation date | equality   | result  |
+      | true             | today midday        |  true      | True    |
+      | false            | yesterday           |  true      | False   |
+      | false            | tomorrow            |  true      | False   |
       | false            | today late          |  false     | True    |
-#      | false            | today early         |  false     | True    |
-#      | true             | today midday        |  true      | True    |
-#      | false            | yesterday           |  true      | False   |
-#      | false            | tomorrow            |  true      | False   |
-#
+      | false            | today early         |  false     | True    |
+
 #  Scenario: check "Entries created" feature(MSW-398)
 #      Given check userdata fields of user 90000 before -delete_reconciliation_data-
 #      When run the task: delete_reconciliation_data
@@ -71,7 +71,7 @@ Feature:  reconciliation update
 #     | 0           | 0.4        | none     |  -300       | none     |
 #     | -100        | 0.1        | none     |  3345.25    | 334.525  |
 #     | -35         | 0.13       | none     |  0          | none     |
-#
+
 #  Scenario Outline: Rounding(MSW-549)
 #    Given clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
 #     And clean DB table: reconciliation_service where user_id 90000
@@ -113,9 +113,9 @@ Feature:  reconciliation update
 #
 #
 #
-#
-#
-#
+
+
+
 #
 #
 #

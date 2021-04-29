@@ -33,3 +33,18 @@ def previous_business_day(day, str_type='%Y-%m-%d', n=-1):
     while next_day.weekday() in holidays.WEEKEND:
         next_day += dt.timedelta(days=n)
     return next_day.strftime(str_type)
+
+def next_or_prev_business_day(str_day, vector_day):
+    cur_day = dt.date.fromisoformat(str_day)
+    next_day = cur_day + dt.timedelta(days=vector_day)
+    usa_holidays = holidays.CountryHoliday('US', state='NY')
+    while next_day.weekday() in holidays.WEEKEND or str(next_day) in usa_holidays:
+        next_day += dt.timedelta(days=vector_day)
+    return str(next_day)
+
+def check_business_day(str_day):
+    cur_day = dt.date.fromisoformat(str_day)
+    usa_holidays = holidays.CountryHoliday('US', state='NY')
+    while cur_day.weekday() in holidays.WEEKEND or str(cur_day) in usa_holidays:
+        cur_day += dt.timedelta(days=1)
+    return str_day == str(cur_day), str(cur_day)

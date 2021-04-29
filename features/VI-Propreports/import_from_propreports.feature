@@ -20,25 +20,25 @@ Feature: import from propreports
      And get amount of users (90000, 90001) Current Net balance
     When run the task: download_from_propreports_monthly
      And wait for task is finished: month_propreports_files_parsing
-#     And run the task: entries_for_prop_month_correction
-#    And pause - 20 sec(s)
-#     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
-#     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
+     And run the task: entries_for_prop_month_correction
+    And pause - 20 sec(s)
+     And get amounts(<qty>) from the monthpropreportstransactios table and check users Current Net balance
+     And compare sum of Month Adj Net of accounts with Current Net balance sum of users
     Examples:
         |  phrase                                       |   modifier                                  | qty |
         |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create", "zero->create"]          |  2  |
-#        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["zero->create"]                          |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]                          |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change", "non zero->change"]  |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change"]                      |  1  |
-#        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["non zero->change"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete", "non zero->delete"]  |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete"]                      |  1  |
-#        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   [ "non zero->delete", "non zero->change"] |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete", "zero->create"]      |  2  |
-#        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change", "zero->create"]      |  2  |
-#
+        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["zero->create"]                          |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)==0   |   ["zero->create"]                          |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change", "non zero->change"]  |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->change"]                      |  1  |
+        |  0<adj_net_list.count(0)<len(adj_net_list)    |   ["non zero->change"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete", "non zero->delete"]  |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   ["non zero->delete"]                      |  1  |
+        |  len(adj_net_list)-adj_net_list.count(0)>=2   |   [ "non zero->delete", "non zero->change"] |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->delete", "zero->create"]      |  2  |
+        |  len(adj_net_list)-adj_net_list.count(0)==1   |   ["non zero->change", "zero->create"]      |  2  |
+
 
 #  Scenario Outline: checking different types of corrections after month import from propreports
 #    Given check that 1 active accounts exist

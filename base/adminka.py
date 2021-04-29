@@ -5,6 +5,7 @@ import requests
 import pyotp
 import pandas
 from base.sql_functions import pgsql_select, pgsql_insert, pgsql_del
+from base.tools.dr_fun import check_business_day, next_or_prev_business_day
 
 
 def get_token(session, url, key='csrftoken'):
@@ -214,28 +215,31 @@ def perform_dr_calculation(context, calculation_date, calculation):
     :param calculation_date: chosen date
     :return:
     """
-    target_date = datetime.datetime.fromisoformat(calculation_date)
-    target_date_week_day = target_date.weekday()
+    answer, calculation_date = check_business_day(calculation_date)
+    if not answer:
+        print(f"calculation date is not business day, so it was changed to {calculation_date}")
+    # target_date = datetime.datetime.fromisoformat(calculation_date)
+    # target_date_week_day = target_date.weekday()
 
-    if target_date_week_day in [5, 6]:
-        target_date = target_date + datetime.timedelta(days=2)
-        target_date_week_day = target_date.weekday()
-        print("DR date is not business day, so it was changed to another")
-
-    if target_date_week_day == 0:
-        prev_date = target_date - datetime.timedelta(days=3)
-        next_date = target_date + datetime.timedelta(days=1)
-    elif target_date_week_day == 4:
-        prev_date = target_date - datetime.timedelta(days=1)
-        next_date = target_date + datetime.timedelta(days=3)
-    else:
-        prev_date = target_date - datetime.timedelta(days=1)
-        next_date = target_date + datetime.timedelta(days=1)
+    # if target_date_week_day in [5, 6]:
+    #     target_date = target_date + datetime.timedelta(days=2)
+    #     target_date_week_day = target_date.weekday()
+    #     print("DR date is not business day, so it was changed to another")
+    #
+    # if target_date_week_day == 0:
+    #     prev_date = target_date - datetime.timedelta(days=3)
+    #     next_date = target_date + datetime.timedelta(days=1)
+    # elif target_date_week_day == 4:
+    #     prev_date = target_date - datetime.timedelta(days=1)
+    #     next_date = target_date + datetime.timedelta(days=3)
+    # else:
+    #     prev_date = target_date - datetime.timedelta(days=1)
+    #     next_date = target_date + datetime.timedelta(days=1)
 
     context.dr_dates = {
-        "prev_date": str(prev_date.date()),
-        "target_date": str(target_date.date()),
-        "next_date": str(next_date.date())
+        "prev_date": next_or_prev_business_day(calculation_date, vector_day=-1),
+        "target_date": calculation_date,
+        "next_date": next_or_prev_business_day(calculation_date, vector_day=1)
     }
     if calculation:
         for cleared_date in context.dr_dates.values():
@@ -251,6 +255,7 @@ def perform_dr_calculation(context, calculation_date, calculation):
             context=context,
             date_list=list(context.dr_dates.values())
         )
+    print(context.dr_dates)
     print('DR_dataset is uploaded')
 
 

@@ -12,5 +12,7 @@
   "dataperticker_pos_result": "SELECT SUM(result) FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and result >0",
   "dataperticker_neg_result": "SELECT SUM(result) FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and result <0",
   "datapersession": "SELECT * FROM public.review_datapersession WHERE review_date=date'{review_date}' and session='{session}'",
-  "dataperticker_all": "SELECT * FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and ticker='{ticker}' ORDER BY id ASC "
+  "dataperticker_all": "SELECT * FROM public.review_dataperticker WHERE review_date=date'{review_date}' and session='{session}' and ticker='{ticker}' ORDER BY id ASC ",
+  "intervalsperticker_non": "SELECT MAX(position), MIN(position) FROM public.review_intervalsperticker WHERE review_date=date '{review_date}' and ticker='{ticker}' and session in ('POS','PRE')",
+  "intervalsperticker_int": "SELECT MAX(position), MIN(position) FROM public.review_intervalsperticker WHERE review_date=date '{review_date}' and ticker='{ticker}' and session in ('INT')"
 }
