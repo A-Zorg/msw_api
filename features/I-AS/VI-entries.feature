@@ -13,7 +13,7 @@ Feature:  entries
      And get csrf token
     When make post request to create entry
      And pause - 5 sec(s)
-    Then check status of entry: applied
+    Then check status and datetime of entry: applied
           Examples: forward
         |  from     |to     |
         |  company  |user   |
@@ -31,9 +31,9 @@ Feature:  entries
      And get of FUTURE date
      And get csrf token
     When make post request to create entry
-    Then check status of entry: pending
+    Then check status and datetime of entry: pending
      And pause - 15 sec(s)
-     But check status of entry: applied
+     But check status and datetime of entry: applied
           Examples: forward
         |  from     |to     |
         |  company  |user   |
@@ -52,7 +52,7 @@ Feature:  entries
      And get of PAST date of mass transaction
     When make post request to create mass transaction
      And pause - 5 sec(s)
-    Then check status of entry: applied
+    Then check status and datetime of entry: applied
           Examples: forward
         |  curr_1     |  curr_2   |
         |  FROM       |  TO       |
@@ -67,9 +67,9 @@ Feature:  entries
      And random choice of MASS TRANSACTION <curr_2> company bill
      And get of FUTURE date of mass transaction
     When make post request to create mass transaction
-    Then check status of entry: pending
+    Then check status and datetime of entry: pending
      And pause - 15 sec(s)
-     But check status of entry: applied
+     But check status and datetime of entry: applied
           Examples: forward
         |  curr_1     |  curr_2   |
         |  FROM       |  TO       |

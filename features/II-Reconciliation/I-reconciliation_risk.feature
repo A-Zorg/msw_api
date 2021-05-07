@@ -9,7 +9,7 @@ Feature:  check all user_data
 
   Scenario Outline: set the date of reconciliation
       Given pick date of start: <date>
-       And make posr request /reconciliation/date_of_reconciliation/
+       And make post request /reconciliation/date_of_reconciliation/
       Then check data of response: <exp_res>
     Examples: forward
         |  date         | exp_res                              |

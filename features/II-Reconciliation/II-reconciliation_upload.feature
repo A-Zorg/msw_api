@@ -106,4 +106,33 @@ Feature:  reconciliation upload
         |    prev_month_net     |  -1000 |   0        | 0        |  -50              |   0  |   0   |    "ok"                                                    |
         |    prev_month_net     |  -100  |   100      | 0        |  -50              |   0  |   0   |    Podushka is no equal to 0                               |
         |    prev_month_net     |  -1000 |   100      | 0        |  -50              |   0  |   0   |    Podushka is no equal to 0                               |
+        |    prev_month_net     |  59901 |    0       | 27000    |  0                | 26950|   0   |    "ok"                                                    |
+        |    prev_month_net     |  59900 |    0       | 39600    |  50               | 39000|  500  |    "ok"                                                    |
 
+
+  Scenario Outline: perform reconciliation with custom_podushka(MSW-570)
+    Given get userdata row of the MANAGER
+     And create url of userdata row and get token
+     And define request userdata form
+     And make correction of userdata form <field> <amount>
+     And make post request to change userdata table
+     And change field -custom_payout_rate- in UserData table of user with hr_id 234275 to 0
+     And change field -custom_podushka- in UserData table of user with hr_id 234275 to True
+    When make post request to make reconciliation <podushka> <zp_cash> <account_plus_minus> <cash> <social>
+    Then compare result response with expected result <expected_result>
+      Examples: cases
+        |  field                | amount | podushka   | zp_cash | account_plus_minus| cash | social| expected_result                                            |
+        |    none               |   0    |   4000     | 781     |  700              |   30 |   0   |    Change (+/-) + Withdrawal + Social not equal to Total   |
+        |    none               |   0    |   4000     | 781     |  701              |   30 |   1   |    Change (+/-) + Withdrawal + Social not equal to Total   |
+        |    none               |   0    |   4000     | 781     |  700              |   29 |   1   |    Change (+/-) + Withdrawal + Social not equal to Total   |
+        |    none               |   0    |   4000     | 781     |  700              |   30 |   1   |    "ok"                                                    |
+        |    none               |   0    |   4001     | 781     |  700              |   30 |   1   |    "ok"                                                    |
+        |    account            |   1999 |   4001     | 781     |  700              |   30 |   1   |    "ok"                                                    |
+        |    account            |   1999 |   4000     | 781     |  700              |   30 |   1   |    "ok"                                                    |
+        |    none               |   0    |   4000     | 781     |  -1000            | 1730 |   1   |    "ok"                                                    |
+        |    none               |   0    |   4000     | 781     |  -1001            | 1730 |   2   |    Change (+/-) greater than account                       |
+        |    account            |   3049 |   6098     | 1       |  -49              |   0  |   0   |    Final multiplied by Payout rate less than Office Fees while Podushka greater than 0 |
+        |    account            |   2980 |   5964     | 50      |  0                |   0  |   0   |    "ok"                                                    |
+        |    prev_month_net     |  -1000 |   0        | 0       |  -50              |   0  |   0   |    "ok"                                                    |
+        |    prev_month_net     |  -100  |   100      | 0       |  -50              |   0  |   0   |    Podushka is no equal to 0                               |
+        |    prev_month_net     |  -1000 |   100      | 0       |  -50              |   0  |   0   |    Podushka is no equal to 0                               |

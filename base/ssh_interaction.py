@@ -32,8 +32,10 @@ def runner(context, file_name):
         exit_status = stdout.channel.recv_exit_status()  # Blocking call
         if exit_status == 0:
             print("The creation is finished")
+            return True
         else:
             print("Error", exit_status)
+            return False
 
 def change_db_through_django(context, file_name, file_dir):
     """upload .py to the server and run it"""
@@ -41,7 +43,8 @@ def change_db_through_django(context, file_name, file_dir):
     # upload file
     uploader(context, file_name, file_dir)
     # run file
-    runner(context, file_name)
+    return runner(context, file_name)
+
 
 # def download_from_server(file_name):
 #     """download"""

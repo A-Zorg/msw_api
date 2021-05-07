@@ -201,7 +201,7 @@ def company(datum, side, company_bill, amount, process, broker=None):
                                         entry = entry,
                                         name = 'Company Daily Net',
                                         amount = bill.amount,
-                                        model_id = 111,
+                                        model_id = bill.id,
                                         caused_by_transaction=transaction.id
     )
     entry.save()

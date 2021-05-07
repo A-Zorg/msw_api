@@ -1,30 +1,18 @@
-TWOU
--100
-{'max_number': 100, 'min_number': -100}
-100
-TWOU
--100
-{'max_number': 100, 'min_number': -100}
-100
-
-
- result = []
-    for index, part in user_bill.iterrows():
-        if index > 195:
-            result.append(
-                {
-                    "hr_id": filter(part['ID']),
-                    "podushka": filter(part['Podushka']),
-                    "zp_cash": filter(part['ZP cash']),
-                    "total_takion": filter(part['Takion Total']),
-                    "total_sterling": filter(part['Sterling Total']),
-                    "services_and_compensations_total": filter(part['Services Total']),
-                    "office_fees": filter(part['Office Fees']),
-                    "account": filter(part['Account']),
-                    "account_plus_minus": filter(part['Change (+/-)']),
-                    "cash": filter(part['Take home']),
-                    "social": filter(part['Social']),
-                    "date_reconciliation": filter(part['Date Reconciliation']),
-                }
-            )
-    context.actual_result = result[:-1]
+True
+True
+INSERT INTO accounting_system_companypropaccount(account, month_adj_net, account_type_id, updated) VALUES (pgp_sym_encrypt('EQS043N', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 7, date('2021-05-06')),(pgp_sym_encrypt('34504066', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 8, date('2021-05-06')),(pgp_sym_encrypt('SMRT046N', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 3, date('2021-05-06'))
+10000.0
+10000.0
+10000.0
+[(4,), (3,)]
+[(4,), (3,)]
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, =--59.75-=)
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('42.25', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, pgp_sym_encrypt('39.75', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('-56.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, pgp_sym_encrypt('-20.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
+INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('-30.75', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
+(97852,)
+(97853,)
+INSERT INTO accounting_system_historyuserbill(model_id,history_date,history_type,history_created,amount,bill_id,user_id) VALUES (97856, date'2021-02-05', '+', date'2021-05-06', pgp_sym_encrypt('-4.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 4, 4073)
+INSERT INTO accounting_system_historyuserbill(model_id,history_date,history_type,history_created,amount,bill_id,user_id) VALUES (97857, date'2021-02-05', '+', date'2021-05-06', pgp_sym_encrypt('83.0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 3, 4073)

@@ -6,7 +6,6 @@ from index.models import CustomUser
 from reconciliation.models import UserData, ReconciliationUserPropAccount, Service, SmartRiskMyAccount, ServicesAndCompensationUpdate, ImportHRUpdate,PropreportsUpdate
 from accounting_system.models import UserMainData, UserBillTypes, \
     UserBill,CompanyBill, HistoryCompanyBill, HistoryUserBill, Transaction, AccountType
-from accounting.models import UserAccData
 import time
 
 logging.basicConfig(
@@ -47,13 +46,19 @@ def check_recon_quantity(q):
         return q
 
 def clean_history(set_element):
-    for i in range(1,len(set_element)):
+    for i in range(1, len(set_element)):
         set_element[i].delete()
 
 
 """Create user bills types and compamy bills"""
-user_bills_type = ['Investments','SmartPoints','Withdrawal',
-                   'Account','Cash hub','Current Net balance']
+user_bills_type = [
+    'Investments',
+    'SmartPoints',
+    'Withdrawal',
+    'Account',
+    'Cash hub',
+    'Current Net balance'
+]
 try:
     for b_type in user_bills_type:
         bill_type = UserBillTypes.objects.create(name=b_type)
@@ -62,8 +67,14 @@ try:
 except:
     logger.error('types bill were created')
 # ---------------------
-company_bills_type = ['Company ServComp','Company Office Fees','Company Net Income',
-                   'Company Social Fund','Company Daily Net']
+company_bills_type = [
+    'Company ServComp',
+    'Company Office Fees',
+    'Company Net Income',
+    'Company Social Fund',
+    'Company Daily Net',
+    'Operational'
+]
 try:
     HistoryCompanyBill.objects.all().delete()
     for c_type in company_bills_type:
@@ -252,7 +263,7 @@ with open('{PATH}manager_id.txt', 'r') as file:
     user_id = int(file.read())
 user = CustomUser.objects.get(id=user_id)
 
-UserAccData.objects.filter(user=user).delete()
+# UserAccData.objects.filter(user=user).delete()
 Service.objects.filter(user=user).delete()
 
 Service.objects.create(user=user,

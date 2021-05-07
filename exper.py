@@ -54,32 +54,27 @@ if __name__ == '__main__':
     print(holidays.CountryHoliday('UK'))
 
 
-import holidays
-us_holidays = holidays.CountryHoliday('US', state='NY')
-print(us_holidays)
-print('2021-02-15' in us_holidays)
-# print('1/1/2014' in us_holidays)
-print(us_holidays)
-from base.tools.dr_fun import check_business_day, next_or_prev_business_day
 
-print(check_business_day('2021-02-15'))
 
-print(next_or_prev_business_day('2021-02-15', -1))
+import re
+
+asd = "SELECT account, SUM(daily_adj_net::float) FROM accounting_system_companypropaccountdata GROUP BY account "
+a= 'account'
+print(re.sub(r'(\W)account(\W)', '\g<1>yyyyyy2', asd))
+
+print(re.sub(r'def\s+([a-zA-Z_][a-zA-Z_0-9]*)\s*\(\s*\):', r'static PyObject*\npy_\1(void)\n{', 'def myfunc():'))
 
 
 
+from datetime import datetime, timedelta, timezone
+from dateutil import tz
+import time
 
-
-
-
-
-
-
-
-
-
-
-
+asd = datetime.now().replace(microsecond=0, tzinfo=tz.gettz('Europe/Kiev'))
+print(asd.time())
+time.sleep(5)
+asd = asd.astimezone(timezone.utc)
+print(asd.time())
 
 
 

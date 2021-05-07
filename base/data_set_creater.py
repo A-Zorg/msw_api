@@ -15,11 +15,12 @@ def data_set_reconciliation():
     for _, bill in user_bills.iterrows():
         context_bills[bill['user_hr_id']].insert(0,{bill['bill_id'] : bill['amount']} )
     context_bills['company'] = [
-        {'Company ServComp':10000},
-        {'Company Office Fees':10000},
-        {'Company Net Income':10000},
-        {'Company Social Fund':10000},
-        {'Company Daily Net':10000}
+        {'Company ServComp': 10000},
+        {'Company Office Fees': 10000},
+        {'Company Net Income': 10000},
+        {'Company Social Fund': 10000},
+        {'Company Daily Net': 10000},
+        {'Operational': 10000},
     ]
 
     context_entries=list()

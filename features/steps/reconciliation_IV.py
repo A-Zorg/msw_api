@@ -4,7 +4,8 @@ from behave import *
 from behave.api.async_step import async_run_until_complete
 from base.main_functions import correct_py_file
 from datetime import date, datetime, timedelta
-from base.sql_functions import pgsql_select, pgsql_update
+from base.sql_functions import pgsql_select, pgsql_update, pgsql_select_as_dict, \
+    decode_request, encode_request, pgsql_insert
 from base.adminka import finish_reconciliation_process
 from base.ssh_interaction import change_db_through_django
 
@@ -214,20 +215,224 @@ def step_impl(context, field, first, second):
     assert expected_number == int(actual_number)
 
 
+@step("fields of userdata of user {user_id} should be {answer}")
+def step_impl(context, user_id, answer):
+    list_fields = [
+        'zp_cash',
+        'office_fees',
+        'podushka',
+        'services_total',
+        'account_plus_minus',
+        'total_net_month',
+        'cash',
+        'social',
+        'date_reconciliation',
+        'compensations_total',
+    ]
+    request = f'SELECT * FROM public.reconciliation_userdata ' \
+              f'WHERE user_id = {user_id}'
+    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
+    userdata = response[0]
+
+    if answer == 'none':
+        for field in list_fields:
+            assert userdata[field] == None
+        assert userdata['entries_created'] == False
+        assert userdata['qty_of_reconciliations'] == 0
+    elif answer == 'not none':
+        for field in list_fields:
+            assert userdata[field] != None
+        # assert userdata['entries_created'] == True
+        assert userdata['qty_of_reconciliations'] != 0
+
+@step("get bills: {bills} of user {user_id}")
+def step_impl(context, bills, user_id):
+    # bills_list = bills.split(',')
+    request = f'SELECT id, bill_id FROM accounting_system_userbill ' \
+              f'WHERE user_id = {user_id} and bill_id in (' \
+              f'SELECT id FROM accounting_system_userbilltypes ' \
+              f'WHERE name in ({bills}))'
+    response = pgsql_select(request, **context.custom_config['pg_db'])
+    context.user_bills = response
+
+@step("create the set of history_user_bill of user {user_id}")
+def step_impl(context, user_id):
+    curc_month = datetime.now().replace(day=1, hour=23, minute=59)
+    prev_month = curc_month - timedelta(days=1)
+    prevprev_month = prev_month.replace(day=1) - timedelta(days=1)
+
+    context.exp_result = {
+        "Account": '555',
+        "Prev_month": '623',
+    }
+    new_history_models = [
+        [context.user_bills[0][0], str(prev_month), '~', context.exp_result['Account'], context.user_bills[0][1]],
+        [context.user_bills[0][0], str(curc_month), '~', 444, context.user_bills[0][1]],
+        [context.user_bills[1][0], str(prevprev_month), '~', context.exp_result['Prev_month'], context.user_bills[1][1]],
+        [context.user_bills[1][0], str(prevprev_month.replace(day=28)), '~', 456, context.user_bills[1][1]]
+    ]
+    request = f'INSERT INTO public.accounting_system_historyuserbill ' \
+              f'(model_id, history_date, history_created, history_type, amount, bill_id, user_id) VALUES '
+    for model in new_history_models:
+        row = f"({model[0]}, timestamp'{model[1]}', timestamp'{datetime.now()}', '{model[2]}', =-{model[3]}-=, {model[4]}, {user_id}),"
+        request += row
+    else:
+        request = request[:-1]
+    request = encode_request(context, request)
+    assert pgsql_insert(request, **context.custom_config['pg_db'])
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(pooo) + '\n')
+
+@step("compare actual with expected fields: account and prev_month_net of user {user_id}")
+def step_impl(context, user_id):
+    request = f'SELECT account as Account, prev_month_net as Prev_month FROM public.reconciliation_userdata ' \
+              f'WHERE user_id = {user_id}'
+    request = decode_request(context, request, ['account', 'prev_month_net'])
+    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])[0]
+    for key in context.exp_result:
+        assert context.exp_result[key] == response[key.lower()]
+
+@step("check custom_podushka of user {user_id} (should be {answer})")
+def step_impl(context, user_id, answer):
+    request = f'SELECT custom_podushka FROM reconciliation_userdata ' \
+              f'WHERE user_id = {user_id}'
+    response = pgsql_select(request, **context.custom_config['pg_db'])[0]
+    assert str(response[0]) == answer
 
 
+@step("get expected [RC] tasks(qty:{number})")
+def step_impl(context, number):
+
+    recon_date = datetime.now() + timedelta(hours=48)
+    rec_day = recon_date.day
+    rec_month = recon_date.month
+    context.expected_pertasks = [
+        [
+            '[RC] StartReconciliation',
+            'auto_start_reconciliation',
+            0, 10, rec_day, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - Create Bonus Fees',
+            'create_bonus_fees',
+            0, 10, rec_day-1, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - PropreportsMonthCorrections',
+            'entries_for_prop_month_correction',
+            0, 10, rec_day-1, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - Services & Compensations',
+            'import_services_and_compensations',
+            50, 9, rec_day-1, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - Propreports import files',
+            'download_from_propreports_monthly',
+            5, 8, rec_day-1, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - HR Module',
+            'import_HR_module',
+            0, 8, rec_day-1, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - Delete old reconciliation data',
+            'delete_reconciliation_data',
+            0, 8, rec_day-1, rec_month
+        ],
+        [
+            '[RC] TransferBillsToReconciliation',
+            'transfer_bills_to_reconciliation',
+            0, 8, rec_day-1, rec_month
+        ],
+    ]
+
+@step("get actual [RC] tasks(qty:{number})")
+def step_impl(context, number):
+    request = f'SELECT name, task, minute::int, hour::int::int::int, day_of_month::int::int, month_of_year::int ' \
+              f'FROM django_celery_beat_periodictask as p ' \
+              f'JOIN django_celery_beat_crontabschedule as c ON p.crontab_id = c.id ' \
+              f'ORDER BY p.id DESC LIMIT {number}'
+
+    response = pgsql_select(request, **context.custom_config['pg_db'])
+
+    context.actual_pertasks = [ list(task) for task in response]
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.actual_pertasks) + '\n')
+
+@step("compare expected and actual [RC] tasks")
+def step_impl(context):
+    assert context.actual_pertasks == context.expected_pertasks
 
 
+@step("[services]get total_{field_type} of user {user_id}")
+def step_impl(context, field_type, user_id):
+    request = f"SELECT SUM(amount::float) FROM public.reconciliation_service " \
+              f"WHERE user_id = {user_id} and service_type='{field_type}'"
 
+    request = decode_request(context, request, ['amount'])
+    response = pgsql_select(request, **context.custom_config['pg_db'])[0][0]
 
+    if hasattr(context, 'expected_total'):
+        context.expected_total[field_type] = round(response) if response else 0
+    else:
+        context.expected_total = {}
+        context.expected_total[field_type] = round(response) if response else 0
 
+@step("[account]get total_{field_type} of user {user_id}")
+def step_impl(context, field_type, user_id):
+    request = f"SELECT SUM(month_adj_net::float) FROM reconciliation_reconciliationuserpropaccount as acr " \
+              f"JOIN accounting_system_accounttype as act ON acr.account_type_id=act.id " \
+              f"JOIN accounting_system_broker as acb ON act.broker_id=acb.id " \
+              f"WHERE acr.user_id = {user_id} and acb.name like '%{field_type}%'"
 
+    request = decode_request(context, request, ['month_adj_net'])
+    response = pgsql_select(request, **context.custom_config['pg_db'])[0][0]
 
+    if hasattr(context, 'expected_total'):
+        context.expected_total[field_type.lower()] = round(response) if response else 0
+    else:
+        context.expected_total = {}
+        context.expected_total[field_type.lower()] = round(response) if response else 0
 
+@step("get user_totals from UserData of user {user_id}")
+def step_impl(context, user_id):
+    request = f"SELECT prev_month_net::float as prev_month, compensations_total::float as compensation, " \
+              f"services_total::float as service, office_fees::float as fee, total_net_month::float as total_net, " \
+              f"total_sterling::float as Broker, total_takion::float as Takion " \
+              f"FROM public.reconciliation_userdata " \
+              f"WHERE user_id = {user_id}"
 
+    request = decode_request(
+        context,
+        request,
+        [
+            'prev_month_net',
+            'compensations_total',
+            'services_total',
+            'office_fees',
+            'total_net_month',
+            'total_sterling',
+            'total_takion',
+        ]
+    )
+    context.actual_total = dict(pgsql_select_as_dict(request, **context.custom_config['pg_db'])[0])
 
-
-
+@step("compare actual_total with expected_total")
+def step_impl(context):
+    context.expected_total['total_net'] = context.actual_total['prev_month'] \
+                                          + context.expected_total['takion'] \
+                                          + context.expected_total['broker'] \
+                                          + context.expected_total['compensation'] \
+                                          + context.expected_total['service']
+    del context.actual_total['prev_month']
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.actual_total) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.expected_total) + '\n')
+    assert context.actual_total == context.expected_total
 
 
 

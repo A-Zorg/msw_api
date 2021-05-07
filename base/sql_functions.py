@@ -1,4 +1,5 @@
 import time
+import re
 import psycopg2
 import configparser
 from psycopg2 import extras
@@ -132,4 +133,47 @@ def pgsql_touch(query, params='', save=False, rtrn=False):
                     return cur.fetchall()
     except psycopg2.Error as err:
         return False
+
+def decode_request(context, request, fields):
+    key = context.custom_config['pg_key']
+    for field in fields:
+        request = re.sub(f'(\W){field}(\W)', f"\g<1>pgp_sym_decrypt({field}::bytea,'{key}')\g<2>", request)
+
+    return request
+
+def encode_request(context, request):
+    key = context.custom_config['pg_key']
+    qty_to_encode = re.findall('=-[a-zA-Z0-9,\.-]*-=', request)
+    for part in qty_to_encode:
+        request = request.replace(part, f"pgp_sym_encrypt('{part[2:-2]}', '{key}', 'cipher-algo=aes256')")
+
+    return request
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

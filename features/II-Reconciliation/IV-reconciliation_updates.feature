@@ -1,24 +1,51 @@
 @super_user @manager_user
 Feature:  reconciliation update
 
-  Scenario Outline: check "Entries created" feature(MSW-398)
-      Given get bills id of user 90000
-       And get all transactions of user 90000 before reconciliation
-       And field -entries created- == <entries created>
-       And field -date_reconciliation- == <reconciliation date>
-      When perform RECONCILIATION
-       And get all transactions of user 90000 after reconciliation
-      Then compare transactions qty before and after RECONCILIATION <equality>
-       And field -entries created- should be equal to <result>
+  Scenario: check task "transfer_account_to_reconciliation" feature(MSW-537)
+      Given fields of userdata of user 90000 should be not none
+       And run the task: delete_reconciliation_data
+       And pause - 2 sec(s)
+       Given fields of userdata of user 90000 should be none
+       And get bills: 'Account', 'Current Net balance' of user 90000
+       And create the set of history_user_bill of user 90000
+      When run the task: transfer_bills_to_reconciliation
+       And wait for task is finished: transfer_bills_to_reconciliation
+      Then compare actual with expected fields: account and prev_month_net of user 90000
 
-    Examples:
-      | entries created  | reconciliation date | equality   | result  |
-      | true             | today midday        |  true      | True    |
-      | false            | yesterday           |  true      | False   |
-      | false            | tomorrow            |  true      | False   |
-      | false            | today late          |  false     | True    |
-      | false            | today early         |  false     | True    |
 
+
+  Scenario: check update_user_totals_before_reconciliation (MSW-568)
+    Given run the task: delete_reconciliation_data
+     And pause - 2 sec(s)
+     And run the task: create_bonus_fees
+     And wait for task is finished: update_user_totals_before_reconciliation
+    When [services]get total_service of user 90000
+     And [services]get total_compensation of user 90000
+     And [services]get total_fee of user 90000
+     And [account]get total_Takion of user 90000
+     And [account]get total_Broker of user 90000
+     And get user_totals from UserData of user 90000
+    Then compare actual_total with expected_total
+#
+#
+#  Scenario Outline: check "Entries created" feature(MSW-398)
+#      Given get bills id of user 90000
+#       And get all transactions of user 90000 before reconciliation
+#       And field -entries created- == <entries created>
+#       And field -date_reconciliation- == <reconciliation date>
+#      When perform RECONCILIATION
+#       And get all transactions of user 90000 after reconciliation
+#      Then compare transactions qty before and after RECONCILIATION <equality>
+#       And field -entries created- should be equal to <result>
+#
+#    Examples:
+#      | entries created  | reconciliation date | equality   | result  |
+#      | true             | today midday        |  true      | True    |
+#      | false            | yesterday           |  true      | False   |
+#      | false            | tomorrow            |  true      | False   |
+#      | false            | today late          |  false     | True    |
+#      | false            | today early         |  false     | True    |
+#
 #  Scenario: check "Entries created" feature(MSW-398)
 #      Given check userdata fields of user 90000 before -delete_reconciliation_data-
 #      When run the task: delete_reconciliation_data
@@ -71,7 +98,7 @@ Feature:  reconciliation update
 #     | 0           | 0.4        | none     |  -300       | none     |
 #     | -100        | 0.1        | none     |  3345.25    | 334.525  |
 #     | -35         | 0.13       | none     |  0          | none     |
-
+#
 #  Scenario Outline: Rounding(MSW-549)
 #    Given clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
 #     And clean DB table: reconciliation_service where user_id 90000
@@ -111,17 +138,22 @@ Feature:  reconciliation update
 #
 #
 #
+#  Scenario: perform reconciliation with custom_podushka(MSW-570)
+#      Given change field -custom_podushka- in UserData table of user with hr_id 90000 to True
+#       And check custom_podushka of user 90000 (should be True)
+#      When run the task: clear_custom_podushka
+#       And pause - 2 sec(s)
+#      Then check custom_podushka of user 90000 (should be False)
+#
+#  Scenario: select date of reconciliation (MSW-568)
+#      Given get expected [RC] tasks(qty:8)
+#       And pick date of start: aftertomorrow
+#      When make post request /reconciliation/date_of_reconciliation/
+#       And get actual [RC] tasks(qty:8)
+#      Then compare expected and actual [RC] tasks
 #
 #
-
-
-
 #
-#
-#
-
-
-
 
 
 

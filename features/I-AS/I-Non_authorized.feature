@@ -21,4 +21,3 @@ Feature: checking credentials for none authenticated
 #        |  /accounting_system/account_type/broker/        | 403  |
 #        |  /accounting_system/account_type/clearing/      | 403  |
 #        |  /accounting_system/account_type/company/       | 403  |
-

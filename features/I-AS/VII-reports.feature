@@ -73,15 +73,21 @@ Feature: report
         |  [['del', ["mass_transaction_in",0]],  ['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_out",0]]]   |  Need to specify both sides of the entry                                  |
         |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,4.12345]], ['change', ["mass_transaction_out",1,3.87655]]]                  |  Ensure that there are no more than 4 decimal places                      |
 
-Scenario: boundary values of entry fields
-    Given define template request form and remember user and company bills
+Scenario Outline: cancel applied or pending entry(MSW-609)
+    Given define template request form and remember user and company bills: <type> entry
      And get csrf token
     When make post request
      And get user and company bills before canceling entry
-    Then cancel the created entry
+    Then cancel the created <type> entry
      And get user and company bills after canceling entry
      And check status of task
-     And check user and company bills after canceling
+     And pause - 2 sec(s)
+     And check canceling of entry and transactions
+     And check user and company bills after canceling <type> entry
+      Examples:
+        |  type   |
+        | applied |
+        | pending |
 
 
   Scenario Outline: checking filters of REPORTS

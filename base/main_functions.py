@@ -186,6 +186,7 @@ def get_custom_config(context, host):
             "risk_bot": config['risk_bot']['name'],
             "sb_user": config['SB_user'],
             "propreports": config['propreports'],
+            "pg_key": config['pg_key']['key'],
         }
     elif host == "test_9999":
         context.custom_config = {
@@ -205,6 +206,7 @@ def get_custom_config(context, host):
             "risk_bot": config['risk_bot']['name'],
             "sb_user": config['SB_user'],
             "propreports": config['propreports'],
+            "pg_key": config['pg_key']['key'],
         }
 
 """divide the number to the list of number which sum is equal to the initial number"""

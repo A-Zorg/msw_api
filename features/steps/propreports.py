@@ -1,8 +1,9 @@
 import time
 import re
+import datetime
 from behave import *
 from base.main_functions import correct_py_file
-from base.sql_functions import pgsql_del, pgsql_select
+from base.sql_functions import pgsql_del, pgsql_select, decode_request, encode_request, pgsql_insert
 from base.adminka import task_configuration, run_periodic_task, wait_periodictask_to_be_done
 from base.ssh_interaction import change_db_through_django
 
@@ -44,8 +45,8 @@ def step_impl(context, file_name, phrase, modificator_types):
     file_dir = './base/files_for_ssh'
 
     assert correct_py_file(file_name, old_new_parts)
-    change_db_through_django(context, 'AS_cleaner', file_dir)
-    change_db_through_django(context, file_name, file_dir)
+    assert change_db_through_django(context, 'AS_cleaner', file_dir)
+    assert change_db_through_django(context, file_name, file_dir)
 
 @step("get amount of users (90000, 90001) Current Net balance")
 def step_impl(context):
@@ -77,14 +78,7 @@ def step_impl(context, qty):
     )
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(suma(context.config.userdata["current_net_balance_after_modification"])) + '\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result) ) + '\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(suma(context.config.userdata["current_net_balance"])) + '\n')
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str('--------------------------------------------') + '\n')
+
     assert int(qty) == len(monthpropreportstransaction_result)
     assert round((suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result)), 2) == suma(context.config.userdata["current_net_balance"])
 
@@ -130,9 +124,73 @@ def step_impl(context, number):
             file.write(str(context.scenario.skip)+'\n')
         context.scenario.skip(f"accounts qty < {number}")
 
+@step("migrate user accounts to company")
+def step_impl(context):
+    request = "SELECT DISTINCT(account),account_type_id " \
+              "FROM public.reconciliation_userpropaccount"
+    request = decode_request(context, request, ['account'])
+    active_accounts = pgsql_select(request=request, **context.custom_config['pg_db'])
 
+    insert_request = "INSERT INTO accounting_system_companypropaccount" \
+                     "(account, month_adj_net, account_type_id, updated) " \
+                     "VALUES "
+    for acc in active_accounts:
+        insert_request += f"(=-{acc[0]}-=, =-0-=, {acc[1]}, date('{datetime.datetime.now().date()}')),"
+    insert_request = encode_request(context, insert_request)[:-1]
+    result = pgsql_insert(request=insert_request, **context.custom_config['pg_db'])
 
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(insert_request)+'\n')
 
+@step("compare month_adj_net with sum(daily_adj_net) of company_prop_account")
+def step_impl(context):
+    request_1 = "SELECT account, SUM(daily_adj_net::float) " \
+                "FROM accounting_system_companypropaccountdata " \
+                "GROUP BY account "
+    request = decode_request(context, request_1, ['account', 'daily_adj_net'])
+    result_1 = pgsql_select(request=request, **context.custom_config['pg_db'])
 
+    request_2 = "SELECT account, month_adj_net::float " \
+                "FROM accounting_system_companypropaccount "
 
+    request = decode_request(context, request_2, ['account', 'month_adj_net'])
+    result_2 = pgsql_select(request=request, **context.custom_config['pg_db'])
+    for part in result_1:
+        assert part in result_2
 
+@step("check that {number} active accounts of company exist")
+def step_impl(context, number):
+    request = "SELECT * FROM public.accounting_system_companypropaccountdata"
+    result = pgsql_select(request=request, **context.custom_config['pg_db'])
+
+    if len(result) < 27 * int(number):
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(context.scenario.skip)+'\n')
+        context.scenario.skip(f"accounts qty < {number}")
+
+@step("amounts from the monthpropreportstransactios table should be {qty}")
+def step_impl(context, qty):
+    session = context.super_user
+    url = context.custom_config["host"] + "admin/accounting_system/monthpropreportstransaction/"
+    response = session.get(url).text
+    monthpropreportstransaction_result = re.findall(
+        '</td><td class="field-amount">([0-9\.-]*)</td>',
+        response
+    )
+    assert int(qty) == len(monthpropreportstransaction_result)
+
+@step("check companybill OPERATIONAL")
+def step_impl(context):
+    request_bill = "SELECT amount::float " \
+                   "FROM accounting_system_companybill " \
+                   "WHERE name = 'Operational' "
+    request = decode_request(context, request_bill, ['amount'])
+    result_bill = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
+
+    request_acc = "SELECT SUM(month_adj_net::float) " \
+                "FROM accounting_system_companypropaccount "
+    request = decode_request(context, request_acc, ['month_adj_net'])
+    result_acc = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(result_bill - result_acc) + '\n')
+    assert result_bill - result_acc == 10000

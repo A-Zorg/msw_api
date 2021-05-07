@@ -118,7 +118,6 @@ def wait_periodictask_to_be_done(task_name, context, wait_time=3600):
     """
     request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
     start_id = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
-
     start_time = time.time()
     while (time.time() - start_time) < wait_time:
         request = 'SELECT * FROM public.django_celery_results_taskresult ' \
@@ -218,23 +217,6 @@ def perform_dr_calculation(context, calculation_date, calculation):
     answer, calculation_date = check_business_day(calculation_date)
     if not answer:
         print(f"calculation date is not business day, so it was changed to {calculation_date}")
-    # target_date = datetime.datetime.fromisoformat(calculation_date)
-    # target_date_week_day = target_date.weekday()
-
-    # if target_date_week_day in [5, 6]:
-    #     target_date = target_date + datetime.timedelta(days=2)
-    #     target_date_week_day = target_date.weekday()
-    #     print("DR date is not business day, so it was changed to another")
-    #
-    # if target_date_week_day == 0:
-    #     prev_date = target_date - datetime.timedelta(days=3)
-    #     next_date = target_date + datetime.timedelta(days=1)
-    # elif target_date_week_day == 4:
-    #     prev_date = target_date - datetime.timedelta(days=1)
-    #     next_date = target_date + datetime.timedelta(days=3)
-    # else:
-    #     prev_date = target_date - datetime.timedelta(days=1)
-    #     next_date = target_date + datetime.timedelta(days=1)
 
     context.dr_dates = {
         "prev_date": next_or_prev_business_day(calculation_date, vector_day=-1),
@@ -242,15 +224,15 @@ def perform_dr_calculation(context, calculation_date, calculation):
         "next_date": next_or_prev_business_day(calculation_date, vector_day=1)
     }
     if calculation:
-        for cleared_date in context.dr_dates.values():
-            request = "DELETE FROM public.review_propreportsdata " \
-                      f"WHERE review_date = date'{cleared_date}'"
-            assert pgsql_del(request, **context.custom_config['pg_db'])
-
-        dr_dataset_uploader(
-            db_creds=context.custom_config['pg_db'],
-            date_list=list(context.dr_dates.values())
-        )
+        # for cleared_date in context.dr_dates.values():
+        #     request = "DELETE FROM public.review_propreportsdata " \
+        #               f"WHERE review_date = date'{cleared_date}'"
+        #     assert pgsql_del(request, **context.custom_config['pg_db'])
+        #
+        # dr_dataset_uploader(
+        #     db_creds=context.custom_config['pg_db'],
+        #     date_list=list(context.dr_dates.values())
+        # )
         calculation_starter(
             context=context,
             date_list=list(context.dr_dates.values())

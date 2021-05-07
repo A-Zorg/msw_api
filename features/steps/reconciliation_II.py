@@ -63,12 +63,14 @@ def step_impl(context, datum):
         request_date = today + timedelta(weeks=5)
     elif datum == "aftertomorrow":
         request_date = today + timedelta(hours=48)
+        if today.month != request_date.month:
+            context.scenario.skip(f'too late for selecting reconciliation date({today})')
     context.request_form = {
         'csrfmiddlewaretoken' : '',
         'date_to_start' : str(request_date)
     }
 
-@step("make posr request /reconciliation/date_of_reconciliation/")
+@step("make post request /reconciliation/date_of_reconciliation/")
 def step_impl(context):
     session = context.super_user
     url = context.custom_config["host"] + 'api/reconciliation/date_of_reconciliation/'

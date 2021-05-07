@@ -38,12 +38,12 @@ Feature: import from propreports_api
        And from db get second DR_data_dictionary: request_name==unrealizedperticker, review_date==target_date, session==INT
       Then [DR] check calculation: unrealizedperticker
 
-#   @autorepeat @10
-#   Scenario: check unrealizedperticker postmarket data
-#      Given get random ticker
-#       And from db get first DR_data_dictionary: request_name==unrealizedpertickeraccount, review_date==target_date, session==POS
-#       And from db get second DR_data_dictionary: request_name==unrealizedperticker, review_date==target_date, session==POS
-#      Then [DR] check calculation: unrealizedperticker
+   @autorepeat @10
+   Scenario: check unrealizedperticker postmarket data
+      Given get random ticker
+       And from db get first DR_data_dictionary: request_name==unrealizedpertickeraccount, review_date==target_date, session==POS
+       And from db get second DR_data_dictionary: request_name==unrealizedperticker, review_date==target_date, session==POS
+      Then [DR] check calculation: unrealizedperticker
 
 
 

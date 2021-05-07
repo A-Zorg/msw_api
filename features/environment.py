@@ -29,7 +29,7 @@ def before_all(context):
     #
     # """upload dataset to msw"""
     # runner(context, "loader.py")
-    #
+
     # """upload data to SERV&COMP table"""
     # update_gs()
     #
@@ -41,16 +41,16 @@ def before_all(context):
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-    #
+
     # """perform reconciliation"""
     # finish_reconciliation_process(context)
 
-    """perform dr calculation"""
-    perform_dr_calculation(
-        context=context,
-        calculation_date='2021-02-07',
-        calculation=False
-    )
+    # """perform dr calculation"""
+    # perform_dr_calculation(
+    #     context=context,
+    #     calculation_date='2021-04-28',
+    #     calculation=True
+    # )
 
     """generate vars with data"""
     bills, entries = data_set_reconciliation()
