@@ -1,6 +1,7 @@
 from behave import *
 import requests
 
+
 persons={
     'alien' : 'requests.Session()',
     'manager' : 'context.manager_user',
@@ -15,3 +16,15 @@ def step_impl(context,person, part, code):
     response = session.options(url)
 
     assert response.status_code == int(code)
+
+
+
+
+
+
+from base.db_interactions.accounting_system import Broker
+@step("ASDFG")
+def step_impl(context):
+    a = Broker.create(name='tyo')
+    a.name = "fasdfasdf"
+    a.save()

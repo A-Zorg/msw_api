@@ -29,7 +29,7 @@ def before_all(context):
     #
     # """upload dataset to msw"""
     # runner(context, "loader.py")
-
+    #
     # """upload data to SERV&COMP table"""
     # update_gs()
     #
@@ -51,11 +51,17 @@ def before_all(context):
     #     calculation_date='2021-04-28',
     #     calculation=True
     # )
+    # import time
+    # start=time.time()
+    #
+    # print(start)
+    # print(context.super_user.get('https://mytest-server.sg.com.ua/api/trader/performance_chart/90009/'))
+    # print(time.time()-start)
 
-    """generate vars with data"""
-    bills, entries = data_set_reconciliation()
-    context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
-    context.modified_bills = copy.deepcopy(context.bills)
+    # """generate vars with data"""
+    # bills, entries = data_set_reconciliation()
+    # context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
+    # context.modified_bills = copy.deepcopy(context.bills)
 
 # def after_all(context):
 #     """delete all generated data"""

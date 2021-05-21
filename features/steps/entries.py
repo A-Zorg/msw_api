@@ -41,7 +41,7 @@ def step_impl(context):
 
 @step("random amount pick")
 def step_impl(context):
-    context.request['transaction_common.amount_usd'] = random.randint(1,10000)
+    context.request['transaction_common.amount_usd'] = random.randint(1, 10000)
 
 """
 Example of context.modified_bills

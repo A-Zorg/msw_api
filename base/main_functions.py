@@ -41,7 +41,7 @@ class GetRequest():
 
 def random_filter_generator(item_list, patern):
     copy_list = item_list[:]
-    qty = random.randint(1,len(copy_list))
+    qty = random.randint(1, len(copy_list))
     new_list=[]
     for i in range(qty):
         new_list.append(random.choice(copy_list))
@@ -49,6 +49,15 @@ def random_filter_generator(item_list, patern):
     url_parts = [f'{patern}[]={i}&' for i in new_list]
     return ''.join(url_parts), new_list
 
+def random_filter_generator_with_none(item_list, patern):
+    copy_list = item_list[:]
+    qty = random.randint(0, len(copy_list))
+    new_list=[]
+    for i in range(qty):
+        new_list.append(random.choice(copy_list))
+        copy_list.remove(new_list[-1])
+    url_parts = [f'{patern}[]={i}&' for i in new_list]
+    return ''.join(url_parts), new_list
 
 def prev_current_date():
     current_date = date.today()

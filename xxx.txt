@@ -1,18 +1,196 @@
-True
-True
-INSERT INTO accounting_system_companypropaccount(account, month_adj_net, account_type_id, updated) VALUES (pgp_sym_encrypt('EQS043N', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 7, date('2021-05-06')),(pgp_sym_encrypt('34504066', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 8, date('2021-05-06')),(pgp_sym_encrypt('SMRT046N', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), pgp_sym_encrypt('0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 3, date('2021-05-06'))
-10000.0
-10000.0
-10000.0
-[(4,), (3,)]
-[(4,), (3,)]
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, =--59.75-=)
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('42.25', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, pgp_sym_encrypt('39.75', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('-56.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 4, pgp_sym_encrypt('-20.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
-INSERT INTO accounting_system_userbill(user_id, bill_id, amount) VALUES (4073, 3, pgp_sym_encrypt('-30.75', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'))
-(97852,)
-(97853,)
-INSERT INTO accounting_system_historyuserbill(model_id,history_date,history_type,history_created,amount,bill_id,user_id) VALUES (97856, date'2021-02-05', '+', date'2021-05-06', pgp_sym_encrypt('-4.5', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 4, 4073)
-INSERT INTO accounting_system_historyuserbill(model_id,history_date,history_type,history_created,amount,bill_id,user_id) VALUES (97857, date'2021-02-05', '+', date'2021-05-06', pgp_sym_encrypt('83.0', 'HzBvFDHrTAUHjTdSWe8QuTghhByZuiS6', 'cipher-algo=aes256'), 3, 4073)
+{'transaction_out.user_bill': 100158, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:15:42.885003', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'kCPdSWEzmLFnsVu3ovWXlCVeUbQ5VwE96FSgw4ekbaYkZa1m0s0OFS8lxOcBa5Nw'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100158, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:15:46.553278', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.5, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '8yn2JRKB508z3HJKeqNaxIncSC47tBMMUBq5nZkmUprwAWg3QnR1RYAjvfqDIaV9'}
+200
+{'transaction_out.user_bill': 100158, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:15:50.154811', 'entry.description': 'autotest', 'transaction_common.amount_usd': 152.1, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '7BXCw3iliGgO5Fjn7I8f6XxDSjuOM37rTE0FabS675zLCUQGJFc6qdKKvWQk1CgO'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100158, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:15:53.759204', 'entry.description': 'autotest', 'transaction_common.amount_usd': 10.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'looBLVPXDkArVsDvwGNUeZlHr7srNnY37rrEp3pIsJTosHaO8DRLyfyO4KOX2W7q'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100158, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:15:57.394603', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.55, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'VPKFIwgFZ0otReoZJTVzOxOy9rmclY39HSNImEQqOpHqotVilQZq8N1FM4IIAxcw'}
+200
+{'transaction_out.user_bill': 100160, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:16:44.577848', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'jUicvd6QmMjDKx6I5IQ8sE7kcRHQ7HxQ5R47vOX1zeyBF2bFoRrD4D7BZ9TJXcmM'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100160, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:16:46.273882', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.5, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'EmzqnOCT8Vw4BfcxGIxmi5KUoSZLqSy1qjllnpt4lnL2wKhuZR8RU4KbbabEgnnX'}
+200
+{'transaction_out.user_bill': 100160, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:16:47.933293', 'entry.description': 'autotest', 'transaction_common.amount_usd': 152.1, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'RQ6MPnwRfkEJAAFNrZvaH5dMNnT7n5f2DNSHPYn2sMTHv5KKK86Fj4d3AF50dA4Y'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100160, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:16:49.616272', 'entry.description': 'autotest', 'transaction_common.amount_usd': 10.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'VaNKezN1teCk2K4jjErYSakR2iqV113OH7zFeaEcGGRiXf9gCN2tu9k8PACORwSK'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100160, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:16:51.215212', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.55, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '9R54h0Ja3nBJdy4C8VvovlEea20WV3teVORZhBAlgPQH839zr46T7kEvXkcPLyia'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100159, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:16:52.844889', 'entry.description': 'autotest', 'transaction_common.amount_usd': 1234.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'EmFbbZuS6V0ESvBzas5YZs9GXfkUoZFHqjr6bAl3jnfCN0GwtBGtBr9XKxwNeuuD'}
+200
+{'transaction_out.user_bill': 100159, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:16:54.469550', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'wAxAkzneq3z7QKljQts7qj5pq3rJ0raDixjvkaepDvO5Lfqg9C3C2i5GdlDCQWZz'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100159, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:16:56.153719', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.99, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'uuN98lRF3lBKe5EIaTFMYeI861ZbbtAjgrz48WIQgNQI9AJFt2ghAdIpTjb41Ypf'}
+200
+{'transaction_out.user_bill': 100159, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:16:57.733191', 'entry.description': 'autotest', 'transaction_common.amount_usd': 11.49, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'EdF2lJaImlGdUbZ5nBAIkaa4dqutdEFQqarXlk1TzNVbPG42GKbdW9al0IGm39uM'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100159, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:16:59.356242', 'entry.description': 'autotest', 'transaction_common.amount_usd': 5.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'MaXqf7TgYURcxzlu7AFc9e8RVKKMmsZdy7JlfIKrbm6as4qrqJgHLd88I2WFcXO9'}
+200
+{'transaction_out.user_bill': 100162, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:17:41.764090', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '5LJsi3S5ka1qVDSqAqUvofAoD0I0kcYDqyBOW8MMYtH6C7jZVtvgB24JydpRbx7a'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100162, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:17:43.349282', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.5, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'JFADr5Dsc8slpjGzPlqHbg0Qjg7idEd24ssZ5ax9Qr816N78ao1so3ubetO94Zmz'}
+200
+{'transaction_out.user_bill': 100162, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:17:44.987762', 'entry.description': 'autotest', 'transaction_common.amount_usd': 152.1, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'EHfXUdEvTxyWEiED0NyJ2qzCv1KrW5PNZu7jyiycxQeClM5clQ9ufd3XqeriNqYk'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100162, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:17:46.599056', 'entry.description': 'autotest', 'transaction_common.amount_usd': 10.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'Kdd9ZwFgtci5hjwMlLFVBucj5ROfnQ5i505vDBzX7vYLYNXlGOgGOhGE04v6ebeP'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100162, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:17:48.198436', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.55, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'yrBUkuD6ZmzJsrNNeLfZbI67aOr7ODl8TetgYzxNDFfp9VemzOQKovAs518YFYuF'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100161, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:17:49.796960', 'entry.description': 'autotest', 'transaction_common.amount_usd': 1234.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'c8xFqHBLxE3m2H3rRM7pCLfmBpwwmESxxVp14MvsbXJ2Jbu0cPIaPyJHwCdndZ14'}
+200
+{'transaction_out.user_bill': 100161, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:17:51.387918', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'WxryGptSfUWA1bVXSIQZo8xBO8c673FHhkjUkunzTdCgIFmwdLrKBV1WJlTXYoOe'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100161, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:17:52.985781', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.99, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'QrBdZlTeVaGAxnWFwBXVVXhx4S68RPVCbetzDqNVztmgeRneREyG8KLSZ5NZIa49'}
+200
+{'transaction_out.user_bill': 100161, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:17:54.582802', 'entry.description': 'autotest', 'transaction_common.amount_usd': 11.49, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'B9IHCnotf1cDs51EpzEOiMxKV9gPRyr9WWA3gsiaTkSj9zsdKCfzvz15QmXGITAG'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100161, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:17:56.163235', 'entry.description': 'autotest', 'transaction_common.amount_usd': 5.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'B9vsdLpELa6XsGBM7xQT08uXYpXRtRS3WWnORQjlptMD9a2lsArEdVYiTCEIkc1A'}
+200
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0.0, 'changes': 0.0}]
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}]
+[{'date': '2021-05-21', 'left': 1225.5, 'amount': 0, 'all_time_total': -23.49}, {'date': '2021-04-30T23:59:59.999999', 'left': 1220.5, 'amount': -11.49, 'all_time_total': -23.49}, {'date': '2021-03-31T23:59:59.999999', 'left': 1222.0, 'amount': -12.0, 'all_time_total': -12.0}, {'date': '2021-02-28T23:59:59.999999', 'left': 0.0, 'amount': 0, 'all_time_total': 0}]
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}]
+{'transaction_out.user_bill': 100164, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:19:11.331185', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'x8SOGHdT9oW95rM06T2Pi1RrKrNrXUbbgEHbDpvBddlMKBuadBwzJA6TXJa8Xgl5'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100164, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:19:12.960259', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.5, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'ixVLN26SncPm9LyZNdgFPhOkOd3UcvVT13K8KKoAr1eZOVg9UVKpgQ3M1vqBcR5N'}
+200
+{'transaction_out.user_bill': 100164, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:19:14.599560', 'entry.description': 'autotest', 'transaction_common.amount_usd': 152.1, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '1nV4GI6hbtpAvPdCLjGJGUlzEpi55bxZKTKrDqoZfiOdaZVMS1at7tA1RHFM5xHT'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100164, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:19:16.228072', 'entry.description': 'autotest', 'transaction_common.amount_usd': 10.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'WlmdZ7I8AcuFBu6faWowFegB4wGPx9d3FRbAWP0QE1TigEOphESg6Nv3hO3wxvnX'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100164, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:19:17.838047', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.55, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'C817zksxxSjMVdfhUz2pNGt2E4LXOemFlEQuw2KfBHIpAnXr1hw9efIuRm8EOAwz'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100163, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:19:19.492431', 'entry.description': 'autotest', 'transaction_common.amount_usd': 1234.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 's4I4s3za18NE9MuF3fsLCfEBxMGWagIibAxrpLRS5XchOWcPaXWv3OT3K43DaCSc'}
+200
+{'transaction_out.user_bill': 100163, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:19:21.067998', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'CtDNA4haSvgupMzjDdjNFyo9UODaagFClZsaxMzSWkF74WhtKVNx67DB760RaCPw'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100163, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:19:22.661105', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.99, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'RtBeVeU4D45T4B6duWQ9eOdr5tUkcy4GAZqBSWcMHTuwJLOnBEkTFnsTiLh1cUeA'}
+200
+{'transaction_out.user_bill': 100163, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:19:24.253174', 'entry.description': 'autotest', 'transaction_common.amount_usd': 11.49, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'FT3FVvQpZ2V6XsxBSQV0sKDEZHFEXZHlopS2Sd873RkJCCfLZypKTjS6cZ2lXlRf'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100163, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:19:25.848574', 'entry.description': 'autotest', 'transaction_common.amount_usd': 5.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '1qTaynBKZB1JqoCD531jGgtbl9vKwnqIKWIxv5Ts3qqm5ykNcLv37PIDyrSrwJAC'}
+200
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0.0, 'changes': 0.0}]
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}]
+[{'date': '2021-05-21', 'left': 1225.5, 'amount': 0, 'all_time_total': -23.49}, {'date': '2021-04-30T23:59:59.999999', 'left': 1220.5, 'amount': -11.49, 'all_time_total': -23.49}, {'date': '2021-03-31T23:59:59.999999', 'left': 1222.0, 'amount': -12.0, 'all_time_total': -12.0}, {'date': '2021-02-28T23:59:59.999999', 'left': 0.0, 'amount': 0, 'all_time_total': 0}]
+[{'date': '2021-05-21', 'amount': -132.05, 'changes': 12.55}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}]
+{'transaction_out.user_bill': 100166, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:19:33.292103', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'yvsg6yfo88hUSynN4URQBnIgJlZQj5uBh1hD3gx6cXGxxI5XbClA2WXIWDmxjrEv'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100166, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:19:34.954459', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.5, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'XJN1MwEv1nlF83APbi8VMdNxpykWNLBrGfCoJeWd5cKiNdiZi0CFdM2ZCQHDN7Ll'}
+200
+{'transaction_out.user_bill': 100166, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:19:36.530797', 'entry.description': 'autotest', 'transaction_common.amount_usd': 152.1, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': '3SBHaogfXtM6XBH669ZEgIWBipVs9Ai9Moq476yX1ibJCLpgdRtoHhb3vHi99Ws3'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100166, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:19:38.184886', 'entry.description': 'autotest', 'transaction_common.amount_usd': 10.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'EEitt4FwrA26FU3gKpC8b0hR6wmgdXjhna7QqMXevprJk4LqR76SCzwjjOJXdjtb'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100166, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:19:39.826529', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.55, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'qAqvPr0GJ3JY0CliJULqPxmpvW94PWCV96fSM9ioNS8BFM3sQCfag6BRIewLPiMP'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100165, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-03-26 12:19:41.445532', 'entry.description': 'autotest', 'transaction_common.amount_usd': 1234.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'FVf8fnB4x54VeKG7GZjdjfSaFQeCG68Jor4vc5TMBUtyTUohNHNXKO7CS8BjGsiD'}
+200
+{'transaction_out.user_bill': 100165, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-03-15 12:19:43.026861', 'entry.description': 'autotest', 'transaction_common.amount_usd': 12.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'm8G4eWFkCmPIIn4mSQUNlaJMdGpfWt6c5EvrbEX2GbelnxMwZyoxMJYeqYMWWPg6'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100165, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-04-26 12:19:44.653625', 'entry.description': 'autotest', 'transaction_common.amount_usd': 9.99, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'edNZ452YPZ8sBoNOdirSLbVOLdUWjOivXJCm1NkGTOx5gyvYk0VCcKagYvhDjasp'}
+200
+{'transaction_out.user_bill': 100165, 'transaction_out.company_bill': '', 'transaction_in.user_bill': '', 'transaction_in.company_bill': 111, 'entry.date_to_execute': '2021-04-15 12:19:46.253540', 'entry.description': 'autotest', 'transaction_common.amount_usd': 11.49, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'bc2vlX43eVNhWp7Z9RPzAT7W2h4GK1pdUIRSiFmLiKcUBzP9gzjj1smofzrnKnz7'}
+200
+{'transaction_out.user_bill': '', 'transaction_out.company_bill': 111, 'transaction_in.user_bill': 100165, 'transaction_in.company_bill': '', 'entry.date_to_execute': '2021-05-01 12:19:47.861403', 'entry.description': 'autotest', 'transaction_common.amount_usd': 5.0, 'transaction_common.description': 'autotest', 'csrfmiddlewaretoken': 'mj6JQ2HQBwpFyMgSxsKDa43XeapBYixM5PV6NKZyFlOidWY2EaenBDiprsMiYEHG'}
+200
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&account[]=3&transaction_side=1&date_from=2021-04-26T00:00:00&date_to=2021-05-10T23:59:59.99
+2021-05-10 20:59:02.000059+00:00
+2021-05-10 20:59:02.000059+00:00
+[]asdasdasd
+[{'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}, {'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}, {'id': 186758, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '10.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '10.0000', 'created': '2021-05-21T23:19:38.702824', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:38.184886'}}]
+[{'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}, {'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186758, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '10.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '10.0000', 'created': '2021-05-21T23:19:38.702824', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:38.184886'}}, {'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=3&account[]=4&transaction_side=0&date_from=2021-04-25T00:00:00&date_to=2021-05-19T23:59:59.99
+2021-05-19 20:59:03.000059+00:00
+2021-05-19 20:59:03.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&account[]=3&transaction_side=1&date_from=2021-04-28T00:00:00&date_to=2021-05-05T23:59:59.99
+2021-05-05 20:59:03.000059+00:00
+2021-05-05 20:59:03.000059+00:00
+[]asdasdasd
+[{'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}]
+[{'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&transaction_side=1&date_from=2021-04-26T00:00:00&date_to=2021-05-11T23:59:59.99
+2021-05-11 20:59:04.000059+00:00
+[]asdasdasd
+[{'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}]
+[{'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}, {'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=1&date_from=2021-04-22T00:00:00&date_to=2021-05-06T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=3&transaction_side=1&date_from=2021-04-28T00:00:00&date_to=2021-05-11T23:59:59.99
+2021-05-11 20:59:05.000059+00:00
+[]asdasdasd
+[{'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}]
+[{'id': 186760, 'side': 1, 'user_bill': {'id': 100166, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 3, 'name': 'Account'}}, 'company_bill': None, 'amount': '12.5500', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '12.5500', 'created': '2021-05-21T23:19:40.280572', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:39.826529'}}]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&transaction_side=0&date_from=2021-04-27T00:00:00&date_to=2021-05-11T23:59:59.99
+2021-05-11 20:59:05.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=1&date_from=2021-04-27T00:00:00&date_to=2021-05-14T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&account[]=3&transaction_side=0&date_from=2021-04-26T00:00:00&date_to=2021-05-07T23:59:59.99
+2021-05-07 20:59:06.000059+00:00
+2021-05-07 20:59:06.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=3&transaction_side=0&date_from=2021-04-22T00:00:00&date_to=2021-05-19T23:59:59.99
+2021-05-19 20:59:07.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&transaction_side=1&date_from=2021-04-25T00:00:00&date_to=2021-05-13T23:59:59.99
+2021-05-13 20:59:08.000059+00:00
+[]asdasdasd
+[{'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}, {'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}]
+[{'id': 186766, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '9.9900', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '9.9900', 'created': '2021-05-21T23:19:45.116854', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-04-26T09:19:44.653625'}}, {'id': 186770, 'side': 1, 'user_bill': {'id': 100165, 'user': {'id': 4073, 'first_name': 'Green', 'last_name': 'Lantern', 'patronymic': '', 'hr_id': 234275}, 'bill': {'id': 4, 'name': 'Withdrawal'}}, 'company_bill': None, 'amount': '5.0000', 'currency': 'USD', 'rate_to_usd': '1.00000000', 'amount_usd': '5.0000', 'created': '2021-05-21T23:19:48.312280', 'initiated_user': {'id': 167, 'first_name': '', 'last_name': '', 'patronymic': None, 'hr_id': 789987}, 'initiated_process': None, 'status': 'Applied', 'entry': {'date_to_execute': '2021-05-01T09:19:47.861403'}}]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=0&date_from=2021-04-27T00:00:00&date_to=2021-05-10T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=0&date_from=2021-04-25T00:00:00&date_to=2021-05-12T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=0&date_from=2021-04-21T00:00:00&date_to=2021-05-06T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=4&account[]=3&transaction_side=0&date_from=2021-04-21T00:00:00&date_to=2021-05-10T23:59:59.99
+2021-05-10 20:59:10.000059+00:00
+2021-05-10 20:59:10.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=1&date_from=2021-04-22T00:00:00&date_to=2021-05-08T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=0&date_from=2021-04-29T00:00:00&date_to=2021-05-15T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?transaction_side=1&date_from=2021-04-29T00:00:00&date_to=2021-05-03T23:59:59.99
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=3&transaction_side=0&date_from=2021-04-28T00:00:00&date_to=2021-05-19T23:59:59.99
+2021-05-19 20:59:11.000059+00:00
+[]asdasdasd
+[]
+[]
+https://mytest-server.sg.com.ua:9999/api/accounting_system/entries/user/?account[]=3&account[]=4&transaction_side=0&date_from=2021-04-30T00:00:00&date_to=2021-05-08T23:59:59.99
+2021-05-08 20:59:12.000059+00:00
+2021-05-08 20:59:12.000059+00:00
+[]asdasdasd
+[]
+[]

@@ -21,10 +21,10 @@ def session(context):
         context.custom_config['host'],
         **context.custom_config['super_user']
     )
-    session_dict['fin_session'] = create_user_session(
-        context.custom_config['host'],
-        **context.custom_config['fin_user']
-    )
+    # session_dict['fin_session'] = create_user_session(
+    #     context.custom_config['host'],
+    #     **context.custom_config['fin_user']
+    # )
     session_dict['manager_session'] = create_user_session(
         context.custom_config['host'],
         **context.custom_config['manager_user']
@@ -41,10 +41,10 @@ def session(context):
     )
 
     context.super_user = session_dict['super_session']
-    context.fin_user = session_dict['fin_session']
+    # context.fin_user = session_dict['fin_session']
     context.manager_user = session_dict['manager_session']
     context.stranger = session_dict['stranger_session']
-    context.sb = session_dict['sb_user']
+    # context.sb = session_dict['sb_user']
 
     context.tele_user = TelegramClient(
         './cred/sess',
