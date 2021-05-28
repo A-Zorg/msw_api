@@ -158,6 +158,8 @@ def step_impl(context):
     request_dict = context.request
     response = session.post(url, data=request_dict, headers={"Referer": url})
     context.response_entry = response.text
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(context.response_entry) + '\n')
 
 @step("change request: field - {field}, value - {value}")
 def step_impl(context, field, value):
@@ -266,10 +268,10 @@ def step_impl(context, direction):
 @step("get of {time_} date of mass transaction")
 def step_impl(context, time_):
     if time_ == 'PAST':
-        date_pick = datetime.now()-timedelta(minutes=5)
+        context.date_pick = datetime.now()-timedelta(minutes=5)
     elif time_ == 'FUTURE':
-        date_pick = datetime.now() + timedelta(seconds=10)
-    context.request['entry']['date_to_execute'] = str(date_pick)
+        context.date_pick = datetime.now() + timedelta(seconds=10)
+    context.request['entry']['date_to_execute'] = str(context.date_pick)
 
 @step("make post request to create mass transaction")
 def step_impl(context):
@@ -372,14 +374,17 @@ def step_impl(context, entry_type):
 
     url = context.custom_config["host"] + 'api/accounting_system/bills/users/'
     worker = GetRequest(session, url)
-    context.user_bill = worker.json_list[0]['id']
+    for bill in worker.json_list:
+        if bill['user'] == 90000:
+            context.user_bill = bill['id']
+            break
 
     url = context.custom_config["host"] + 'api/accounting_system/bills/company/'
     worker = GetRequest(session, url)
     context.company_bills = worker.json_list[0]['id']
 
     if entry_type == "applied":
-        exec_date = datetime.now()-timedelta(minutes=40)
+        exec_date = datetime.now()-timedelta(minutes=140)
     elif entry_type == "pending":
         exec_date = datetime.now() + timedelta(minutes=40)
 
@@ -419,7 +424,8 @@ def step_impl(context, entry_type):
     session = context.super_user
     url = context.custom_config["host"] + f'api/accounting_system/entry/cancel/{entry_id}/'
     response = session.get(url)
-
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(response.text) + '\n')
     if entry_type == 'applied':
         context.task_id = response.json()['task_id']
     elif entry_type == 'applied':
@@ -454,10 +460,10 @@ def step_impl(context, entry_type):
         result = float(context.request['transaction_common.amount_usd'])
     elif entry_type == 'pending':
         result = 0
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.user_bill_after)+'\n')
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.user_bill_before)+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.user_bill_after)+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.user_bill_before)+'\n')
     assert context.user_bill_after - context.user_bill_before == result
     assert context.company_bill_before - context.company_bill_after == result
 

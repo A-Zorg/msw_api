@@ -1,61 +1,61 @@
 ,user_hr_id,bill_id,amount
-0,90000,Investments,250
-1,90000,SmartPoints,1147
-2,90000,Withdrawal,225
-3,90000,Account,1028
-4,90000,Cash hub,376
-5,90000,Current Net balance,785
-6,90001,Investments,1051
-7,90001,SmartPoints,198
-8,90001,Withdrawal,333
-9,90001,Account,56
-10,90001,Cash hub,382
-11,90001,Current Net balance,485
-12,90002,Investments,88
-13,90002,SmartPoints,432
-14,90002,Withdrawal,436
-15,90002,Account,863
-16,90002,Cash hub,748
-17,90002,Current Net balance,1036
-18,90003,Investments,1057
-19,90003,SmartPoints,48
-20,90003,Withdrawal,703
-21,90003,Account,2
-22,90003,Cash hub,966
-23,90003,Current Net balance,871
-24,90004,Investments,367
-25,90004,SmartPoints,156
-26,90004,Withdrawal,73
-27,90004,Account,1066
-28,90004,Cash hub,1034
-29,90004,Current Net balance,927
-30,90005,Investments,763
-31,90005,SmartPoints,-63
-32,90005,Withdrawal,690
-33,90005,Account,367
-34,90005,Cash hub,-46
-35,90005,Current Net balance,170
-36,90006,Investments,93
-37,90006,SmartPoints,456
-38,90006,Withdrawal,1131
-39,90006,Account,73
-40,90006,Cash hub,888
-41,90006,Current Net balance,660
-42,90007,Investments,481
-43,90007,SmartPoints,731
-44,90007,Withdrawal,604
-45,90007,Account,896
-46,90007,Cash hub,135
-47,90007,Current Net balance,373
-48,90008,Investments,1179
-49,90008,SmartPoints,1075
-50,90008,Withdrawal,-72
-51,90008,Account,574
-52,90008,Cash hub,1175
-53,90008,Current Net balance,163
-54,90009,Investments,695
-55,90009,SmartPoints,1030
-56,90009,Withdrawal,210
-57,90009,Account,1027
-58,90009,Cash hub,740
-59,90009,Current Net balance,-14
+0,90000,Investments,722
+1,90000,SmartPoints,920
+2,90000,Withdrawal,195
+3,90000,Account,759
+4,90000,Cash hub,878
+5,90000,Current Net balance,663
+6,90001,Investments,1074
+7,90001,SmartPoints,254
+8,90001,Withdrawal,328
+9,90001,Account,361
+10,90001,Cash hub,1104
+11,90001,Current Net balance,1000
+12,90002,Investments,900
+13,90002,SmartPoints,1150
+14,90002,Withdrawal,-29
+15,90002,Account,346
+16,90002,Cash hub,77
+17,90002,Current Net balance,766
+18,90003,Investments,585
+19,90003,SmartPoints,330
+20,90003,Withdrawal,73
+21,90003,Account,927
+22,90003,Cash hub,14
+23,90003,Current Net balance,66
+24,90004,Investments,-4
+25,90004,SmartPoints,314
+26,90004,Withdrawal,-68
+27,90004,Account,136
+28,90004,Cash hub,990
+29,90004,Current Net balance,642
+30,90005,Investments,1005
+31,90005,SmartPoints,971
+32,90005,Withdrawal,-85
+33,90005,Account,1121
+34,90005,Cash hub,978
+35,90005,Current Net balance,687
+36,90006,Investments,-83
+37,90006,SmartPoints,616
+38,90006,Withdrawal,336
+39,90006,Account,480
+40,90006,Cash hub,721
+41,90006,Current Net balance,574
+42,90007,Investments,1111
+43,90007,SmartPoints,768
+44,90007,Withdrawal,248
+45,90007,Account,856
+46,90007,Cash hub,589
+47,90007,Current Net balance,480
+48,90008,Investments,832
+49,90008,SmartPoints,949
+50,90008,Withdrawal,245
+51,90008,Account,879
+52,90008,Cash hub,3
+53,90008,Current Net balance,804
+54,90009,Investments,697
+55,90009,SmartPoints,340
+56,90009,Withdrawal,882
+57,90009,Account,641
+58,90009,Cash hub,856
+59,90009,Current Net balance,41

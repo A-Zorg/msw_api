@@ -25,8 +25,9 @@ def step_impl(context):
     userdata_set = pd.read_csv('base/data_set/userdata.csv')
     context.data_list=[]
     for _, user_data in userdata_set.iterrows():
-        part_dict={
+        part_dict = {
                     "hr_id": user_data['user_hr_id'],
+                    "prev_month_net": user_data['prev_month_net'],
                     "podushka": user_data['podushka'],
                     "zp_cash": user_data['zp_cash'],
                     "total_takion": None,
@@ -200,6 +201,7 @@ def step_impl(context):
                     "hr_id": filter(part['ID']),
                     "podushka": filter(part['Podushka']),
                     "zp_cash": filter(part['ZP cash']),
+                    "prev_month_net": filter(part['Prev Month Balance']),
                     "total_takion": filter(part['Takion Total']),
                     "total_sterling": filter(part['Sterling Total']),
                     "services_and_compensations_total": filter(part['Services Total']),

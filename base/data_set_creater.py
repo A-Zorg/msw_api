@@ -190,7 +190,7 @@ def add_number_bills(context, bills, entries):
 
         for key in copy_userdata_fields.keys():
             copy_userdata_fields[key] = data.get(key)
-        copy_userdata_fields['company_cash'] = data['total_net_month']-data['zp_cash']
+        copy_userdata_fields['company_cash'] = data['total_net_month'] - (data['zp_cash'] + data['podushka'])
         copy_userdata_fields['change_plus_minus'] = copy_userdata_fields['account_plus_minus']
         del copy_userdata_fields['account_plus_minus']
         copy_userdata_fields['withdrawal'] = copy_userdata_fields['cash']

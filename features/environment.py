@@ -21,29 +21,29 @@ def before_all(context):
         host = 'test'
     get_custom_config(context, host)
 
-    # """create data set"""
-    # generate_data(10, context)
-    #
-    # """upload dataset to the server"""
-    # upload_files_server(context)
-    #
-    # """upload dataset to msw"""
-    # runner(context, "loader.py")
-    #
-    # """upload data to SERV&COMP table"""
-    # update_gs()
-    #
-    # """create file FEES to upload through riskbot"""
-    # create_riskbot_fees()
+    """create data set"""
+    generate_data(10, context)
+
+    """upload dataset to the server"""
+    upload_files_server(context)
+
+    """upload dataset to msw"""
+    runner(context, "loader.py")
+
+    """upload data to SERV&COMP table"""
+    update_gs()
+
+    """create file FEES to upload through riskbot"""
+    create_riskbot_fees()
 
     """create sessions of users"""
     use_fixture(session, context)
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-
-    # """perform reconciliation"""
-    # finish_reconciliation_process(context)
+    #
+    """perform reconciliation"""
+    finish_reconciliation_process(context)
 
     # """perform dr calculation"""
     # perform_dr_calculation(
@@ -51,17 +51,11 @@ def before_all(context):
     #     calculation_date='2021-04-28',
     #     calculation=True
     # )
-    # import time
-    # start=time.time()
-    #
-    # print(start)
-    # print(context.super_user.get('https://mytest-server.sg.com.ua/api/trader/performance_chart/90009/'))
-    # print(time.time()-start)
 
-    # """generate vars with data"""
-    # bills, entries = data_set_reconciliation()
-    # context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
-    # context.modified_bills = copy.deepcopy(context.bills)
+    """generate vars with data"""
+    bills, entries = data_set_reconciliation()
+    context.bills, context.entries, context.userdata = add_number_bills(context, bills, entries)
+    context.modified_bills = copy.deepcopy(context.bills)
 
 # def after_all(context):
 #     """delete all generated data"""

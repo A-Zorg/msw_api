@@ -107,9 +107,16 @@ class Model:
             return parsed_field
 
     @staticmethod
-    def get_if_foreign_object(field_type, foreign_field, value):
-        gotten_object = field_type.obj_type.get(**{foreign_field: value})
-        if gotten_object:
+    def get_if_foreign_object(field_type, foreign_field, value, in_search=False):
+
+        if in_search:
+            gotten_object = field_type.obj_type.filter(**{foreign_field: value})
+        else:
+            gotten_object = field_type.obj_type.get(**{foreign_field: value})
+
+        if gotten_object and in_search:
+            return [part.id for part in gotten_object]
+        elif gotten_object:
             return gotten_object.id
         else:
             return 0

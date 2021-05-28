@@ -8,6 +8,8 @@ from base.sql_functions import pgsql_select, pgsql_update, pgsql_select_as_dict,
     decode_request, encode_request, pgsql_insert
 from base.adminka import finish_reconciliation_process
 from base.ssh_interaction import change_db_through_django
+from base.db_interactions.accounting_system import PropreportsSubdomain, AccountType
+from base.db_interactions.reconciliation import ReconciliationUserPropaccounts, PropreportsaccountId
 
 """-------------------------------------------MSW-398-------------------------------------"""
 @step("get bills id of user 90000")
@@ -19,8 +21,7 @@ def step_impl(context, period):
     request = f'SELECT * FROM public.accounting_system_transaction ' \
               f'WHERE user_bill_id in {context.user_bills}'
     response = pgsql_select(request, **context.custom_config['pg_db'])
-    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(len(response))+'\n')
+
     if period == "before":
         context.transaction_qty_before = len(response)
     elif period == "after":
@@ -63,6 +64,10 @@ def step_impl(context):
 
 @step("compare transactions qty before and after RECONCILIATION {equality}")
 def step_impl(context, equality):
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.transaction_qty_before)+'\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.transaction_qty_after)+'\n')
     if equality == "true":
         assert context.transaction_qty_before == context.transaction_qty_after
     elif equality == "false":
@@ -428,11 +433,51 @@ def step_impl(context):
                                           + context.expected_total['compensation'] \
                                           + context.expected_total['service']
     del context.actual_total['prev_month']
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.actual_total) + '\n')
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.expected_total) + '\n')
     assert context.actual_total == context.expected_total
+
+@step("get {hr_id} user's accounts which belong to subdomain {subdomain} through {source}")
+def step_impl(context, hr_id, subdomain, source):
+    if source == 'api':
+        session = context.super_user
+        url = context.custom_config["host"] + f'api/reconciliation/accounts/{hr_id}/{subdomain}/'
+        result = session.get(url).json()
+        context.api_accounts = [part['account'] for part in result]
+    elif source == 'db':
+        account_types = AccountType.filter(propreports_subdomain_id__subdomain=subdomain)
+        result = ReconciliationUserPropaccounts.filter(
+            user_id__hr_id=hr_id,
+            account_type_id__in=account_types
+        )
+        context.api_accounts = [part.account for part in result]
+
+@step("get to these accounts propreports_id and group_id through {source}")
+def step_impl(context, source):
+    if source == 'api':
+        session = context.super_user
+        url = context.custom_config["host"] + 'api/reconciliation/accounts/propreports/{0}/'
+        context.api_result = {}
+        for account in context.api_accounts:
+            ''.format()
+            response = session.get(url.format(account)).json()
+            context.api_result[account] = response
+    elif source == 'db':
+        sql_response = PropreportsaccountId.filter(account__in=context.api_accounts)
+        context.db_result = {}
+        for part in sql_response:
+            context.db_result[part.account] = {
+                'propreports_id': part.propreports_id,
+                'group_id': part.group_id
+            }
+
+@step("compare data from db and api")
+def step_impl(context):
+    assert context.db_result == context.api_result
+
+
+
+
+
+
 
 
 

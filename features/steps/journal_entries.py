@@ -59,7 +59,7 @@ def step_impl(context, subject, key):
 @step("check {key} entries")
 def step_impl(context, key):
     worker = GetRequest(context.fin_user, context.url)
-    subject_dict = worker.json_list
+    subject_dict = worker.json_list['data']
     entries = context.choosen_entries if key == 'appropriate' else context.not_choosen_entries
     result = check_comming_entries(entries, subject_dict, key)
     assert result
@@ -80,7 +80,7 @@ def step_impl(context, key):
 @step("check reconciliation entries with {key} date")
 def step_impl(context, key):
     worker = GetRequest(context.fin_user, context.url)
-    subject_dict = worker.json_list
+    subject_dict = worker.json_list['data']
     entries = context.entries
     result = check_comming_entries(entries, subject_dict, key)
     assert result
@@ -101,11 +101,11 @@ def step_impl(context, key):
 
     if key == 'first':
         worker = GetRequest(context.fin_user, url + context.date_one)
-        subject_dict = worker.json_list
+        subject_dict = worker.json_list['data']
         context.result_first = set(str(part) for part in subject_dict)
     elif key == 'second':
         worker = GetRequest(context.fin_user, url + context.date_two)
-        subject_dict = worker.json_list
+        subject_dict = worker.json_list['data']
         context.result_second = set(str(part) for part in subject_dict)
 
 

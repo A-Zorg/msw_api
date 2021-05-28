@@ -969,14 +969,16 @@ class Broker1(Model1):
 # print(a._Model1__mass_delete(id__in=[1,2,3,4]))
 # print(getattr(a, '_Model1__mass_delete'))
 # #
-asd = [{'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-05-17', 'amount': -132.05, 'changes': 12.55}]
-asd.reverse()
-print(asd)
-
-print(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f"))
-from datetime import timezone
-print('{:.4f}'.format(1.0))
-print(datetime.now().astimezone(timezone.utc))
+# asd = [{'date': '2021-02-28T23:59:59.999999', 'amount': 0, 'changes': 0}, {'date': '2021-03-31T23:59:59.999999', 'amount': -2.5, 'changes': -2.5}, {'date': '2021-04-30T23:59:59.999999', 'amount': -144.6, 'changes': -142.1}, {'date': '2021-05-17', 'amount': -132.05, 'changes': 12.55}]
+# asd.reverse()
+# print(asd)
+#
+# print(datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f"))
+# from datetime import timezone
+# print('{:.4f}'.format(1.0))
+# print(datetime.now().astimezone(timezone.utc))
+#
+print(len({'asdfas':123, 'dsfas':234}))
 
 
 

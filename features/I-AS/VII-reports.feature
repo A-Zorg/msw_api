@@ -1,4 +1,3 @@
-@fin_user
 Feature: report
 
   Scenario Outline: checking filters of REPORTS
@@ -77,8 +76,10 @@ Scenario Outline: cancel applied or pending entry(MSW-609)
     Given define template request form and remember user and company bills: <type> entry
      And get csrf token
     When make post request
+     And pause - 2 sec(s)
      And get user and company bills before canceling entry
     Then cancel the created <type> entry
+     And pause - 2 sec(s)
      And get user and company bills after canceling entry
      And check status of task
      And pause - 2 sec(s)

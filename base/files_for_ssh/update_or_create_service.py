@@ -9,7 +9,7 @@ try:
         name='fee_2'
     )
     service_object.amount = -0.2
-    service_object.effective_datetime = datetime.datetime.fromtimestamp(1617611975.65287)
+    service_object.effective_datetime = datetime.datetime.fromtimestamp(1619361292.873721)
     service_object.save()
 except:
     service_object = Service.objects.create(
@@ -17,7 +17,7 @@ except:
         name='fee_2',
         service_type='fee',
         amount=-0.2,
-        effective_datetime=datetime.datetime.fromtimestamp(1617611975.65287)
+        effective_datetime=datetime.datetime.fromtimestamp(1619361292.873721)
     )
     service_object.save()
 

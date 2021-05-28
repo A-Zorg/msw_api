@@ -30,7 +30,7 @@ class GetRequest():
         return all(check_list)
 
     def check_json(self, keys_list):
-        for key in keys_list[:-5]:
+        for key in keys_list[:-6]:
             index = 0
             for part in self.json_list:
                 if all([str(i) in str(part) for i in key]):
@@ -63,16 +63,20 @@ def prev_current_date():
     current_date = date.today()
     prev_month_date = current_date.replace(day=1) - timedelta(days=1)
     date_dict = {
-        'current_month' : current_date.month,
-        'current_year' : current_date.year,
-        'prev_month' : prev_month_date.month,
-        'prev_year' : prev_month_date.year,
-        'current_day' : current_date.day,
-        "prev_month_day" : prev_month_date.day
+        'current_month': current_date.month,
+        'current_year': current_date.year,
+        'prev_month': prev_month_date.month,
+        'prev_year': prev_month_date.year,
+        'current_day': current_date.day,
+        "prev_month_day": prev_month_date.day
 }
     return date_dict
 
 def check_comming_entries(entries, subject_dict, key):
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(entries) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(subject_dict) + '\n')
     for entry in entries:
         count = 0
         for part in subject_dict:

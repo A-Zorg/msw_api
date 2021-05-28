@@ -131,7 +131,7 @@ class UserMainData(Model):
     prev_month_net_atr = IntField(is_encoded=True, blank=True)
     total_net_month_atr = IntField(is_encoded=True, blank=True)
     deadline_atr = IntField(is_encoded=True, blank=True)
-    payout_rate_atr = IntField(is_encoded=True, blank=True)
+    payout_rate_atr = FloatField(is_encoded=True, blank=True)
     change_plus_minus_atr = IntField(is_encoded=True, blank=True)
     zp_cash_atr = IntField(is_encoded=True, blank=True)
     company_cash_atr = IntField(is_encoded=True, blank=True)

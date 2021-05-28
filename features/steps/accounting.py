@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 from dateutil import tz
 from behave.api.async_step import async_run_until_complete
 from openpyxl import load_workbook
-from base.main_functions import GetRequest, get_token, find_button
+from base.main_functions import GetRequest, get_token, find_button, prev_current_date
 from behave.api.async_step import async_run_until_complete
 from base.main_functions import random_filter_generator_with_none
 from base.sql_functions import (
@@ -16,7 +16,7 @@ from base.sql_functions import (
 )
 from base.db_interactions.accounting_system import UserBill, HistoryUserBill, \
     Transaction, UserBillType, HistoryCompanyBill, CompanyBill, User, Entry, UserMainData, Process
-
+from base.db_interactions.reconciliation import UserPropaccounts, ReconciliationUserPropaccounts
 
 # @step("cdfgdfshgfhdfghreate manager_user bills: account and withdrawal")
 # def step_impl(context):
@@ -447,8 +447,8 @@ def step_impl(context):
     bill_list = [
         'Account',
         'Withdrawal',
-        'Cash hub',
-        'Current Net balance'
+        # 'Cash hub',
+        # 'Current Net balance'
     ]
     bill_list_id = [bill.id for bill in UserBillType.filter(name__in=bill_list)]
     url_bill, context.new_bill_list = random_filter_generator_with_none(bill_list_id, 'account')
@@ -560,29 +560,82 @@ def step_impl(context):
 
 @step("compare actual and expected result of MANAGER journal entries")
 def step_impl(context):
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(context.actual_result) + '\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(context.expected_result) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.actual_result) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.expected_result) + '\n')
     for transaction in context.actual_result:
         assert transaction in context.expected_result
 
 
 
+@step("create UserPropaccounts models of user {user} for {day} day of prev month")
+def step_impl(context, user, day):
+    month = prev_current_date()['prev_month']
+    user_accounts = ReconciliationUserPropaccounts.filter(user_id=int(user))
+    expected_result = {}
+
+    for index in range(len(context.table.rows)):
+        row = context.table[index]
+        current_day = int(day) + index
+        expected_result[current_day] = {
+            'daily_gross': 0,
+            'daily_adj_net': 0,
+            'daily_unreal': 0,
+            'month_gross': 0,
+            'month_unreal': 0,
+            'month_adj_net': 0,
+        }
+        for account in user_accounts:
 
 
+            local_dict = expected_result[current_day].copy()
+            for key, value in row.items():
+                local_dict[key] = float(value) + index
+                expected_result[current_day][key] += float(value) + index
+            UserPropaccounts.create(
+                account=account.account,
+                effective_date=datetime.now().replace(
+                    day=current_day,
+                    month=month
+                ),
+                user_id=user,
+                account_type_id=account.account_type_id,
+                **local_dict
+            )
 
+    context.expected_result = expected_result
 
+@step("get actual result from api of user {user} for {day} day of prev month")
+def step_impl(context, user, day):
+    month = prev_current_date()['prev_month']
+    session = context.fin_user
+    url = context.custom_config["host"] + f'api/accounting_system/report/?user[]={user}' \
+                                          f'&field[]=month_adj_net&field[]=month_gross' \
+                                          f'&field[]=month_unreal&field[]=daily_unreal' \
+                                          f'&field[]=daily_gross&field[]=daily_adj_net' \
+                                          '&date={}'
 
+    actual_result = {}
+    for i in range(len(context.expected_result)):
+        datum = datetime.now().replace(
+            day=int(day)+i,
+            month=month
+        )
+        response = session.get(url.format(datum.date()))
+        actual_result[int(day)+i] = response.json()[user]['fields']
 
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(actual_result) + '\n')
+    context.actual_result = actual_result
 
-
-
-
-
-
-
-
+@step("[Report with fields] compare expected and actual result")
+def step_impl(context):
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.actual_result) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.expected_result) + '\n')
+    assert context.actual_result == context.expected_result
 
 
 @step('upload manager\'s account data through Riskbot')

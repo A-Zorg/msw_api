@@ -92,7 +92,7 @@ def step_impl(context, **filters):
 def step_impl(context):
     session = context.fin_user
     response = session.get(context.url)
-    context.result = response.json()
+    context.result = response.json()['data']
 
 @step("check actual result of JE report with expected: {result}")
 def step_impl(context, result):

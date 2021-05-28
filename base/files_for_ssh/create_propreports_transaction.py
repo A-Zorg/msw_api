@@ -6,7 +6,7 @@ from accounting_system.models import AccountType, Clearing, Company, \
 clearing = Clearing.objects.get(name='default')
 company = Company.objects.get(name='EQS')
 broker = Broker.objects.get(name='Broker 4')
-user_bill = UserBill.objects.get(id='95703')
+user_bill = UserBill.objects.get(id='101514')
 company_bill = CompanyBill.objects.get(id='111')
 
 acc_type = AccountType.objects.get(
