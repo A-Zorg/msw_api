@@ -1,6 +1,7 @@
 import logging
 import random
 from datetime import datetime, timedelta
+import pytz
 import pandas
 from django_otp.plugins.otp_totp.models import TOTPDevice
 from index.models import CustomUser
@@ -55,13 +56,15 @@ def csv_file_modificator():
 
 
 
-
-
-
-
 """Create user bills types and compamy bills"""
-user_bills_type = ['Investments','SmartPoints','Withdrawal',
-                   'Account','Cash hub','Current Net balance']
+user_bills_type = [
+    'Investments',
+    'SmartPoints',
+    'Withdrawal',
+    'Account',
+    'Cash hub',
+    'Current Net balance'
+]
 try:
     for b_type in user_bills_type:
         bill_type = UserBillTypes.objects.create(name=b_type)
@@ -70,8 +73,14 @@ try:
 except:
     logger.error('types bill were created')
 # ---------------------
-company_bills_type = ['Company ServComp','Company Office Fees','Company Net Income',
-                   'Company Social Fund','Company Daily Net']
+company_bills_type = [
+    'Company ServComp',
+    'Company Office Fees',
+    'Company Net Income',
+    'Company Social Fund',
+    'Company Daily Net',
+    'Operational'
+]
 try:
     HistoryCompanyBill.objects.all().delete()
     for c_type in company_bills_type:
@@ -155,7 +164,7 @@ for user in account_month_dict.keys():
 tod_ay = datetime.today()
 month = (tod_ay-timedelta(tod_ay.day+1)).month
 year = (tod_ay - timedelta(tod_ay.day+1)).year
-back_date = datetime(year, month, 28, 0, 0, 43, 79043) -timedelta(30)
+back_date = datetime(year, month, 28, 0, 0, 43, 79043) - timedelta(days=30)
 
 for history_bill in HistoryUserBill.objects.filter(user__in = account_month_dict.keys()):
     history_bill.history_date = back_date
@@ -201,7 +210,7 @@ def company(datum, side, company_bill, amount, process, broker=None):
                                         entry = entry,
                                         name = 'Company Daily Net',
                                         amount = bill.amount,
-                                        model_id = 111,
+                                        model_id = bill.id,
                                         caused_by_transaction=transaction.id
     )
     entry.save()
@@ -217,7 +226,7 @@ def user_s(datum, entry, side, user_set, process, user_bill_type ):
         broker = part[1]
         account = part[2]
         amount = part[3]
-        if amount !=0:
+        if amount != 0:
             bill = UserBill.objects.get(user = user, bill = user_bill_type)
             bill.amount = bill.amount + Decimal(amount)
             transaction = Transaction.objects.create(
@@ -237,12 +246,12 @@ def user_s(datum, entry, side, user_set, process, user_bill_type ):
             history = HistoryUserBill.objects.create(
                 history_date=datum,
                 history_type='~',
-                user = user,
-                bill = user_bill_type,
+                user=user,
+                bill=user_bill_type,
                 entry=entry,
                 amount=bill.amount,
                 model_id=bill.id,
-                caused_by_transaction = transaction.id
+                caused_by_transaction=transaction.id
             )
             bill.save()
             history.save()
@@ -252,8 +261,8 @@ def user_s(datum, entry, side, user_set, process, user_bill_type ):
 
 for datum in columns[2:]:
     datum = datum
-    amount_list=[]
-    company_in_dict={}
+    amount_list = {}
+    company_in_dict = {}#was list
     for user in account_month_dict.keys():
         for broker in account_month_dict[user]:
             for account in account_month_dict[user][broker]:
@@ -261,27 +270,34 @@ for datum in columns[2:]:
                 #
                 # if account is not str:
                 #     account = str(int(account))
-                amount_list.append([user, broker, account, amount])
+                if not amount_list.get(broker):#add
+                    amount_list[broker] = []#add
+                amount_list[broker].append([user, broker, account, amount])
 
                 if not company_in_dict.get(broker):
-                    company_in_dict[broker] = [0,0]
-                company_in_dict[broker][0]+=amount
+                    company_in_dict[broker] = [0, 0]
+                company_in_dict[broker][0] += amount
                 if amount != 0:
-                    company_in_dict[broker][1]+=1
+                    company_in_dict[broker][1] += 1
 
-    total = sum([i[3] for i in amount_list])
-    key = any([i[3]!=0 for i in amount_list])
-    datum = datum.replace(hour=21, minute=59, second=0)
+    # total = sum([i[3] for i in amount_list])
+    # key = any([i[3] != 0 for i in amount_list])
+    tz = pytz.timezone('Europe/Kiev')
+    utc_time = datetime.utcnow()
+    mow_time = pytz.utc.localize(utc_time, is_dst=None).astimezone(tz)
+    datum = datum.replace(hour=23, minute=59, second=0) - mow_time.utcoffset()
     """--------------------"""
     for broker in company_in_dict:
         amount_broker = company_in_dict[broker][0]
         if company_in_dict[broker][1] != 0:
             company(datum, 1, company_bill, amount_broker, process, broker)
+            entry = company(datum.replace(microsecond=10), 0, company_bill, amount_broker, process, broker)#add
+            user_s(datum, entry, 1, amount_list[broker], process, user_bill_type)#add
     """----------------------------"""
-    if key:
-        entry = company(datum, 0, company_bill, total, process)
-        user_s(datum, entry, 1, amount_list, process, user_bill_type)
+    # if key:
+    #     entry = company(datum, 0, company_bill, total, process)
+    #     user_s(datum, entry, 1, amount_list, process, user_bill_type)
 
 """------------------------"""
-HistoryCompanyBill.objects.filter(history_date__gt = datetime.today().replace(hour=0)).delete()
-HistoryUserBill.objects.filter(history_date__gt = datetime.today().replace(hour=0)).delete()
+HistoryCompanyBill.objects.filter(history_date__gt=datetime.today().replace(hour=0)).delete()
+HistoryUserBill.objects.filter(history_date__gt=datetime.today().replace(hour=0)).delete()

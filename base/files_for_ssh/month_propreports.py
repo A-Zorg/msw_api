@@ -7,8 +7,8 @@ from accounting_system.models import UserMainData, UserBillTypes, \
 
 #get users
 users = [
-    CustomUser.objects.get(hr_id = 90000),
-    CustomUser.objects.get(hr_id = 90001)
+    CustomUser.objects.get(hr_id=90000),
+    CustomUser.objects.get(hr_id=90001)
 ]
 
 active_accounts = set()
@@ -19,8 +19,8 @@ for acc_day in UserPropAccount.objects.all():
 active_accounts = list(active_accounts)
 
 month_result = {
-    "hr_id":[],
-    "account_id" : active_accounts,
+    "hr_id": [],
+    "account_id": active_accounts,
 }
 
 for index in range(len(active_accounts)):

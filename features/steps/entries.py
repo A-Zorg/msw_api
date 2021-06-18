@@ -280,7 +280,8 @@ def step_impl(context):
     url = context.custom_config["host"] + 'api/accounting_system/entry/multiple_transactions/'
     token = get_token(session=session, url=url)
     request_dict = context.request
-
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(request_dict) + '\n')
     response = session.post(
         url,
         json=request_dict,

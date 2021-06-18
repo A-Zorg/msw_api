@@ -243,7 +243,7 @@ for bill in company_bills_type:
 tod_ay = datetime.today()
 month = (tod_ay-timedelta(tod_ay.day+1)).month
 year = (tod_ay - timedelta(tod_ay.day+1)).year
-back_date = datetime(year, month, 28, 0, 0, 43, 79043)
+back_date = datetime(year, month, 1, 0, 0, 0, 0)
 
 for history_bill in HistoryUserBill.objects.all():
     history_bill.history_date = back_date
@@ -297,7 +297,9 @@ userdata_object.account=2000
 userdata_object.account_plus_minus=30
 userdata_object.cash=1000
 userdata_object.social=5
-userdata_object.custom_payout_rate=None
-userdata_object.date_reconciliation=None
+userdata_object.custom_payout_rate = None
+userdata_object.custom_payout_rate = None
+userdata_object.date_reconciliation = None
+userdata_object.custom_podushka = False
 userdata_object.save()
 logger.info('finish creation of datasets')

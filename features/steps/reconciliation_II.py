@@ -27,17 +27,17 @@ def step_impl(context):
     for _, user_data in userdata_set.iterrows():
         part_dict = {
                     "hr_id": user_data['user_hr_id'],
-                    "prev_month_net": user_data['prev_month_net'],
-                    "podushka": user_data['podushka'],
-                    "zp_cash": user_data['zp_cash'],
+                    "prev_month_net": f"{int(user_data['prev_month_net'])}.0000",
+                    "podushka": f"{int(user_data['podushka'])}.0000",
+                    "zp_cash": f"{int(user_data['zp_cash'])}.0000",
                     "total_takion": None,
                     "total_sterling": None,
-                    "services_and_compensations_total": user_data['services_total']+user_data['compensations_total'],
-                    "office_fees": user_data['office_fees'],
-                    "account": user_data['account'],
-                    "account_plus_minus": user_data['account_plus_minus'],
-                    "cash": user_data['cash'],
-                    "social": user_data['social'],
+                    "services_and_compensations_total": float(user_data['services_total']+user_data['compensations_total']),
+                    "office_fees": f"{int(user_data['office_fees'])}.0000",
+                    "account": f"{int(user_data['account'])}.0000",
+                    "account_plus_minus": f"{int(user_data['account_plus_minus'])}.0000",
+                    "cash": f"{int(user_data['cash'])}.0000",
+                    "social": f"{int(user_data['social'])}.0000",
                     "qty_of_reconciliations": user_data['qty_of_reconciliations']
                    }
         context.data_list.append(part_dict)

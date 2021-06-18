@@ -3,7 +3,7 @@ from reconciliation.models import Bonus
 from accounting_system.models import AccountType
 
 
-acc_type = AccountType.objects.get(id=2)
+acc_type = AccountType.objects.get(id=4)
 try:
     bonus_object = Bonus.objects.get(account_type=acc_type)
     bonus_object.decimal_percentage = 0.13

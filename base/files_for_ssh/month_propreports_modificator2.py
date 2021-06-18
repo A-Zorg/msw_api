@@ -16,43 +16,6 @@ logging.basicConfig(
 logger=logging.getLogger()
 logger.setLevel(logging.INFO)
 
-def csv_file_modificator():
-    import datetime
-    import random
-    import pandas
-
-    phrase = "{PHRASE}"                            #PHRASE
-    adj_net_to_be_modified = eval('{MODIFICATOR_TYPES}')        #MODIFICATOR_TYPES
-    if "without mod" in phrase:
-        return True
-
-    main_list = pandas.read_excel('{PATH}')                               #PATH
-    columns = list(main_list.columns)
-    user_propreports_in_dict = dict()
-    for column in columns[1:]:
-        user_propreports_in_dict[column] = list(main_list[column])
-
-    for key, adj_net_list in user_propreports_in_dict.items():
-        if eval(phrase) and type(key) == datetime.datetime:
-            for adj_net_index in range(len(adj_net_list)):
-                if 'zero->create' in adj_net_to_be_modified and adj_net_list[adj_net_index]==0:
-                    adj_net_to_be_modified.remove('zero->create')
-                    adj_net_list[adj_net_index] = random.randint(-100, 100)/4
-                    print(adj_net_list)
-                    continue
-                elif 'non zero->delete' in adj_net_to_be_modified and adj_net_list[adj_net_index]!=0:
-                    adj_net_to_be_modified.remove('non zero->delete')
-                    adj_net_list[adj_net_index] = 0
-                    continue
-                elif 'non zero->change' in adj_net_to_be_modified and adj_net_list[adj_net_index]!=0:
-                    adj_net_to_be_modified.remove('non zero->change')
-                    adj_net_list[adj_net_index]= random.randint(-100, 100)/4
-                    continue
-            break
-
-
-    to_modified_user_propreports = pandas.DataFrame(data=user_propreports_in_dict)
-    to_modified_user_propreports.to_excel('{PATH2}')                                               #PATH
 
 
 
@@ -92,10 +55,10 @@ except:
     logger.error('company bills were created')
 
 """modify csv file"""
-csv_file_modificator()
+
 
 """get data(amount) from accounts for last month"""
-result_accounts = pandas.read_excel('{PATH2}')                                         # path
+result_accounts = pandas.read_excel('/home/alex_zatushevkiy/msw_api/month_propreports.xlsx')                                         # path
 columns = list(result_accounts.columns)[1:]
 account_month_dict = {}
 for _, account in result_accounts.iterrows():

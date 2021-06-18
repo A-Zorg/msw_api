@@ -122,9 +122,9 @@ class HistoryCompanyBill(Model):
 class UserMainData(Model):
     table_name = 'accounting_system_usermaindata'
     id_atr = IntField(blank=True)
-    unreal_month_atr = IntField(is_encoded=True, blank=True)
-    gross_month_atr = IntField(is_encoded=True, blank=True)
-    adj_net_month_atr = IntField(is_encoded=True, blank=True)
+    unreal_month_atr = FloatField(is_encoded=True, blank=True)
+    gross_month_atr = FloatField(is_encoded=True, blank=True)
+    adj_net_month_atr = FloatField(is_encoded=True, blank=True)
     services_total_atr = IntField(is_encoded=True, blank=True)
     compensations_total_atr = IntField(is_encoded=True, blank=True)
     office_fees_atr = IntField(is_encoded=True, blank=True)

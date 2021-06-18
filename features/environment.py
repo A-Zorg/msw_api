@@ -41,7 +41,7 @@ def before_all(context):
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-    #
+
     """perform reconciliation"""
     finish_reconciliation_process(context)
 

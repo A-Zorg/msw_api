@@ -138,7 +138,7 @@ for history_comp_bill in HistoryCompanyBill.objects.all():
     history_comp_bill.save()
 
 """----------------------------create entries, transactions, correct bill------------------------------"""
-process = ASProcess.objects.get(name = 'Propreports Daily Import')
+process = ASProcess.objects.get(name='Propreports Daily Import')
 for datum, acc_sum in sum_for_transactions.items():
     datum = datum + timedelta(hours=20, minutes=59)
     if acc_sum:

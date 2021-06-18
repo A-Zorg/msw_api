@@ -56,7 +56,7 @@ Feature:  entries
           Examples: forward
         |  curr_1     |  curr_2   |
         |  FROM       |  TO       |
-        |  FROM       |  TO       |
+        |  TO         |  FROM     |
 
   Scenario Outline: creation of future mass transaction
     Given get user number bills
@@ -73,4 +73,4 @@ Feature:  entries
           Examples: forward
         |  curr_1     |  curr_2   |
         |  FROM       |  TO       |
-        |  FROM       |  TO       |
+        |  TO         |  FROM     |

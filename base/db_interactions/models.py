@@ -334,7 +334,7 @@ class Model:
 
     def delete(self):
         cls = self.__class__
-        return self._delete_request(cls)
+        return self._delete_request()
 
     @classmethod
     def get(cls, **kwargs):

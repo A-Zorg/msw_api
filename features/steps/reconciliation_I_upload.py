@@ -4,8 +4,8 @@ import re
 from behave import *
 from base.main_functions import GetRequest, get_token, find_button
 from behave.api.async_step import async_run_until_complete
-
-
+from base.db_interactions.reconciliation import Services, ReconciliationUserPropaccounts
+from base.db_interactions.index import User
 
 """-------------------------activate reconciliation-----------------------------------"""
 @step("manager check the status of reconciliation: {answer}")
@@ -99,8 +99,6 @@ def step_impl(context, podushka, zp_cash, account_plus_minus, cash, social):
 @step("compare result response with expected result {er}")
 def step_impl(context, er):
     text = context.response.text
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(text)+'\n')
     assert er in text
 
 @step("by RISKMAN make post request to make reconciliation {podushka} {zp_cash} {account_plus_minus} {cash} {social}")
@@ -185,6 +183,10 @@ def step_impl(context):
 
 @step("compare actual and expected templates")
 def step_impl(context):
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.ac_template)+'\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.exp_template)+'\n')
     assert context.ac_template == context.exp_template
 
 """----------------------------------make questions in MSW----------------------------------------"""
@@ -277,6 +279,19 @@ def step_impl(context):
 
 
 
+@step("delete old services and accounts of user")
+def step_impl(context):
+    user_id = context.custom_config['manager_id']['user_id']
+    context.user = User.get(id=user_id)
+    Services.filter(user_id=context.user).delete()
+    ReconciliationUserPropaccounts.filter(user_id=context.user).delete()
+
+@step("create random services, accounts, prev_month_net")
+def step_impl(context):
+    user_id = context.custom_config['manager_id']['user_id']
+    context.user = User.get(id=user_id)
+    Services.filter(user_id=context.user).delete()
+    ReconciliationUserPropaccounts.filter(user_id=context.user).delete()
 
 
 

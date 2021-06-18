@@ -5,7 +5,7 @@ from behave import *
 from base.main_functions import correct_py_file
 from base.sql_functions import pgsql_del, pgsql_select, decode_request, encode_request, pgsql_insert
 from base.adminka import task_configuration, run_periodic_task, wait_periodictask_to_be_done
-from base.ssh_interaction import change_db_through_django
+from base.ssh_interaction import change_db_through_django, upload_files_server
 
 @step("clear db table: {table}")
 def step_impl(context, table):
@@ -34,6 +34,19 @@ def step_impl(context, file_name):
     assert correct_py_file(file_name, old_new_parts)
     change_db_through_django(context, file_name, file_dir)
 
+@step("asdupload to the server some file and run it: {file_name}")
+def step_impl(context, file_name):
+    old_new_parts = {
+        '{path}': context.custom_config['server_dir'] + file_name + "_template.xlsx",
+        '{path2}': context.custom_config['server_dir'] + file_name + ".xlsx",
+    }
+    file_dir = './base/files_for_ssh'
+
+    assert correct_py_file(file_name, old_new_parts)
+    change_db_through_django(context, file_name, file_dir)
+    from exper import download_from_server
+    download_from_server('month_propreports.xlsx')
+
 @step("modification of msw db to provoke running of bills_corrections by {file_name} - {phrase} - {modificator_types}")
 def step_impl(context, file_name, phrase, modificator_types):
     old_new_parts = {
@@ -47,6 +60,37 @@ def step_impl(context, file_name, phrase, modificator_types):
     assert correct_py_file(file_name, old_new_parts)
     assert change_db_through_django(context, 'AS_cleaner', file_dir)
     assert change_db_through_django(context, file_name, file_dir)
+
+@step("protoffffffffffffffffffffffffffffffffffffffffffffffffffftype")
+def step_impl(context):
+    import paramiko
+    host = context.custom_config['server']['host']
+    port = context.custom_config['server']['port']
+    password = context.custom_config['server']['password']
+    username = context.custom_config['server']['username']
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
+        remotepath = f'/home/alex_zatushevkiy/msw_api/month_propreports.xlsx'
+        localpath = f'C:\\Users\\wsu\\Desktop\\month_propreports.xlsx'
+        sftp.put(localpath, remotepath)
+        sftp.close()
+
+
+    file_dir = './base/files_for_ssh'
+
+    assert change_db_through_django(context, 'AS_cleaner', file_dir)
+    assert change_db_through_django(context, 'month_propreports_modificator2', file_dir)
+@step("hnia")
+def step_impl(context):
+    from base.db_interactions.reconciliation import ReconciliationUserPropaccounts
+    ReconciliationUserPropaccounts.create(
+        account='SMRT046N',
+        account_type_id=4,
+        user_id=713,
+        updated=datetime.datetime.now()
+    )
+
 
 @step("get amount of users (90000, 90001) Current Net balance")
 def step_impl(context):
@@ -78,7 +122,7 @@ def step_impl(context, qty):
     )
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-
+    assert "False" not in response
     assert int(qty) == len(monthpropreportstransaction_result)
     assert round((suma(context.config.userdata["current_net_balance_after_modification"]) + suma(monthpropreportstransaction_result)), 2) == suma(context.config.userdata["current_net_balance"])
 
@@ -95,16 +139,21 @@ def step_impl(context):
     )
     while '-' in accounts_amounts:
         accounts_amounts.remove('-')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(accounts_amounts)+'\n')
     suma = lambda amount: round(sum(map(float, amount)), 2)
 
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(suma(accounts_amounts))+'\n')
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(suma(context.config.userdata["current_net_balance"]))+'\n')
-
     assert suma(accounts_amounts) == suma(context.config.userdata["current_net_balance"])
+
+    session = context.super_user
+    url = context.custom_config["host"] + "admin/accounting_system/userbill/"
+    response = session.get(url).text
+    curr_bills = re.findall(
+        '</a></th><td class="field-bill nowrap">Current Net balance</td><td class="field-amount">([0-9\.-]*)</td></tr>',
+        response
+    )
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(curr_bills) + ' asd\n')
+    assert suma(accounts_amounts) == suma(curr_bills)
+
 
 
 
@@ -139,8 +188,8 @@ def step_impl(context):
     insert_request = encode_request(context, insert_request)[:-1]
     result = pgsql_insert(request=insert_request, **context.custom_config['pg_db'])
 
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(insert_request)+'\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(insert_request)+'\n')
 
 @step("compare month_adj_net with sum(daily_adj_net) of company_prop_account")
 def step_impl(context):
@@ -155,6 +204,10 @@ def step_impl(context):
 
     request = decode_request(context, request_2, ['account', 'month_adj_net'])
     result_2 = pgsql_select(request=request, **context.custom_config['pg_db'])
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(result_2) + '\n')
+    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+    #     file.write(str(result_1) + '\n')
     for part in result_1:
         assert part in result_2
 
@@ -191,6 +244,8 @@ def step_impl(context):
                 "FROM accounting_system_companypropaccount "
     request = decode_request(context, request_acc, ['month_adj_net'])
     result_acc = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(result_bill - result_acc) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(result_bill) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(result_acc) + '\n')
     assert result_bill - result_acc == 10000

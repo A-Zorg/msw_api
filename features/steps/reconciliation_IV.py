@@ -9,7 +9,7 @@ from base.sql_functions import pgsql_select, pgsql_update, pgsql_select_as_dict,
 from base.adminka import finish_reconciliation_process
 from base.ssh_interaction import change_db_through_django
 from base.db_interactions.accounting_system import PropreportsSubdomain, AccountType
-from base.db_interactions.reconciliation import ReconciliationUserPropaccounts, PropreportsaccountId
+from base.db_interactions.reconciliation import ReconciliationUserPropaccounts, PropreportsaccountId, UserData
 
 """-------------------------------------------MSW-398-------------------------------------"""
 @step("get bills id of user 90000")
@@ -234,21 +234,26 @@ def step_impl(context, user_id, answer):
         'date_reconciliation',
         'compensations_total',
     ]
-    request = f'SELECT * FROM public.reconciliation_userdata ' \
-              f'WHERE user_id = {user_id}'
-    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
-    userdata = response[0]
+    userdata = UserData.get(user_id=user_id)
+    # request = f'SELECT * FROM public.reconciliation_userdata ' \
+    #           f'WHERE user_id = {user_id}'
+    # response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
+    # userdata = response[0]
 
     if answer == 'none':
         for field in list_fields:
-            assert userdata[field] == None
-        assert userdata['entries_created'] == False
-        assert userdata['qty_of_reconciliations'] == 0
+            assert getattr(userdata, field) == None
+        assert getattr(userdata, 'entries_created') == False
+        assert getattr(userdata, 'qty_of_reconciliations') == 0
     elif answer == 'not none':
+        check_list = []
         for field in list_fields:
-            assert userdata[field] != None
+            check_list.append(getattr(userdata, field) != None)
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(check_list) + '\n')
+        assert any(check_list)
         # assert userdata['entries_created'] == True
-        assert userdata['qty_of_reconciliations'] != 0
+        assert getattr(userdata, 'qty_of_reconciliations') != 0
 
 @step("get bills: {bills} of user {user_id}")
 def step_impl(context, bills, user_id):
@@ -267,8 +272,8 @@ def step_impl(context, user_id):
     prevprev_month = prev_month.replace(day=1) - timedelta(days=1)
 
     context.exp_result = {
-        "Account": '555',
-        "Prev_month": '623',
+        "Account": '555.0000',
+        "Prev_month": '623.0000',
     }
     new_history_models = [
         [context.user_bills[0][0], str(prev_month), '~', context.exp_result['Account'], context.user_bills[0][1]],
@@ -294,6 +299,10 @@ def step_impl(context, user_id):
               f'WHERE user_id = {user_id}'
     request = decode_request(context, request, ['account', 'prev_month_net'])
     response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])[0]
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.exp_result) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(response) + '\n')
     for key in context.exp_result:
         assert context.exp_result[key] == response[key.lower()]
 
@@ -316,6 +325,11 @@ def step_impl(context, number):
             '[RC] StartReconciliation',
             'auto_start_reconciliation',
             0, 10, rec_day, rec_month
+        ],
+        [
+            '[RC] StartReconciliationUpdates - Check for non-existing accounts',
+            'check_for_non_existent_prop_accounts_monthly',
+            30, 10, rec_day - 1, rec_month
         ],
         [
             '[RC] StartReconciliationUpdates - Create Bonus Fees',
@@ -363,7 +377,7 @@ def step_impl(context, number):
 
     response = pgsql_select(request, **context.custom_config['pg_db'])
 
-    context.actual_pertasks = [ list(task) for task in response]
+    context.actual_pertasks = [list(task) for task in response]
     # with open('./xxx.txt', 'a') as file:
     #     file.write(str(context.actual_pertasks) + '\n')
 
@@ -471,6 +485,10 @@ def step_impl(context, source):
 
 @step("compare data from db and api")
 def step_impl(context):
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.db_result) + '\n')
+    # with open('./xxx.txt', 'a') as file:
+    #     file.write(str(context.api_result) + '\n')
     assert context.db_result == context.api_result
 
 

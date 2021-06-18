@@ -6,7 +6,6 @@ Feature:  check all user_data
        And get user_data from dataset
       Then compare userdata lists
 
-
   Scenario Outline: set the date of reconciliation
       Given pick date of start: <date>
        And make post request /reconciliation/date_of_reconciliation/

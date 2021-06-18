@@ -53,7 +53,7 @@ Feature: report
         |  entry.date_to_execute          | 2020-12-12        |  Datetime has wrong format. Use one of these formats instead            |
         |  transaction_out.company_bill   | 110               |  Bill should be only one!                                               |
         |  transaction_out.user_bill      | del               |  entry                                                                  |
-        |  entry.description              | null              |  description":["This field is required                                                                 |
+        |  entry.description              | null              |  description":["This field is required                                  |
 
   Scenario Outline: boundary values of mass transaction fields
     Given define template request form of mass transaction

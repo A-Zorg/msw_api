@@ -1,4 +1,5 @@
 import configparser
+import paramiko
 from base.sql_request import dr
 from base.tools.dr_fun import previous_business_day, get_time_param
 
@@ -9,6 +10,44 @@ from base.sql_functions import pgsql_select, pgsql_select_as_dict, \
 
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
+
+# def download_from_server(file_name):
+#     """download"""
+#     host = config["server"]["host"]
+#     port = config["server"]["port"]
+#     username = config["server"]["username"]
+#     password = config["server"]["password"]
+#
+#     with paramiko.Transport((host, int(port))) as transport:
+#         transport.connect(username=username, password=password)
+#         sftp = paramiko.SFTPClient.from_transport(transport)
+#
+#         remotepath = f'{config["server_dir"]["path"]}{file_name}'
+#         localpath = f'C:\\Users\\wsu\\Desktop\\{file_name}'
+#         sftp.get(remotepath, localpath)
+#
+#         sftp.close()
+#
+# download_from_server('month_propreports.xlsx')
+a = "hello world \0 w"
+print(a)
+print(len(a))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 class FieldParameters():
     oooo = 1234
@@ -978,7 +1017,3 @@ class Broker1(Model1):
 # print('{:.4f}'.format(1.0))
 # print(datetime.now().astimezone(timezone.utc))
 #
-print(len({'asdfas':123, 'dsfas':234}))
-
-
-

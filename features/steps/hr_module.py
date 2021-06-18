@@ -1,8 +1,9 @@
 import random
 import re
 from behave import *
+import dateutil.relativedelta as relativedate
 from behave.api.async_step import async_run_until_complete
-from base.main_functions import correct_py_file
+from base.main_functions import correct_py_file, prev_current_date
 from behave.api.async_step import async_run_until_complete
 import pandas as pd
 from datetime import date, datetime, timedelta
@@ -10,6 +11,8 @@ from base.sql_functions import pgsql_select, pgsql_update, pgsql_del
 from base.adminka import finish_reconciliation_process
 from base.main_functions import get_token
 from base.ssh_interaction import change_db_through_django
+from base.db_interactions.accounting_system import HistoryUserBill
+from base.db_interactions.reconciliation import ReconciliationUserPropaccounts
 
 
 
@@ -42,6 +45,7 @@ def step_impl(context, user):
     session = context.sb
     url = f'https://hrtest-server.sg.com.ua/api/contact/{sb_id}'
     result = session.get(url).json()
+
     context.sb_user_data = [
         result['id'],
         result['externalId'],
@@ -93,6 +97,15 @@ def step_impl(context, qty, user):
     user_data = {i[0] for i in user_data}
 
     assert len(user_data) == int(qty)
+
+@step("check bills date of creation (should be first day of the month before last)")
+def step_impl(context):
+    exp_date = datetime.now().replace(day=1) + relativedate.relativedelta(months=-2)
+    hr_id = context.custom_config['sb_user']['hr_id']
+    histories = HistoryUserBill.filter(user_id__hr_id=hr_id)
+
+    for history in histories:
+        assert history.history_date.date() == exp_date.date()
 
 @step("{action} trading account with name {acc_name} to user: {user}")
 def step_impl(context, action, acc_name, user):
@@ -166,7 +179,41 @@ def step_impl(context, number, user):
     )
     assert len(accounts) == int(number)
 
+@step("delete some accounts from reconciliationuserpropaccount: {qty}")
+def step_impl(context, qty):
+    context.del_accounts = []
+    accounts = ReconciliationUserPropaccounts.filter(id__gte=0)
+    if qty == 'all':
+        for account in accounts:
+            if account.month_adj_net != None:
+                context.del_accounts.append(account.account)
+        accounts.delete()
+    elif qty == 'none':
+        assert True
+    else:
+        for i in range(int(qty)):
+            if accounts[i].month_adj_net != None:
+                context.del_accounts.append(accounts[i].account)
+            accounts[i].delete()
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.del_accounts) + '\n')
 
+@step("check group id {group_id} for {param_message}")
+@async_run_until_complete
+async def step_impl(context, group_id, param_message):
+    group = await context.tele_user.get_entity(int(group_id))
+    messages = await context.tele_user.get_messages(group, 1)
+    message_text = messages[0].message
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(messages) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.del_accounts) + '\n')
+    if param_message == 'All accounts from Propreports listed in MSW':
+        assert param_message in message_text
+    elif param_message == 'Detected non existing in MSW accounts':
+        assert param_message in message_text
+        for account in context.del_accounts:
+            assert account in message_text
 
 
 

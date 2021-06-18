@@ -171,7 +171,10 @@ def step_impl(context, amount, custom_payout):
     user_bill_2_after = context.bills_list['userbill_2'][2]
     company_bill_before = context.bills_list['companybill_1'][1]
     company_bill_after= context.bills_list['companybill_1'][2]
-
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(round(user_bill_1_before + amount, 4)) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(user_bill_1_after) + '\n')
     assert round(user_bill_1_before + amount, 4) == user_bill_1_after
     assert round(user_bill_2_before - amount*payout, 4) == user_bill_2_after
     assert round(company_bill_before - amount * (1-payout), 4) == company_bill_after
