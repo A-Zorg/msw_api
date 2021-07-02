@@ -1,31 +1,32 @@
 @super_user @manager_user
 Feature:  reconciliation update
-
-  Scenario: check task "transfer_account_to_reconciliation" feature(MSW-537)
-      Given fields of userdata of user 90000 should be not none
-       And run the task: delete_reconciliation_data
-       And pause - 2 sec(s)
-       Given fields of userdata of user 90000 should be none
-       And get bills: 'Account', 'Current Net balance' of user 90000
-       And create the set of history_user_bill of user 90000
-      When run the task: transfer_bills_to_reconciliation
-       And wait for task is finished: transfer_bills_to_reconciliation
-      Then compare actual with expected fields: account and prev_month_net of user 90000
-
-  Scenario: check update_user_totals_before_reconciliation (MSW-568)
-    Given run the task: delete_reconciliation_data
-     And pause - 2 sec(s)
-     And run the task: create_bonus_fees
-     And wait for task is finished: update_user_totals_before_reconciliation
-    When [services]get total_service of user 90000
-     And [services]get total_compensation of user 90000
-     And [services]get total_fee of user 90000
-     And [account]get total_Takion of user 90000
-     And [account]get total_Broker of user 90000
-     And get user_totals from UserData of user 90000
-    Then compare actual_total with expected_total
-
-
+#
+#  Scenario: check task "transfer_account_to_reconciliation" feature(MSW-537)
+#      Given change field -services_total- in UserData table of user with hr_id 90000 to 999
+#       And change field -qty_of_reconciliations- in UserData table of user with hr_id 90000 to 3
+#       And fields of userdata of user 90000 should be not none
+#       And run the task: delete_reconciliation_data
+#       And pause - 2 sec(s)
+#       And fields of userdata of user 90000 should be none
+#       And create the set of history_user_bill of user 90000
+#      When run the task: transfer_bills_to_reconciliation
+#       And pause - 5 sec(s)
+#      Then compare actual with expected fields: account and prev_month_net of user 90000
+#
+#  Scenario: check update_user_totals_before_reconciliation (MSW-568)
+#    Given run the task: delete_reconciliation_data
+#     And pause - 2 sec(s)
+#     And run the task: create_bonus_fees
+#     And wait for task is finished: update_user_totals_before_reconciliation
+#    When [services]get total_service of user 90000
+#     And [services]get total_compensation of user 90000
+#     And [services]get total_fee of user 90000
+#     And [account]get total_Takion of user 90000
+#     And [account]get total_Broker of user 90000
+#     And get user_totals from UserData of user 90000
+#    Then compare actual_total with expected_total
+#
+#
 #  Scenario Outline: check "Entries created" feature(MSW-398)
 #      Given get bills id of user 90000
 #       And get all transactions of user 90000 before reconciliation
@@ -49,7 +50,7 @@ Feature:  reconciliation update
 #      When run the task: delete_reconciliation_data
 #      Then check userdata fields of user 90000 after -delete_reconciliation_data-
 #
-#
+
 #  Scenario Outline: check autoreconciliation (MSW-540)
 #      Given run the task: delete_reconciliation_data
 #       And change field -prev_month_net- in UserData table of user with hr_id 90000 to <amount>
@@ -105,12 +106,12 @@ Feature:  reconciliation update
 #      Then check custom_podushka of user 90000 (should be False)
 #
 #  Scenario: select date of reconciliation (MSW-568)
-#      Given get expected [RC] tasks(qty:9)
+#      Given get expected [RC] tasks(qty:8)
 #       And pick date of start: aftertomorrow
 #      When make post request /reconciliation/date_of_reconciliation/
-#       And get actual [RC] tasks(qty:9)
+#       And get actual [RC] tasks(qty:8)
 #      Then compare expected and actual [RC] tasks
-
+#
 #  Scenario: Reconciliation API updates(MSW-692)
 #      Given get 90000 user's accounts which belong to subdomain sts through api
 #       And get to these accounts propreports_id and group_id through api
@@ -119,6 +120,7 @@ Feature:  reconciliation update
 #      Then compare data from db and api
 #
 #
+#
 
 
 
@@ -132,8 +134,7 @@ Feature:  reconciliation update
 
 
 
-
-    #  Scenario Outline: Rounding(MSW-549)
+#      Scenario Outline: Rounding(MSW-549)
 #    Given clean DB table: reconciliation_reconciliationuserpropaccount where user_id 90000
 #     And clean DB table: reconciliation_service where user_id 90000
 #     And change field -prev_month_net- in UserData table of user with hr_id 90000 to 1000
@@ -172,10 +173,10 @@ Feature:  reconciliation update
 #
 #
 #
-
-
-
-
-
-
+#
+#
+#
+#
+#
+#
 

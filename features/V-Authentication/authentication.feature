@@ -17,7 +17,8 @@ Feature: check "login"
     When change username and password to new
      And send message to the manager's email
      And pause - 5 sec(s)
-     And get "change password" key in email
+     And get "change password" key in Riskbot
+#     And get "change password" key in email
     Then change username and password to old
 
 

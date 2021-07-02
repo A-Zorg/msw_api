@@ -10,8 +10,8 @@ Feature: import from smartbase
 #    Then compare data from DB and SB
 #     And should be created 6 different bills of user: sb_user
 #     And check bills date of creation (should be first day of the month before last)
-
-
+#
+#
 #
 #  Scenario Outline: account regex(MSW-410)
 #    Given add trading account with name <acc_name> to user: sb_user
@@ -62,22 +62,24 @@ Feature: import from smartbase
 #    Then check that account(s) == 1 in reconciliationuserpropaccount: sb_user
 #     And get data from SM about user: sb_user
 #
-  Scenario Outline: MSW-734 (check_for_non_existent_prop_accounts_monthly)
-    Given run the task: import_HR_module
-     And wait for task is finished: import_HR_module
-     And run the task: download_from_propreports_monthly
-     And wait for task is finished: month_propreports_files_parsing
-     And delete some accounts from reconciliationuserpropaccount: <acc_del_qty>
-    When run the task: check_for_non_existent_prop_accounts_monthly
-     And wait for task is finished: check_for_non_existent_prop_accounts_monthly
-    Then check group id 534586176 for <message>
-    Examples:
-        | acc_del_qty  | message           |
-        |     3        | Detected non existing in MSW accounts       |
-        | all  | Detected non existing in MSW accounts  |
-    | none  | All accounts from Propreports listed in MSW |
-
-
-
-
+#  Scenario Outline: MSW-734 (check_for_non_existent_prop_accounts_monthly)
+#    Given run the task: import_HR_module
+#     And wait for task is finished: import_HR_module
+#    And clear db table: accounting_system_companypropaccount
+#    And clear db table: accounting_system_companypropaccountdata
+#     And run the task: download_from_propreports_monthly
+#     And wait for task is finished: month_propreports_files_parsing
+#     And delete some accounts from reconciliationuserpropaccount: <acc_del_qty>
+#    When run the task: check_for_non_existent_prop_accounts_monthly
+#     And wait for task is finished: check_for_non_existent_prop_accounts_monthly
+#    Then check group id 534586176 for <message>
+#    Examples:
+#        | acc_del_qty  | message                                     |
+#        |     3        | Detected non existing in MSW accounts       |
+#        |     all      | Detected non existing in MSW accounts       |
+#        |     none     | All accounts from Propreports listed in MSW |
+#
+#
+#
+#
 

@@ -139,8 +139,11 @@ def step_impl(context):
     )
     while '-' in accounts_amounts:
         accounts_amounts.remove('-')
-    suma = lambda amount: round(sum(map(float, amount)), 2)
-
+    suma = lambda amount: round(sum(map(float, amount)), 3)
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(accounts_amounts)) + ' asd\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(suma(context.config.userdata["current_net_balance"])) + '\n')
     assert suma(accounts_amounts) == suma(context.config.userdata["current_net_balance"])
 
     session = context.super_user
@@ -150,8 +153,12 @@ def step_impl(context):
         '</a></th><td class="field-bill nowrap">Current Net balance</td><td class="field-amount">([0-9\.-]*)</td></tr>',
         response
     )
+    a = suma(accounts_amounts)
+    b = suma(curr_bills)
     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-        file.write(str(curr_bills) + ' asd\n')
+        file.write(str(a) + ' asd\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(b) + '\n')
     assert suma(accounts_amounts) == suma(curr_bills)
 
 
@@ -177,33 +184,34 @@ def step_impl(context, number):
 def step_impl(context):
     request = "SELECT DISTINCT(account),account_type_id " \
               "FROM public.reconciliation_userpropaccount"
-    request = decode_request(context, request, ['account'])
+    # request = decode_request(context, request, ['account'])
     active_accounts = pgsql_select(request=request, **context.custom_config['pg_db'])
 
     insert_request = "INSERT INTO accounting_system_companypropaccount" \
                      "(account, month_adj_net, account_type_id, updated) " \
                      "VALUES "
     for acc in active_accounts:
-        insert_request += f"(=-{acc[0]}-=, =-0-=, {acc[1]}, date('{datetime.datetime.now().date()}')),"
-    insert_request = encode_request(context, insert_request)[:-1]
-    result = pgsql_insert(request=insert_request, **context.custom_config['pg_db'])
-
+        insert_request += f"('{acc[0]}', 0, {acc[1]}, date('{datetime.datetime.now().date()}')),"
     # with open('./xxx.txt', 'a') as file:
     #     file.write(str(insert_request)+'\n')
+    insert_request = insert_request[:-1]
+    assert pgsql_insert(request=insert_request, **context.custom_config['pg_db'])
+
+
 
 @step("compare month_adj_net with sum(daily_adj_net) of company_prop_account")
 def step_impl(context):
     request_1 = "SELECT account, SUM(daily_adj_net::float) " \
                 "FROM accounting_system_companypropaccountdata " \
                 "GROUP BY account "
-    request = decode_request(context, request_1, ['account', 'daily_adj_net'])
-    result_1 = pgsql_select(request=request, **context.custom_config['pg_db'])
+    # request = decode_request(context, request_1, ['account', 'daily_adj_net'])
+    result_1 = pgsql_select(request=request_1, **context.custom_config['pg_db'])
 
     request_2 = "SELECT account, month_adj_net::float " \
                 "FROM accounting_system_companypropaccount "
 
-    request = decode_request(context, request_2, ['account', 'month_adj_net'])
-    result_2 = pgsql_select(request=request, **context.custom_config['pg_db'])
+    # request = decode_request(context, request_2, ['account', 'month_adj_net'])
+    result_2 = pgsql_select(request=request_2, **context.custom_config['pg_db'])
     # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
     #     file.write(str(result_2) + '\n')
     # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
@@ -237,13 +245,13 @@ def step_impl(context):
     request_bill = "SELECT amount::float " \
                    "FROM accounting_system_companybill " \
                    "WHERE name = 'Operational' "
-    request = decode_request(context, request_bill, ['amount'])
-    result_bill = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
+    # request = decode_request(context, request_bill, ['amount'])
+    result_bill = pgsql_select(request=request_bill, **context.custom_config['pg_db'])[0][0]
 
     request_acc = "SELECT SUM(month_adj_net::float) " \
                 "FROM accounting_system_companypropaccount "
-    request = decode_request(context, request_acc, ['month_adj_net'])
-    result_acc = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
+    # request = decode_request(context, request_acc, ['month_adj_net'])
+    result_acc = pgsql_select(request=request_acc, **context.custom_config['pg_db'])[0][0]
     # with open('./xxx.txt', 'a') as file:
     #     file.write(str(result_bill) + '\n')
     # with open('./xxx.txt', 'a') as file:

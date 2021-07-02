@@ -99,6 +99,9 @@ def step_impl(context, podushka, zp_cash, account_plus_minus, cash, social):
 @step("compare result response with expected result {er}")
 def step_impl(context, er):
     text = context.response.text
+    if er not in text:
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(text)+'\n')
     assert er in text
 
 @step("by RISKMAN make post request to make reconciliation {podushka} {zp_cash} {account_plus_minus} {cash} {social}")

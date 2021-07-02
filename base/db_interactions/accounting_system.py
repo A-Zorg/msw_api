@@ -49,7 +49,7 @@ class UserBillType(Model):
 class UserBill(Model):
     table_name = 'accounting_system_userbill'
     id_atr = IntField(blank=True)
-    amount_atr = FloatField(is_encoded=True)
+    amount_atr = FloatField(is_encoded=False)
     bill_id_atr = ForeignKeyField(UserBillType)
     user_id_atr = ForeignKeyField(User)
 
@@ -57,7 +57,7 @@ class CompanyBill(Model):
     table_name = 'accounting_system_companybill'
     id_atr = IntField(blank=True)
     name_atr = TextField()
-    amount_atr = FloatField(is_encoded=True)
+    amount_atr = FloatField(is_encoded=False)
 
 class ASProcess(Model):
     table_name = 'accounting_system_asprocess'
@@ -77,10 +77,10 @@ class Transaction(Model):
     table_name = 'accounting_system_transaction'
     id_atr = IntField(blank=True)
     side_atr = IntField()
-    amount_atr = FloatField(is_encoded=True)
+    amount_atr = FloatField(is_encoded=False)
     currency_atr = TextField()
     rate_to_usd_atr = IntField()
-    amount_usd_atr = FloatField(is_encoded=True)
+    amount_usd_atr = FloatField(is_encoded=False)
     description_atr = TextField(blank=True)
     created_atr = DateTimeField()
     status_atr = IntField()
@@ -90,7 +90,7 @@ class Transaction(Model):
     initiated_user_id_atr = ForeignKeyField(User, blank=True)
     user_bill_id_atr = ForeignKeyField(UserBill, blank=True)
     account_type_id_atr = ForeignKeyField(AccountType, blank=True)
-    account_atr = TextField(is_encoded=True, blank=True)
+    account_atr = TextField(is_encoded=False, blank=True)
 
 class HistoryUserBill(Model):
     table_name = 'accounting_system_historyuserbill'
@@ -101,7 +101,7 @@ class HistoryUserBill(Model):
     caused_by_transaction_atr = IntField(blank=True)
     history_type_atr = TextField()
     history_created_atr = DateTimeField()
-    amount_atr = FloatField(is_encoded=True)
+    amount_atr = FloatField(is_encoded=False)
     bill_id_atr = ForeignKeyField(UserBillType)
     entry_id_atr = ForeignKeyField(Entry, blank=True)
     user_id_atr = ForeignKeyField(User)
@@ -115,28 +115,28 @@ class HistoryCompanyBill(Model):
     caused_by_transaction_atr = IntField(blank=True)
     history_type_atr = TextField()
     history_created_atr = DateTimeField()
-    amount_atr = FloatField(is_encoded=True)
+    amount_atr = FloatField(is_encoded=False)
     name_atr = TextField()
     entry_id_atr = ForeignKeyField(Entry, blank=True)
 
 class UserMainData(Model):
     table_name = 'accounting_system_usermaindata'
     id_atr = IntField(blank=True)
-    unreal_month_atr = FloatField(is_encoded=True, blank=True)
-    gross_month_atr = FloatField(is_encoded=True, blank=True)
-    adj_net_month_atr = FloatField(is_encoded=True, blank=True)
-    services_total_atr = IntField(is_encoded=True, blank=True)
-    compensations_total_atr = IntField(is_encoded=True, blank=True)
-    office_fees_atr = IntField(is_encoded=True, blank=True)
-    prev_month_net_atr = IntField(is_encoded=True, blank=True)
-    total_net_month_atr = IntField(is_encoded=True, blank=True)
-    deadline_atr = IntField(is_encoded=True, blank=True)
-    payout_rate_atr = FloatField(is_encoded=True, blank=True)
-    change_plus_minus_atr = IntField(is_encoded=True, blank=True)
-    zp_cash_atr = IntField(is_encoded=True, blank=True)
-    company_cash_atr = IntField(is_encoded=True, blank=True)
-    social_atr = IntField(is_encoded=True, blank=True)
-    withdrawal_atr = IntField(is_encoded=True, blank=True)
+    unreal_month_atr = FloatField(is_encoded=False, blank=True)
+    gross_month_atr = FloatField(is_encoded=False, blank=True)
+    adj_net_month_atr = FloatField(is_encoded=False, blank=True)
+    services_total_atr = IntField(is_encoded=False, blank=True)
+    compensations_total_atr = IntField(is_encoded=False, blank=True)
+    office_fees_atr = IntField(is_encoded=False, blank=True)
+    prev_month_net_atr = IntField(is_encoded=False, blank=True)
+    total_net_month_atr = IntField(is_encoded=False, blank=True)
+    deadline_atr = IntField(is_encoded=False, blank=True)
+    payout_rate_atr = FloatField(is_encoded=False, blank=True)
+    change_plus_minus_atr = IntField(is_encoded=False, blank=True)
+    zp_cash_atr = IntField(is_encoded=False, blank=True)
+    company_cash_atr = IntField(is_encoded=False, blank=True)
+    social_atr = IntField(is_encoded=False, blank=True)
+    withdrawal_atr = IntField(is_encoded=False, blank=True)
     effective_date_atr = DateTimeField()
     created_atr = DateTimeField(auto_fill=True)
     user_id_atr = ForeignKeyField(User)

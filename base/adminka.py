@@ -116,19 +116,55 @@ def wait_periodictask_to_be_done(task_name, context, wait_time=3600):
     return task_state
     after 10 min - exit from function if task would not be done
     """
-    request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
-    start_id = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
-    start_time = time.time()
-    while (time.time() - start_time) < wait_time:
-        request = 'SELECT * FROM public.django_celery_results_taskresult ' \
-                  f'WHERE id > {start_id} and task_name=\'{task_name}\'' \
-                  'ORDER BY id ASC '
-        result = pgsql_select(request=request, **context.custom_config['pg_db'])
+    session = context.super_user
+    url = context.custom_config["host"] + 'admin/celery_results/taskresult/'
 
-        if result:
-            return result[0][2]
-        time.sleep(10)
+    start_time = time.time()
+    start_date = datetime.datetime.utcnow()
+
+    while (time.time() - start_time) < wait_time:
+        response = session.get(url).text
+
+        href = re.findall(
+            '</td><th class="field-id"><a href="(.*)/">',
+            response
+        )[0]
+        raw = session.get(context.custom_config["host"] + href[1:]).text
+
+        searched_fields = {
+            'task_name': 'Task Name',
+            'status': 'Task State',
+            'datum': 'Done with milliseconds',
+        }
+
+        results = {}
+        for key, value in searched_fields.items():
+
+            cuted_text = raw[raw.index(f'<label>{value}:</label>'):]
+            results[key] = re.findall(
+                '<div class="readonly">(.*)</div>',
+                cuted_text
+            )[0]
+
+        results['datum'] = datetime.datetime.strptime(results['datum'], '%d %b %Y %H:%M:%S.%f')
+
+        if results['datum'] >= start_date and task_name == results['task_name']:
+            return results['status']
+
     return "FAILURE"
+    # request = "SELECT * FROM public.django_celery_results_taskresult ORDER BY id DESC "
+    # start_id = pgsql_select(request=request, **context.custom_config['pg_db'])[0][0]
+    # start_time = time.time()
+    # while (time.time() - start_time) < wait_time:
+    #     request = 'SELECT * FROM public.django_celery_results_taskresult ' \
+    #               f'WHERE id > {start_id} and task_name=\'{task_name}\'' \
+    #               'ORDER BY id ASC '
+    #     result = pgsql_select(request=request, **context.custom_config['pg_db'])
+    #
+    #     if result:
+    #         return result[0][2]
+    #     time.sleep(10)
+    # return "FAILURE"
 
 def check_users_presence(session, config):
     """check of test users"""
@@ -224,15 +260,15 @@ def perform_dr_calculation(context, calculation_date, calculation):
         "next_date": next_or_prev_business_day(calculation_date, vector_day=1)
     }
     if calculation:
-        # for cleared_date in context.dr_dates.values():
-        #     request = "DELETE FROM public.review_propreportsdata " \
-        #               f"WHERE review_date = date'{cleared_date}'"
-        #     assert pgsql_del(request, **context.custom_config['pg_db'])
-        #
-        # dr_dataset_uploader(
-        #     db_creds=context.custom_config['pg_db'],
-        #     date_list=list(context.dr_dates.values())
-        # )
+        for cleared_date in context.dr_dates.values():
+            request = "DELETE FROM public.review_propreportsdata " \
+                      f"WHERE review_date = date'{cleared_date}'"
+            assert pgsql_del(request, **context.custom_config['pg_db'])
+
+        dr_dataset_uploader(
+            db_creds=context.custom_config['pg_db'],
+            date_list=list(context.dr_dates.values())
+        )
         calculation_starter(
             context=context,
             date_list=list(context.dr_dates.values())

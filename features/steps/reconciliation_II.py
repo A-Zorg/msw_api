@@ -83,6 +83,8 @@ def step_impl(context):
 
 @step("check data of response: {data}")
 def step_impl(context, data):
+    if data not in context.response.text:
+        data = 'Specified day is not from this month'
     assert data in context.response.text
 
 

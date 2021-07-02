@@ -173,9 +173,9 @@ def step_impl(context, field, value):
 
 @step("check actual result with expected {result}")
 def step_impl(context, result):
-    # if result not in context.response_entry:
-    #     with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #         file.write(str(context.response_entry) + '\n')
+    if result not in context.response_entry:
+        with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+            file.write(str(context.response_entry) + '\n')
     assert result in context.response_entry
 
 """--------------------------------------------MASS TRANSACTION----------------------------------------"""

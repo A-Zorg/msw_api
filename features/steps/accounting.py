@@ -43,11 +43,12 @@ def step_impl(context):
             bill_id=bill_type
         )
         context.user_bills[bill_type.name] = user_bill.id
+        now = datetime.now()
         HistoryUserBill.create(
             model_id=user_bill.id,
-            history_date=str(datetime.now() - timedelta(days=90)),
+            history_date=str(now.replace(day=1, month=now.month-3)),
             history_type='+',
-            history_created=str(datetime.now()),
+            history_created=str(now),
             amount=amount,
             bill_id=bill_type,
             user_id__hr_id=user_hr_id
@@ -232,8 +233,10 @@ def step_impl(context, bill_type):
     actual_result = result.json()
     actual_result[0]['date'] = actual_result[0]['date'].split('T')[0]
 
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(actual_result) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(actual_result) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.exp_account_result) + '\n')
     if bill_type == 'Account':
         assert actual_result == context.exp_account_result
     elif bill_type == 'Withdrawal':
@@ -259,6 +262,8 @@ def create_transaction_list(user, bill_type, date_from, date_to, broker=[]):
         bill_id__name=bill_type,
         user_id=user.id
     )
+    if not user_bill:
+        return []
 
     enr = Entry.filter(
         date_to_execute__gte=str(date_from),
@@ -331,8 +336,10 @@ def create_transaction_list(user, bill_type, date_from, date_to, broker=[]):
                 "initiated_user": initiated_user,
                 "initiated_process": init_proc,
                 "status": "Applied",
+                "description": transaction.description,
                 "entry": {
-                    "date_to_execute": entry.date_to_execute.strftime("%Y-%m-%dT%H:%M:%S.%f")
+                    "id": entry.id,
+                    "date_to_execute": entry.date_to_execute.astimezone(tz.gettz('Europe/Kiev')).strftime("%Y-%m-%dT%H:%M:%S.%f")
                 }
             }
         )
@@ -366,7 +373,12 @@ def step_impl(context, bill_type, month):
     actual_manager_result = result.json()
     assert actual_risk_result == actual_manager_result
 
+
     for trans in context.expected_transactions:
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(actual_risk_result) + '\n')
+        with open('./xxx.txt', 'a') as file:
+            file.write(str(trans) + '\n')
         assert trans in actual_risk_result
 
 @step("create random MANAGER report url and get actual result")
@@ -414,7 +426,7 @@ def step_impl(context):
         user_id=user_id,
         effective_date__lt=str(context.api_datum)
     ).sorted_by('effective_date', desc=True)
-    fields = {field: getattr(usermaindata[0], field) for field in context.new_field_list}
+    fields = {field: float(getattr(usermaindata[0], field)) for field in context.new_field_list}
 
     context.api_datum = context.api_datum.replace(
         hour=23,
@@ -427,7 +439,7 @@ def step_impl(context):
             bill_id=bill,
             history_date__lt=str(context.api_datum)
         ).sorted_by('history_date', desc=True)
-        accounts[UserBillType.get(id=bill).name] = userbill[0].amount
+        accounts[UserBillType.get(id=bill).name] = float(userbill[0].amount)
 
     if accounts == fields == {}:
         context.expected_result = {
@@ -467,10 +479,11 @@ def step_impl(context):
     url_broker, context.new_broker_list = random_filter_generator_with_none([1, 3], 'acc_broker')
 
     url = context.custom_config["host"] + \
-          f"api/accounting_system/entries/user/?{url_broker + url_bill}transaction_side={context.side}" \
+          f"api/accounting_system/transactions/?{url_broker + url_bill}transaction_side={context.side}" \
           f"&date_from={context.date_from.date()}T00:00:00&date_to={context.date_to.date()}T23:59:59.99"
     session = context.manager_user
     response = session.get(url)
+
     context.actual_result = response.json()['data']
 
 @step("get expected MANAGER journal entries with random data")
@@ -479,6 +492,7 @@ def step_impl(context):
     user = User.get(hr_id=context.custom_config['manager_id']['hr_id'])
 
     for bill in context.new_bill_list:
+
         transactions = create_transaction_list(
             user,
             UserBillType.get(id=bill).name,
@@ -498,6 +512,11 @@ def step_impl(context):
 
 @step("create UserPropaccounts models of user {user} for {day} day of prev month")
 def step_impl(context, user, day):
+    try:
+        UserPropaccounts.all().delete()
+    except:
+        pass
+
     month = prev_current_date()['prev_month']
     user_accounts = ReconciliationUserPropaccounts.filter(user_id=int(user))
     expected_result = {}
@@ -520,6 +539,8 @@ def step_impl(context, user, day):
             for key, value in row.items():
                 local_dict[key] = float(value) + index
                 expected_result[current_day][key] += float(value) + index
+                expected_result[current_day][key] = round(expected_result[current_day][key], 4)
+
             UserPropaccounts.create(
                 account=account.account,
                 effective_date=datetime.now().replace(
@@ -550,12 +571,18 @@ def step_impl(context, user, day):
             month=month
         )
         response = session.get(url.format(datum.date()))
+        # with open('./xxx.txt', 'a') as file:
+        #     file.write(str(url.format(datum.date())) + '\n')
         actual_result[int(day)+i] = response.json()[user]['fields']
 
     context.actual_result = actual_result
 
 @step("[Report with fields] compare expected and actual result")
 def step_impl(context):
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.actual_result ) + '\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.expected_result) + '\n')
     assert context.actual_result == context.expected_result
 
 

@@ -4,7 +4,7 @@ from dateutil import tz
 
 def data_set_reconciliation():
     user_bills = pd.read_csv('base/data_set/user_bills.csv')
-    context_bills={ 90000+i:[] for i in range(len(user_bills.index)//6)}
+    context_bills = {90000+i: [] for i in range(len(user_bills.index)//6)}
 
     utc = timezone.utc
     back_date = datetime(datetime.now().year, datetime.now().month, 1, 20, 59, 59, tzinfo=utc)

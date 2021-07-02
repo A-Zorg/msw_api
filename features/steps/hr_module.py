@@ -12,7 +12,7 @@ from base.adminka import finish_reconciliation_process
 from base.main_functions import get_token
 from base.ssh_interaction import change_db_through_django
 from base.db_interactions.accounting_system import HistoryUserBill
-from base.db_interactions.reconciliation import ReconciliationUserPropaccounts
+from base.db_interactions.reconciliation import ReconciliationUserPropaccounts, UserPropaccounts
 
 
 
@@ -185,14 +185,16 @@ def step_impl(context, qty):
     accounts = ReconciliationUserPropaccounts.filter(id__gte=0)
     if qty == 'all':
         for account in accounts:
-            if account.month_adj_net != None:
+            if UserPropaccounts.filter(account=account.account):
                 context.del_accounts.append(account.account)
+            # if account.month_adj_net != None:
+            #     context.del_accounts.append(account.account)
         accounts.delete()
     elif qty == 'none':
         assert True
     else:
         for i in range(int(qty)):
-            if accounts[i].month_adj_net != None:
+            if UserPropaccounts.filter(account=accounts[i].account):
                 context.del_accounts.append(accounts[i].account)
             accounts[i].delete()
     with open('./xxx.txt', 'a') as file:

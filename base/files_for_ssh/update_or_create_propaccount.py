@@ -4,7 +4,7 @@ from accounting_system.models import AccountType
 
 
 user = CustomUser.objects.get(hr_id=90000)
-acc_type = AccountType.objects.get(id=4)
+acc_type = AccountType.objects.get(id=5)
 try:
     bonus_object = ReconciliationUserPropAccount.objects.get(
         user=user,

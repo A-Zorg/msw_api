@@ -8,8 +8,9 @@ from base.sql_functions import pgsql_select, pgsql_update, pgsql_select_as_dict,
     decode_request, encode_request, pgsql_insert
 from base.adminka import finish_reconciliation_process
 from base.ssh_interaction import change_db_through_django
-from base.db_interactions.accounting_system import PropreportsSubdomain, AccountType
+from base.db_interactions.accounting_system import PropreportsSubdomain, AccountType, UserBill, UserBillType, HistoryUserBill
 from base.db_interactions.reconciliation import ReconciliationUserPropaccounts, PropreportsaccountId, UserData
+
 
 """-------------------------------------------MSW-398-------------------------------------"""
 @step("get bills id of user 90000")
@@ -64,10 +65,10 @@ def step_impl(context):
 
 @step("compare transactions qty before and after RECONCILIATION {equality}")
 def step_impl(context, equality):
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.transaction_qty_before)+'\n')
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.transaction_qty_after)+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.transaction_qty_before)+'\n')
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(context.transaction_qty_after)+'\n')
     if equality == "true":
         assert context.transaction_qty_before == context.transaction_qty_after
     elif equality == "false":
@@ -78,7 +79,10 @@ def step_impl(context, result):
     request = f'SELECT * FROM public.reconciliation_userdata ' \
               f'WHERE user_id = 90000'
     response = pgsql_select(request, **context.custom_config['pg_db'])
-    assert response[0][21] == eval(result)
+    with open('./xxx.txt', 'a') as file:
+        file.write(str(response)+'\n')
+
+    assert response[0][8] == eval(result)
 
 """------------------------------------------------------------------------------------"""
 @step("change field -{field}- in UserData table of user with hr_id {hr_id} to {value}")
@@ -255,15 +259,21 @@ def step_impl(context, user_id, answer):
         # assert userdata['entries_created'] == True
         assert getattr(userdata, 'qty_of_reconciliations') != 0
 
-@step("get bills: {bills} of user {user_id}")
-def step_impl(context, bills, user_id):
-    # bills_list = bills.split(',')
-    request = f'SELECT id, bill_id FROM accounting_system_userbill ' \
-              f'WHERE user_id = {user_id} and bill_id in (' \
-              f'SELECT id FROM accounting_system_userbilltypes ' \
-              f'WHERE name in ({bills}))'
-    response = pgsql_select(request, **context.custom_config['pg_db'])
-    context.user_bills = response
+# @step("get bills: {bills} of user {user_id}")
+# def step_impl(context, bills, user_id):
+#     bills_list = bills.split(',')
+#     # request = f'SELECT id, bill_id FROM accounting_system_userbill ' \
+#     #           f'WHERE user_id = {user_id} and bill_id in (' \
+#     #           f'SELECT id FROM accounting_system_userbilltypes ' \
+#     #           f'WHERE name in ({bills}))'
+#     # response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])
+#     # context.user_bills = response
+#     bill_types = UserBillType.filter(name__in=['Account', 'Current Net balance'])
+#     context.bills = UserBill.filter(user_id=user_id, bill_id__in=bill_types)
+#     with open('./xxx.txt', 'a') as file:
+#         file.write(str(bill_types) + '\n')
+#     with open('./xxx.txt', 'a') as file:
+#         file.write(str(context.bills ) + '\n')
 
 @step("create the set of history_user_bill of user {user_id}")
 def step_impl(context, user_id):
@@ -272,39 +282,60 @@ def step_impl(context, user_id):
     prevprev_month = prev_month.replace(day=1) - timedelta(days=1)
 
     context.exp_result = {
-        "Account": '555.0000',
-        "Prev_month": '623.0000',
+        "account": 555.0,
+        "prev_month_net": 623.0,
     }
+
+    current_net_bal = UserBill.get(user_id=user_id, bill_id__name='Current Net balance')
+    account = UserBill.get(user_id=user_id, bill_id__name='Account')
+
     new_history_models = [
-        [context.user_bills[0][0], str(prev_month), '~', context.exp_result['Account'], context.user_bills[0][1]],
-        [context.user_bills[0][0], str(curc_month), '~', 444, context.user_bills[0][1]],
-        [context.user_bills[1][0], str(prevprev_month), '~', context.exp_result['Prev_month'], context.user_bills[1][1]],
-        [context.user_bills[1][0], str(prevprev_month.replace(day=28)), '~', 456, context.user_bills[1][1]]
+        {
+            'model_id': current_net_bal.id,
+            'history_date': prevprev_month,
+            'history_created': datetime.now(),
+            'history_type': '~',
+            'amount': context.exp_result['prev_month_net'],
+            'bill_id': current_net_bal.bill_id,
+            'user_id': user_id
+        },
+        {
+            'model_id': current_net_bal.id,
+            'history_date': prevprev_month.replace(day=27),
+            'history_created': datetime.now(),
+            'history_type': '~',
+            'amount': 456,
+            'bill_id': current_net_bal.bill_id,
+            'user_id': user_id
+        },
+        {
+            'model_id': account.id,
+            'history_date': prev_month,
+            'history_created': datetime.now(),
+            'history_type': '~',
+            'amount': context.exp_result['account'],
+            'bill_id': account.bill_id,
+            'user_id': user_id
+        },
+        {
+            'model_id': account.id,
+            'history_date': curc_month,
+            'history_created': datetime.now(),
+            'history_type': '~',
+            'amount': 444,
+            'bill_id': account.bill_id,
+            'user_id': user_id
+        },
     ]
-    request = f'INSERT INTO public.accounting_system_historyuserbill ' \
-              f'(model_id, history_date, history_created, history_type, amount, bill_id, user_id) VALUES '
-    for model in new_history_models:
-        row = f"({model[0]}, timestamp'{model[1]}', timestamp'{datetime.now()}', '{model[2]}', =-{model[3]}-=, {model[4]}, {user_id}),"
-        request += row
-    else:
-        request = request[:-1]
-    request = encode_request(context, request)
-    assert pgsql_insert(request, **context.custom_config['pg_db'])
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(pooo) + '\n')
+    for part in new_history_models:
+        HistoryUserBill.create(**part)
 
 @step("compare actual with expected fields: account and prev_month_net of user {user_id}")
 def step_impl(context, user_id):
-    request = f'SELECT account as Account, prev_month_net as Prev_month FROM public.reconciliation_userdata ' \
-              f'WHERE user_id = {user_id}'
-    request = decode_request(context, request, ['account', 'prev_month_net'])
-    response = pgsql_select_as_dict(request, **context.custom_config['pg_db'])[0]
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(context.exp_result) + '\n')
-    # with open('./xxx.txt', 'a') as file:
-    #     file.write(str(response) + '\n')
+    userdata = UserData.get(user_id=user_id)
+
     for key in context.exp_result:
-        assert context.exp_result[key] == response[key.lower()]
+        assert context.exp_result[key] == getattr(userdata, key)
 
 @step("check custom_podushka of user {user_id} (should be {answer})")
 def step_impl(context, user_id, answer):
@@ -326,11 +357,11 @@ def step_impl(context, number):
             'auto_start_reconciliation',
             0, 10, rec_day, rec_month
         ],
-        [
-            '[RC] StartReconciliationUpdates - Check for non-existing accounts',
-            'check_for_non_existent_prop_accounts_monthly',
-            30, 10, rec_day - 1, rec_month
-        ],
+        # [
+        #     '[RC] StartReconciliationUpdates - Check for non-existing accounts',
+        #     'check_for_non_existent_prop_accounts_monthly',
+        #     30, 10, rec_day - 1, rec_month
+        # ],
         [
             '[RC] StartReconciliationUpdates - Create Bonus Fees',
             'create_bonus_fees',
@@ -391,7 +422,7 @@ def step_impl(context, field_type, user_id):
     request = f"SELECT SUM(amount::float) FROM public.reconciliation_service " \
               f"WHERE user_id = {user_id} and service_type='{field_type}'"
 
-    request = decode_request(context, request, ['amount'])
+    # request = decode_request(context, request, ['amount'])
     response = pgsql_select(request, **context.custom_config['pg_db'])[0][0]
 
     if hasattr(context, 'expected_total'):
@@ -407,7 +438,7 @@ def step_impl(context, field_type, user_id):
               f"JOIN accounting_system_broker as acb ON act.broker_id=acb.id " \
               f"WHERE acr.user_id = {user_id} and acb.name like '%{field_type}%'"
 
-    request = decode_request(context, request, ['month_adj_net'])
+    # request = decode_request(context, request, ['month_adj_net'])
     response = pgsql_select(request, **context.custom_config['pg_db'])[0][0]
 
     if hasattr(context, 'expected_total'):
@@ -424,19 +455,19 @@ def step_impl(context, user_id):
               f"FROM public.reconciliation_userdata " \
               f"WHERE user_id = {user_id}"
 
-    request = decode_request(
-        context,
-        request,
-        [
-            'prev_month_net',
-            'compensations_total',
-            'services_total',
-            'office_fees',
-            'total_net_month',
-            'total_sterling',
-            'total_takion',
-        ]
-    )
+    # request = decode_request(
+    #     context,
+    #     request,
+    #     [
+    #         'prev_month_net',
+    #         'compensations_total',
+    #         'services_total',
+    #         'office_fees',
+    #         'total_net_month',
+    #         'total_sterling',
+    #         'total_takion',
+    #     ]
+    # )
     context.actual_total = dict(pgsql_select_as_dict(request, **context.custom_config['pg_db'])[0])
 
 @step("compare actual_total with expected_total")

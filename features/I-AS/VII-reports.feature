@@ -46,12 +46,12 @@ Feature: report
         |  transaction_common.amount_usd  | sdasd             |  A valid number is required                                             |
         |  transaction_common.amount_usd  | 1,45              |  A valid number is required                                             |
         |  transaction_common.amount_usd  | 234               |  entry                                                                  |
-        |  transaction_common.amount_usd  | 99999999999       |  entry                                                                  |
+        |  transaction_common.amount_usd  | 11111111111       |  entry                                                                  |
         |  transaction_common.amount_usd  | 999999999999      |  Ensure that there are no more than 11 digits before the decimal point. |
-        |  transaction_common.amount_usd  | 99999999999.1111  |  entry                                                                  |
+        |  transaction_common.amount_usd  | 11111111111.1111  |  entry                                                                  |
         |  transaction_common.amount_usd  | 99999999999.11111 |  Ensure that there are no more than 15 digits in total.                 |
         |  entry.date_to_execute          | 2020-12-12        |  Datetime has wrong format. Use one of these formats instead            |
-        |  transaction_out.company_bill   | 110               |  Bill should be only one!                                               |
+        |  transaction_out.company_bill   | 117               |  Bill should be only one!                                               |
         |  transaction_out.user_bill      | del               |  entry                                                                  |
         |  entry.description              | null              |  description":["This field is required                                  |
 
@@ -66,10 +66,10 @@ Feature: report
         | command                                                                                                                                                | result                                                                    |
         |  [['del', ["mass_transaction_in",0]]]                                                                                                                  |  entry                                                                    |
         |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_in",0,'asd']]]                                                                     |  A valid number is required                                               |
-        |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,8]], ['del', ["mass_transaction_out",0]]]                                   |  Non null field user_bill in transaction                          |
+        |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,8]], ['del', ["mass_transaction_out",0]]]                                   |  Non null field user_bill in transaction                                  |
         |  []                                                                                                                                                    |  Not possible to create multiple transactions on both sides in one entry  |
         |  [['del', ["mass_transaction_in",1]]]                                                                                                                  |  Sum of the transaction on both sides are not equal                       |
-        |  [['del', ["mass_transaction_in",0]],  ['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_out",0]]]   |  Need to specify both sides of the entry                                  |
+        |  [['del', ["mass_transaction_in",0]],  ['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_out",0]]]   |  Need to specify at least one side of the entry                           |
         |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,4.12345]], ['change', ["mass_transaction_out",1,3.87655]]]                  |  Ensure that there are no more than 4 decimal places                      |
 
 Scenario Outline: cancel applied or pending entry(MSW-609)

@@ -465,13 +465,13 @@ def step_impl(context):
     assert exp_result == act_result
 
 
-@given("asdfasdfasdfasdfasdf")
-def step_impl(context):
-    request = "SELECT account FROM public.reconciliation_userdata WHERE id = 11605"
-    request = decode_request(context, request, ['account'])
-    asd = pgsql_select(request, **context.custom_config['pg_db'])
-    with open('./xxx.txt', 'a') as file:
-        file.write(str(asd) + '\n')
+# @given("asdfasdfasdfasdfasdf")
+# def step_impl(context):
+#     request = "SELECT account FROM public.reconciliation_userdata WHERE id = 11605"
+#     request = decode_request(context, request, ['account'])
+#     asd = pgsql_select(request, **context.custom_config['pg_db'])
+#     with open('./xxx.txt', 'a') as file:
+#         file.write(str(asd) + '\n')
 
 
 

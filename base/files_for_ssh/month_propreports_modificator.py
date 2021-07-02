@@ -33,6 +33,7 @@ def csv_file_modificator():
         user_propreports_in_dict[column] = list(main_list[column])
 
     for key, adj_net_list in user_propreports_in_dict.items():
+        print('1111111111111111111111111111111')
         if eval(phrase) and type(key) == datetime.datetime:
             for adj_net_index in range(len(adj_net_list)):
                 if 'zero->create' in adj_net_to_be_modified and adj_net_list[adj_net_index]==0:

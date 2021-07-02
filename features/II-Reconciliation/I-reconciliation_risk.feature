@@ -9,9 +9,9 @@ Feature:  check all user_data
   Scenario Outline: set the date of reconciliation
       Given pick date of start: <date>
        And make post request /reconciliation/date_of_reconciliation/
-      Then check data of response: <exp_res>
+      Then check data of response: <exp_response>
     Examples: forward
-        |  date         | exp_res                              |
+        |  date         | exp_response                              |
         |  yesterday    | Specified day is less or equal       |
         |  today        | Specified day is less or equal       |
         |  next_month   | Specified day is not from this month |

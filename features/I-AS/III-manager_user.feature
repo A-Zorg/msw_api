@@ -22,7 +22,7 @@ Feature: no permission
         |  /accounting_system/account_type/clearing/      | 403  |
         |  /accounting_system/account_type/company/       | 403  |
         |  /accounting_system/accounting/3/               | 200  |
-        |  /accounting_system/entries/user/               | 200  |
+#        |  /accounting_system/entries/user/               | 200  |
         |  /accounting_system/accounting/history/xlsx_account/       | 200   |
         |  /accounting_system/accounting/history/xlsx_payment_queue/ | 200   |
 

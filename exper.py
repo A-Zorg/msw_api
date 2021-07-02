@@ -2,7 +2,7 @@ import configparser
 import paramiko
 from base.sql_request import dr
 from base.tools.dr_fun import previous_business_day, get_time_param
-
+import os
 import numpy
 
 from base.sql_functions import pgsql_select, pgsql_select_as_dict, \
@@ -11,31 +11,33 @@ from base.sql_functions import pgsql_select, pgsql_select_as_dict, \
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
 
-# def download_from_server(file_name):
-#     """download"""
-#     host = config["server"]["host"]
-#     port = config["server"]["port"]
-#     username = config["server"]["username"]
-#     password = config["server"]["password"]
-#
-#     with paramiko.Transport((host, int(port))) as transport:
-#         transport.connect(username=username, password=password)
-#         sftp = paramiko.SFTPClient.from_transport(transport)
-#
-#         remotepath = f'{config["server_dir"]["path"]}{file_name}'
-#         localpath = f'C:\\Users\\wsu\\Desktop\\{file_name}'
-#         sftp.get(remotepath, localpath)
-#
-#         sftp.close()
-#
-# download_from_server('month_propreports.xlsx')
-a = "hello world \0 w"
-print(a)
-print(len(a))
+def download_from_server(file_name):
+    """download"""
+    host = config["server"]["host"]
+    port = config["server"]["port"]
+    username = config["server"]["username"]
+    password = config["server"]["password"]
 
+    with paramiko.Transport((host, int(port))) as transport:
+        transport.connect(username=username, password=password)
+        sftp = paramiko.SFTPClient.from_transport(transport)
 
+        remotepath = f'/home/alex_zatushevkiy/msw_api/{file_name}'
+        localpath = f'C:\\Users\\wsu\\Desktop\\{file_name}'
+        sftp.get(remotepath, localpath)
 
+        sftp.close()
 
+download_from_server('month_propreports.xlsx')
+import datetime
+now = datetime.datetime.now()
+print(now.strftime('%B %d, %Y, %I:%M %p'))
+asd = 'July 1, 2021, 6:55 a.m.'
+print(datetime.datetime.strptime(asd.replace('.', ''), '%B %d, %Y, %I:%M %p'))
+
+df = '01 Jul 2021 08:59:54.109000'
+print(datetime.datetime.strptime(df, '%d %b %Y %H:%M:%S.%f'))
+r''
 
 
 

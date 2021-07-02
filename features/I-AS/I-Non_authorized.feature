@@ -21,7 +21,7 @@ Feature: checking credentials for none authenticated
         |  /accounting_system/account_type/clearing/      | 403  |
         |  /accounting_system/account_type/company/       | 403  |
         |  /accounting_system/accounting/3/               | 403  |
-        |  /accounting_system/entries/user/               | 403  |
+#        |  /accounting_system/entries/user/               | 403  |
         |  /accounting_system/accounting/history/xlsx_account/       | 403   |
         |  /accounting_system/accounting/history/xlsx_payment_queue/ | 403   |
 
