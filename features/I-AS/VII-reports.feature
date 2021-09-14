@@ -55,7 +55,7 @@ Feature: report
         |  transaction_out.user_bill      | del               |  entry                                                                  |
         |  entry.description              | null              |  description":["This field is required                                  |
 
-  Scenario Outline: boundary values of mass transaction fields
+  Scenario Outline: boundary values of mass transaction fields + MSW-719
     Given define template request form of mass transaction
      And change request: <command>
     When post request to create mass transaction
@@ -71,6 +71,8 @@ Feature: report
         |  [['del', ["mass_transaction_in",1]]]                                                                                                                  |  Sum of the transaction on both sides are not equal                       |
         |  [['del', ["mass_transaction_in",0]],  ['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_out",0]]]   |  Need to specify at least one side of the entry                           |
         |  [['del', ["mass_transaction_in",0]], ['change', ["mass_transaction_out",1,4.12345]], ['change', ["mass_transaction_out",1,3.87655]]]                  |  Ensure that there are no more than 4 decimal places                      |
+        |  [['del', ["mass_transaction_out",0]], ['del', ["mass_transaction_out",0]]]                                                                            |  Non null field company_bill in transaction                               |
+        |  [['del', ["mass_transaction_in",0]], ['del', ["mass_transaction_in",0]]]                                                                              |  entry                                                                    |
 
 Scenario Outline: cancel applied or pending entry(MSW-609)
     Given define template request form and remember user and company bills: <type> entry
@@ -81,7 +83,7 @@ Scenario Outline: cancel applied or pending entry(MSW-609)
     Then cancel the created <type> entry
      And pause - 2 sec(s)
      And get user and company bills after canceling entry
-     And check status of task
+#     And check status of task
      And pause - 2 sec(s)
      And check canceling of entry and transactions
      And check user and company bills after canceling <type> entry

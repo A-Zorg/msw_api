@@ -1,4 +1,5 @@
 import random
+from decimal import Decimal, ROUND_HALF_UP
 import configparser
 from datetime import date, timedelta
 import re
@@ -254,11 +255,43 @@ def download_from_server2(file_name):
         sftp.close()
 
 
+# def get_payout_rate(amount):
+#     calc_payout_rate = [
+#         {'from': -10000000, 'to': 0, 'coefficient': 0, 'start': 0},
+#         {'from': 0, 'to': 20000, 'coefficient': 0.0001, 'start': 37},
+#         {'from': 20000, 'to':60000, 'coefficient': 0.00015, 'start': 36},
+#         {'from': 60000, 'to': 100000, 'coefficient': 0.00005, 'start': 42},
+#         {'from': 100000, 'to': 500000, 'coefficient': 0.000005, 'start': 46.5},
+#         {'from': 500000, 'to': 1000000, 'coefficient': 0.000002, 'start': 48},
+#         {'from': 1000000, 'to': 100000000, 'coefficient': 0, 'start': 50}
+#     ]
+#     for case in calc_payout_rate:
+#         if case['from'] <= amount < case['to']:
+#             return (case['start'] + case['coefficient'] * amount) / 100
 
 
+def cut_decimal(number, payout, dec_number=2):
+    rate = 10 ** dec_number
+    return ((number * payout * rate) // 1) / rate
 
 
-
+def get_payout_rate(zp_net):
+    zp_net = Decimal(zp_net)
+    if zp_net >= 1000000:
+        payout_rate = Decimal(0.5)
+    elif zp_net >= 500000:
+        payout_rate = (zp_net * Decimal(0.000002) + 48) / 100
+    elif zp_net >= 100000:
+        payout_rate = (zp_net * Decimal(0.000005) + Decimal(46.5)) / 100
+    elif zp_net >= 60000:
+        payout_rate = (zp_net * Decimal(0.00005) + 42) / 100
+    elif zp_net >= 20000:
+        payout_rate = (zp_net * Decimal(0.00015) + 36) / 100
+    elif zp_net > 0:
+        payout_rate = (zp_net * Decimal(0.0001) + 37) / 100
+    else:
+        payout_rate = 0
+    return Decimal(payout_rate).quantize(Decimal('0.00000001'), rounding=ROUND_HALF_UP)
 
 
 

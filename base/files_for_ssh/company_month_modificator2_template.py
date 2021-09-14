@@ -162,7 +162,7 @@ type = 'changed'
 
 
 def company(datum, side, company_bill, amount, process, broker=None):
-    global Entry, Transaction, CompanyBill, HistoryCompanyBill, Decimal
+    global Entry, Transaction, CompanyBill, HistoryCompanyBill, Decimal, timedelta
     entry = Entry.objects.create(date_to_execute=datum, status=1, )
     transaction = Transaction.objects.create(
                                                 entry=entry,
@@ -185,15 +185,28 @@ def company(datum, side, company_bill, amount, process, broker=None):
         bill.amount -= Decimal(amount)
     bill.save()
 
-    history = HistoryCompanyBill.objects.create(
-                                        history_date=datum,
-                                        history_type='~',
-                                        entry=entry,
-                                        name='Company Daily Net',
-                                        amount=bill.amount,
-                                        model_id=bill.id,
-                                        caused_by_transaction=transaction.id
-    )
+    # history = HistoryCompanyBill.objects.create(
+    #                                     history_date=datum,
+    #                                     history_type='~',
+    #                                     entry=entry,
+    #                                     name='Company Daily Net',
+    #                                     amount=bill.amount,
+    #                                     model_id=bill.id,
+    #                                     caused_by_transaction=transaction.id
+    # )
+    while True:
+        if not HistoryCompanyBill.objects.filter(model_id=bill.id, history_date=datum):
+            history = HistoryCompanyBill.objects.create(
+                                                history_date=datum,
+                                                history_type='~',
+                                                entry=entry,
+                                                name='Company Daily Net',
+                                                amount=bill.amount,
+                                                model_id=bill.id,
+                                                caused_by_transaction=transaction.id
+            )
+            break
+        datum += timedelta(microseconds=1)
     entry.save()
     transaction.save()
     history.save()
@@ -201,7 +214,7 @@ def company(datum, side, company_bill, amount, process, broker=None):
     return entry
 
 def operational(datum, entry, side, company_bill, amount, process, broker=None):
-    global Transaction, CompanyBill, HistoryCompanyBill, Decimal
+    global Transaction, CompanyBill, HistoryCompanyBill, Decimal, timedelta
 
     transaction = Transaction.objects.create(
                                                 entry=entry,
@@ -222,17 +235,29 @@ def operational(datum, entry, side, company_bill, amount, process, broker=None):
     elif side == 0:
         bill.amount -= Decimal(amount)
     bill.save()
-
-    history = HistoryCompanyBill.objects.create(
-                                        history_date=datum,
-                                        history_type='~',
-                                        entry=entry,
-                                        name='Operational',
-                                        amount=bill.amount,
-                                        model_id=bill.id,
-                                        caused_by_transaction=transaction.id
-    )
-
+    #
+    # history = HistoryCompanyBill.objects.create(
+    #                                     history_date=datum,
+    #                                     history_type='~',
+    #                                     entry=entry,
+    #                                     name='Operational',
+    #                                     amount=bill.amount,
+    #                                     model_id=bill.id,
+    #                                     caused_by_transaction=transaction.id
+    # )
+    while True:
+        if not HistoryCompanyBill.objects.filter(model_id=bill.id, history_date=datum):
+            history = HistoryCompanyBill.objects.create(
+                history_date=datum,
+                history_type='~',
+                entry=entry,
+                name='Operational',
+                amount=bill.amount,
+                model_id=bill.id,
+                caused_by_transaction=transaction.id
+            )
+            break
+        datum += timedelta(microseconds=1)
     transaction.save()
     history.save()
 

@@ -201,7 +201,7 @@ def step_impl(context):
 
 @step("compare month_adj_net with sum(daily_adj_net) of company_prop_account")
 def step_impl(context):
-    request_1 = "SELECT account, SUM(daily_adj_net::float) " \
+    request_1 = "SELECT account, ROUND(SUM(daily_adj_net),4)::float " \
                 "FROM accounting_system_companypropaccountdata " \
                 "GROUP BY account "
     # request = decode_request(context, request_1, ['account', 'daily_adj_net'])
@@ -212,10 +212,10 @@ def step_impl(context):
 
     # request = decode_request(context, request_2, ['account', 'month_adj_net'])
     result_2 = pgsql_select(request=request_2, **context.custom_config['pg_db'])
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(result_2) + '\n')
-    # with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
-    #     file.write(str(result_1) + '\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(result_2) + '\n')
+    with open('C:\\Users\\wsu\\Desktop\\xxx.txt', 'a') as file:
+        file.write(str(result_1) + '\n')
     for part in result_1:
         assert part in result_2
 

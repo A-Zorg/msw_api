@@ -1,10 +1,11 @@
 import random
+import datetime
 import json
 import re
 from behave import *
-from base.main_functions import GetRequest, get_token, find_button
+from base.main_functions import GetRequest, get_token, get_payout_rate, cut_decimal
 from behave.api.async_step import async_run_until_complete
-from base.db_interactions.reconciliation import Services, ReconciliationUserPropaccounts
+from base.db_interactions.reconciliation import Services, ReconciliationUserPropaccounts, UserData
 from base.db_interactions.index import User
 
 """-------------------------activate reconciliation-----------------------------------"""
@@ -289,15 +290,99 @@ def step_impl(context):
     Services.filter(user_id=context.user).delete()
     ReconciliationUserPropaccounts.filter(user_id=context.user).delete()
 
-@step("create random services, accounts, prev_month_net")
+@step("create random services, accounts, userdata")
 def step_impl(context):
-    user_id = context.custom_config['manager_id']['user_id']
-    context.user = User.get(id=user_id)
-    Services.filter(user_id=context.user).delete()
-    ReconciliationUserPropaccounts.filter(user_id=context.user).delete()
+    datum = datetime.datetime.now().replace(day=1) - datetime.timedelta(days=3)
+    service = random.randint(-1000, 0)/16
+    compensation = random.randint(0, 1000) / 16
+    takion = random.randint(-100000, 100000) / 16
+    prev_month = random.randint(-10000000, 18000000) / 16
+    account = random.randint(0, 100000) / 8
+    custom_podushka = random.choice([True, False])
+
+    Services.create(
+        name='service',
+        service_type='service',
+        amount=service,
+        effective_datetime=datum,
+        user_id=context.user
+    )
+
+    Services.create(
+        name='compensation',
+        service_type='compensation',
+        amount=compensation,
+        effective_datetime=datum,
+        user_id=context.user
+    )
+
+    ReconciliationUserPropaccounts.create(
+        account='takion999',
+        month_adj_net=takion,
+        updated=datum,
+        user_id=context.user,
+        account_type_id=1
+    )
+
+    user_data = UserData.get(user_id=context.user)
+    user_data.prev_month_net = prev_month
+    user_data.custom_podushka = custom_podushka
+    user_data.account = account
+    user_data.save()
+
+    context.month_net = prev_month + takion+compensation+service
+    if context.month_net <= 0:
+        context.max_podushka = 0
+    elif custom_podushka:
+        context.max_podushka = context.month_net
+    elif account <= 2000:
+        context.max_podushka = 4000 if context.month_net > 4000 else context.month_net
+    else:
+        context.max_podushka = account * 2 if context.month_net > account * 2 else context.month_net
 
 
+@step("perform process of reconciliation")
+def step_impl(context):
+    import time
+    time.sleep(0.5)
+    session = context.manager_user
+    url = context.custom_config["host"] + 'api/reconciliation/'
+    token = get_token(session, url)
+    context.txt_writer(int(context.max_podushka))
+    podushka = random.choice([
+        random.randint(0, int(context.max_podushka)),
+        0,
+        context.max_podushka
+    ])
+    cash = context.month_net - podushka
+    payout = float(get_payout_rate(cash))
+    zp_cash = cut_decimal(cash, payout)
+    account_plus_minus = cut_decimal(zp_cash, random.random())
+    cash = cut_decimal(zp_cash-account_plus_minus, random.random())
+    social = round(zp_cash - (cash + account_plus_minus), 2)
 
+    request_form = {
+        'csrfmiddlewaretoken': token,
+        'zp_cash': zp_cash,
+        'podushka': podushka,
+        'account_plus_minus': account_plus_minus,
+        'cash': cash,
+        'social': social,
+    }
+
+    response = session.post(url, data=request_form, headers={"Referer": url}).text
+
+    if response != '{"ok":true,"errors":null}':
+        context.txt_writer('----RECONCILIATION----')
+        context.txt_writer(response)
+        context.txt_writer(f'cash: {context.month_net}')
+        context.txt_writer(f'payout: {payout}')
+        context.txt_writer(f'zp_cash: {zp_cash}')
+        context.txt_writer(f'podushka: {podushka}')
+        context.txt_writer(f'account_plus_minus: {account_plus_minus}')
+        context.txt_writer(f'cash: {cash}')
+        context.txt_writer(f'social: {social}')
+        assert False
 
 
 

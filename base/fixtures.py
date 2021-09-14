@@ -1,9 +1,10 @@
 from behave import fixture
+from datetime import datetime
 import configparser
 import requests
 from telethon import TelegramClient
 from base.adminka import create_user_session
-
+from logs.logger_file import LogGen
 config = configparser.ConfigParser()
 config.read("cred/config.ini")
 
@@ -14,6 +15,11 @@ session_dict = {
         'stranger_session': '',
         'sb_user': '',
 }
+
+def txt_writer(message):
+    with open('./xxx.txt', 'a') as file:
+        file.write(f'date:{datetime.now()}: {message} \n')
+
 @fixture()
 def session(context):
     """creating sessions"""
@@ -52,6 +58,8 @@ def session(context):
         context.custom_config['telegram_user']['api_hash']
     ).start()
 
+    context.logger = LogGen.loggen()
+    context.txt_writer = txt_writer
     yield
 
     # close the sessions

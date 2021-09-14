@@ -71,12 +71,12 @@ class Model:
                 raise Exception(f"{value} is not correct date(ex. yyyy-mm-dd ) "
                                 f"or datetime (ex. yyyy-mm-dd hh:mm:ss)")
         elif obj_type == date:
-            if re.findall('^[\d]{4}-[\d]{2}-[\d]{2}$', value):
+            if re.findall('^[\d]{4}-[\d]{2}-[\d]{2}$', str(value)):
                 return f"date'{value}'"
             else:
                 raise Exception(f"{value} is not date (ex. yyyy-mm-dd )")
         elif obj_type == time:
-            if re.findall('^[\d]{2}:[\d]{2}:[\d]{2}', value):
+            if re.findall('^[\d]{2}:[\d]{2}:[\d]{2}', str(value)):
                 return f"time'{value}'"
             else:
                 raise Exception(f"{value} is not time (ex. hh:mm:ss )")

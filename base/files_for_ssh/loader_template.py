@@ -245,7 +245,9 @@ month = (tod_ay-timedelta(tod_ay.day+1)).month
 year = (tod_ay - timedelta(tod_ay.day+1)).year
 back_date = datetime(year, month, 1, 0, 0, 0, 0)
 
-for history_bill in HistoryUserBill.objects.all():
+users = CustomUser.objects.filter(hr_id__in=range(90000, 91000))
+
+for history_bill in HistoryUserBill.objects.filter(user__in=users):
     history_bill.history_date = back_date
     history_bill.save()
 

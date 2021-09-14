@@ -4,7 +4,7 @@ import random
 from datetime import datetime, timedelta, timezone
 from dateutil import tz
 from behave.api.async_step import async_run_until_complete
-from openpyxl import load_workbook
+from openpyxl import load_workbook, Workbook
 from base.main_functions import GetRequest, get_token, find_button, prev_current_date
 from behave.api.async_step import async_run_until_complete
 from base.main_functions import random_filter_generator_with_none
@@ -470,7 +470,7 @@ def step_impl(context):
         'Account',
         'Withdrawal',
         # 'Cash hub',
-        'Current Net balance'
+        # 'Current Net balance'
     ]
 
     bill_list_id = [bill.id for bill in UserBillType.filter(name__in=bill_list)]
@@ -656,3 +656,74 @@ def step_impl(context, file):
         file.write(response.content)
 
 
+@step("get transactions of all users by FIN")
+def step_impl(context):
+    from_date = datetime.now() - timedelta(days=100)
+    to_date = datetime.now()
+
+    session = context.fin_user
+    context.url = context.custom_config["host"] + "api/accounting_system/transactions/?user[]=all&account[]=all&" \
+                                     f"date_from={from_date.date()}T00:00:00&date_to={to_date.date()}T23:59:59.99&page_size=1000"
+
+    response = session.get(context.url).json()
+    context.expected_data = []
+    for transaction in response['data']:
+        user_hr_id = transaction['user_bill']['user']['hr_id']
+        first_name = transaction['user_bill']['user']['first_name']
+        last_name = transaction['user_bill']['user']['last_name']
+        entry_id = transaction['entry']['id']
+        transaction_id = transaction['id']
+        initiator = None
+
+        if transaction['initiated_user']:
+            initiator = f"{transaction['initiated_user']['hr_id']} {transaction['initiated_user']['first_name']} {transaction['initiated_user']['last_name']}"
+        elif transaction['initiated_process']:
+            initiator = transaction['initiated_process']['name']
+        try:
+            date_to_execute = datetime.strptime(transaction['entry']['date_to_execute'],
+                                                '%Y-%m-%dT%H:%M:%S.%f').replace(microsecond=0)
+        except:
+            date_to_execute = datetime.strptime(transaction['entry']['date_to_execute'],
+                                                '%Y-%m-%dT%H:%M:%S')
+        date_created = datetime.strptime(transaction['created'], '%Y-%m-%dT%H:%M:%S.%f').replace(microsecond=0)
+        bill_name = transaction['user_bill']['bill']['name']
+        amount = float(transaction['amount']) * (2 * transaction['side'] - 1)
+        status = transaction['status']
+        description = transaction['description']
+
+        context.expected_data.append([
+            f'{user_hr_id} {first_name} {last_name}',
+            entry_id,
+            transaction_id,
+            initiator,
+            date_to_execute,
+            date_created,
+            bill_name,
+            amount,
+            status,
+            description
+        ])
+
+@step("download xlsx file with transactions")
+def step_impl(context):
+    session = context.fin_user
+    response = session.get(context.url+'&file_format=xlsx')
+    with open(f'base/data_set/transactions.xlsx', 'wb') as file:
+        file.write(response.content)
+    wb = load_workbook('base/data_set/transactions.xlsx')
+    ws = wb.active
+    actual_data = list(ws.values)[1:]
+    context.actual_data = []
+    for row in actual_data:
+        row_list = list(row)
+        row_list[4] = row_list[4].replace(microsecond=0)
+        row_list[5] = row_list[5].replace(microsecond=0)
+        context.actual_data.append(row_list)
+
+@step("compare xlsx transactions: actual with expected")
+def step_impl(context):
+    if context.expected_data != context.actual_data:
+        context.logger.error('---------------MSW-727---------------')
+        context.logger.error(str(context.expected_data))
+        context.logger.error(str(context.actual_data))
+    assert context.expected_data == context.actual_data

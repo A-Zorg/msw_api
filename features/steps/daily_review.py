@@ -35,7 +35,6 @@ def step_impl(context, account, selected_data):
     get_response = session.get(xls_url)
     context.binary_data_response = get_response.content.replace(b'\xff\xfe', b'\xfe\xff', 1)
 
-
 @step("parse data from xls file")
 def step_impl(context):
     prop_data = pandas.read_excel(context.binary_data_response)

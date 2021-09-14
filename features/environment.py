@@ -12,7 +12,7 @@ from generator.total_generation import generate_data
 from base.create_fees_riskbot import create_riskbot_fees, make_accounting_precondition
 from base.behave_upgrade import scenario_repeat
 
-os.environ['TEST_HOST'] = 'test_9999'
+os.environ['TEST_HOST'] = 'test'
 def before_all(context):
     """create custom_config"""
     try:
@@ -41,15 +41,15 @@ def before_all(context):
 
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
-
+    #
     """perform reconciliation"""
     finish_reconciliation_process(context)
 
     # """perform dr calculation"""
     # perform_dr_calculation(
     #     context=context,
-    #     calculation_date='2021-05-17',
-    #     calculation=False
+    #     calculation_date='2021-07-24',
+    #     calculation=True
     # )
 
     """generate vars with data"""

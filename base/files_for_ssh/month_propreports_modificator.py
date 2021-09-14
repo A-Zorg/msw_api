@@ -21,8 +21,8 @@ def csv_file_modificator():
     import random
     import pandas
 
-    phrase = "len(adj_net_list)-adj_net_list.count(0)==1"                            #PHRASE
-    adj_net_to_be_modified = eval('["non zero->change", "zero->create"]')        #MODIFICATOR_TYPES
+    phrase = "without mod"                            #PHRASE
+    adj_net_to_be_modified = eval('None')        #MODIFICATOR_TYPES
     if "without mod" in phrase:
         return True
 
@@ -160,6 +160,7 @@ for user in account_month_dict.keys():
             bill = UserBill.objects.create(user=user, bill=type, amount = 0)
             bill.save()
 
+HistoryUserBill.objects.filter(history_type='+').delete()
 
 "---------------------------correct date-----------------------------------"
 tod_ay = datetime.today()
@@ -184,7 +185,7 @@ type = 'changed'
 
 
 def company(datum, side, company_bill, amount, process, broker=None):
-    global Entry, Transaction, CompanyBill, HistoryCompanyBill, Decimal
+    global Entry, Transaction, CompanyBill, HistoryCompanyBill, Decimal, timedelta
     entry = Entry.objects.create(date_to_execute=datum, status=1)
     transaction = Transaction.objects.create(
                                                 entry = entry,
@@ -205,15 +206,19 @@ def company(datum, side, company_bill, amount, process, broker=None):
         bill.amount -= Decimal(amount)
     bill.save()
 
-    history = HistoryCompanyBill.objects.create(
-                                        history_date = datum,
-                                        history_type = '~',
-                                        entry = entry,
-                                        name = 'Company Daily Net',
-                                        amount = bill.amount,
-                                        model_id = bill.id,
-                                        caused_by_transaction=transaction.id
-    )
+    while True:
+        if not HistoryCompanyBill.objects.filter(model_id=bill.id, history_date=datum):
+            history = HistoryCompanyBill.objects.create(
+                                                history_date=datum,
+                                                history_type='~',
+                                                entry=entry,
+                                                name='Company Daily Net',
+                                                amount=bill.amount,
+                                                model_id=bill.id,
+                                                caused_by_transaction=transaction.id
+            )
+            break
+        datum += timedelta(microseconds=1)
     entry.save()
     transaction.save()
     history.save()
@@ -221,7 +226,7 @@ def company(datum, side, company_bill, amount, process, broker=None):
     return entry
 
 def user_s(datum, entry, side, user_set, process, user_bill_type ):
-    global  Transaction, UserBill, HistoryUserBill, Decimal
+    global  Transaction, UserBill, HistoryUserBill, Decimal, timedelta
     for part in user_set:
         user = part[0]
         broker = part[1]
@@ -244,16 +249,30 @@ def user_s(datum, entry, side, user_set, process, user_bill_type ):
                                                         account_type=broker
             )
 
-            history = HistoryUserBill.objects.create(
-                history_date=datum,
-                history_type='~',
-                user=user,
-                bill=user_bill_type,
-                entry=entry,
-                amount=bill.amount,
-                model_id=bill.id,
-                caused_by_transaction=transaction.id
-            )
+            # history = HistoryUserBill.objects.create(
+            #     history_date=datum,
+            #     history_type='~',
+            #     user=user,
+            #     bill=user_bill_type,
+            #     entry=entry,
+            #     amount=bill.amount,
+            #     model_id=bill.id,
+            #     caused_by_transaction=transaction.id
+            # )
+            while True:
+                if not HistoryUserBill.objects.filter(model_id=bill.id, history_date=datum):
+                    history = HistoryUserBill.objects.create(
+                        history_date=datum,
+                        history_type='~',
+                        user=user,
+                        bill=user_bill_type,
+                        entry=entry,
+                        amount=bill.amount,
+                        model_id=bill.id,
+                        caused_by_transaction=transaction.id
+                    )
+                    break
+                datum += timedelta(microseconds=1)
             bill.save()
             history.save()
             transaction.save()

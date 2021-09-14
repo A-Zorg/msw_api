@@ -1,4 +1,3 @@
-@super_user @manager_user
 Feature:  reconciliation upload
 
 
@@ -137,5 +136,8 @@ Feature:  reconciliation upload
         |    prev_month_net     |-100.01 |   100      | 0       |  -50              |   0     |   0    |    Podushka is no equal to 0                               |
         |    prev_month_net     |  -1000 |   100      | 0       |  -50              |   0     |   0    |    Podushka is no equal to 0                               |
 
-#  Scenario:sdfsdfsdfsdf)
-#    Given delete old services and accounts of user
+  @autorepeat @100
+  Scenario: perform reconciliation by user
+    Given delete old services and accounts of user
+     And create random services, accounts, userdata
+     And perform process of reconciliation

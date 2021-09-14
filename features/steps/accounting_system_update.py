@@ -2,7 +2,7 @@ import random
 import re
 from behave import *
 from behave.api.async_step import async_run_until_complete
-from base.main_functions import correct_py_file
+from base.main_functions import correct_py_file, get_payout_rate, cut_decimal
 from behave.api.async_step import async_run_until_complete
 import pandas as pd
 from datetime import date, datetime, timedelta
@@ -142,6 +142,8 @@ def step_impl(context, amount):
                 "Referer": url,
         }
     )
+    with open('./xxx.txt', 'a', encoding='utf-8') as file:
+        file.write(str(response.text) + 'rrrrrrrrr\n')
 
     context.response_entry = response.json()['entry']
 
@@ -159,9 +161,7 @@ def step_impl(context, period):
 @step("check bills after NET buyout: {amount:Number}, {custom_payout:Number}")
 def step_impl(context, amount, custom_payout):
     if custom_payout == 0 or amount > 60000:
-        for case in calc_payout_rate:
-            if case['from'] <= amount < case['to']:
-                payout = (case['start'] + case['coefficient']*amount)/100
+        payout = float(get_payout_rate(amount))
     else:
         payout = custom_payout
 
@@ -172,7 +172,7 @@ def step_impl(context, amount, custom_payout):
     company_bill_before = context.bills_list['companybill_1'][1]
     company_bill_after= context.bills_list['companybill_1'][2]
 
-    user_part = ((amount*payout*100)//1)/100
+    user_part = cut_decimal(amount, payout)
     company_part = amount - user_part
     with open('./xxx.txt', 'a') as file:
         file.write(str(user_part) + '\n')

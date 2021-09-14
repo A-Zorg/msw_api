@@ -22,30 +22,41 @@ def download_from_server(file_name):
         transport.connect(username=username, password=password)
         sftp = paramiko.SFTPClient.from_transport(transport)
 
-        remotepath = f'/home/alex_zatushevkiy/msw_api/{file_name}'
+        remotepath = f'/smartteam/msw_server_9999/msw/msw/{file_name}'
         localpath = f'C:\\Users\\wsu\\Desktop\\{file_name}'
         sftp.get(remotepath, localpath)
 
         sftp.close()
 
-download_from_server('month_propreports.xlsx')
+# download_from_server('settings.py')
 import datetime
-now = datetime.datetime.now()
-print(now.strftime('%B %d, %Y, %I:%M %p'))
-asd = 'July 1, 2021, 6:55 a.m.'
-print(datetime.datetime.strptime(asd.replace('.', ''), '%B %d, %Y, %I:%M %p'))
+# now = datetime.datetime.now()
+# print(now.strftime('%B %d, %Y, %I:%M %p'))
+# asd = 'July 1, 2021, 6:55 a.m.'
+# print(datetime.datetime.strptime(asd.replace('.', ''), '%B %d, %Y, %I:%M %p'))
+#
+# df = '01 Jul 2021 08:59:54.109000'
+# print(datetime.datetime.strptime(df, '%d %b %Y %H:%M:%S.%f'))
+# r''
 
-df = '01 Jul 2021 08:59:54.109000'
-print(datetime.datetime.strptime(df, '%d %b %Y %H:%M:%S.%f'))
-r''
+print(datetime.datetime.strptime('July', '%B').month)
 
+a = 5
+asd = {}
+b = asd.get('f')
 
+print(b)
 
+print(15<<1)
 
+import sys
+a='aasdagfgsdfgsdfklsdjfhlskdfjhoi54uh945u945uhw95uh09weu5h0w495hhsdfhsdfh'
+print('asd')
+print(sys.getrefcount(a))
 
-
-
-
+fgt = [1,2,3,4,5]
+fgt[::-1][1]=3
+print(fgt)
 
 
 
@@ -58,13 +69,10 @@ class FieldParameters():
             # print(type(key))
             setattr(self, key, value)
 
-
-r = FieldParameters(asd='123', fgt='fghjfgj')
-# print(r.asd)
-r.oooo='ertert'
-p = FieldParameters(asd='123gjkig', fgt='fghghkghkghjfgj')
-# print(r.oooo)
-# print(p.oooo)
+single_date = datetime.date(2021, 4, 12)
+effective_date = datetime.datetime.combine(single_date,
+                                                   datetime.time(hour=23, minute=59, second=0, microsecond=0))
+print(effective_date+datetime.timedelta(milliseconds=1))
 
 
 # class X:
