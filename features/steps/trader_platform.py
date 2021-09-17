@@ -1,15 +1,15 @@
 import random
-import re
+import math
+import pandas
 from base64 import b64decode
+from dateutil.relativedelta import relativedelta
 from behave import *
-import json
-from behave.api.async_step import async_run_until_complete
-from base.main_functions import correct_py_file, get_payout_rate, cut_decimal
-from behave.api.async_step import async_run_until_complete
-import pandas as pd
+
 from datetime import date, datetime, timedelta
 from base.db_interactions.trader_profile import TraderProfile, RiskBlockPeriod, Log
 from base.db_interactions.index import User
+from base.db_interactions.reconciliation import UserPropaccounts, ReconciliationUserPropaccounts
+from base.db_interactions.accounting_system import HistoryUserBill, UserBill
 from base.main_functions import get_token
 
 
@@ -259,12 +259,360 @@ def step_impl(context):
         assert False
 
 
+def get_math_average(array):
+    array = [i for i in array if i != None]
+    if len(array):
+        return round(sum(array)/len(array), 2)
 
 
+def get_win_loss(positive_ar, negative_ar):
+    if negative_ar:
+        return abs(round(sum(positive_ar)/sum(negative_ar), 2))
+    else:
+        abs(round(sum(positive_ar), 2))
 
 
+def get_sigma(array):
+    array = [i for i in array if i != None]
+    math_average = get_math_average(array)
+    if math_average:
+        return round((sum([(part-math_average)**2 for part in array])/(len(array)-1))**0.5, 2)
 
 
+def get_adj_net_per_days(user_id, date_from):
+    days = (datetime.today() - date_from).days
+    adj_net_dict = dict()
+    for day in range(days):
+        curr_date = date_from + timedelta(day)
+        adj_net_per_day = UserPropaccounts.filter(
+            user_id=user_id,
+            effective_date=curr_date.date()
+        )
+        result = [i.daily_adj_net for i in adj_net_per_day if i.daily_adj_net]
 
+        if result:
+            adj_net_dict[curr_date] = float(sum([i.daily_adj_net for i in adj_net_per_day if i.daily_adj_net]))
+        else:
+            adj_net_dict[curr_date] = None
+
+    return adj_net_dict
+
+
+def get_adj_net_per_days2(user_id, date_from, date_to=datetime.today()):
+    days = (date_to - date_from).days + 1
+    adj_net_per_days = UserPropaccounts.filter(
+        user_id=user_id,
+        effective_date__gte=date_from.date(),
+        effective_date__lte=date_to.date()
+    )
+
+    adj_net_dict = dict()
+    for day in range(days):
+        curr_date = (date_from + timedelta(day)).date()
+        adj_net_dict[curr_date] = None
+
+    for adj_net_per_day in adj_net_per_days:
+        if adj_net_per_day.daily_adj_net:
+            if not adj_net_dict[adj_net_per_day.effective_date]:
+                adj_net_dict[adj_net_per_day.effective_date] = 0
+            adj_net_dict[adj_net_per_day.effective_date] += float(adj_net_per_day.daily_adj_net)
+
+    return adj_net_dict
+
+
+def get_total_net(user_id, date_from):
+    adj_nets = UserPropaccounts.filter(
+        user_id=user_id,
+        effective_date__gte=date_from.date()
+    )
+    return float(sum([part.daily_adj_net for part in adj_nets if part.daily_adj_net]))
+
+
+def first_day_curr_month():
+    today = datetime.now()
+    return today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+
+def calculate_deadline(account):
+    if account < 1000:
+        deadline = 2500
+    elif 1000 <= account <= 2499:
+        deadline = account + 5000
+    elif 2500 <= account <= 4999:
+        deadline = account + 7500
+    else:
+        deadline = account + 15000
+
+    return deadline
+
+
+@step("sjdhgfjshdgf")
+def step_impl(context):
+    from_date = datetime.today() - timedelta(days=40)
+
+    adj_net_per_days = get_adj_net_per_days(90001, from_date)
+    sigma = get_sigma(adj_net_per_days.values())
+
+    max_net = - math.inf
+    curr_net = 0
+    for adj_net_per_day in adj_net_per_days.values():
+        if adj_net_per_day != None:
+            curr_net += adj_net_per_day
+            if curr_net > max_net:
+                max_net = curr_net
+
+    context.txt_writer((max_net-curr_net)/sigma)
+
+    curr_net_balance_bill = UserBill.get(user_id=90001, bill_id__name='Current Net balance')
+    context.txt_writer(curr_net_balance_bill.amount)
+    account_bill = UserBill.get(user_id=90001, bill_id__name='Account')
+    context.txt_writer(account_bill.amount)
+
+    histories = HistoryUserBill.filter(
+        user_id=90001,
+        model_id=curr_net_balance_bill.id,
+        history_date__lt=first_day_curr_month()
+    ).sorted_by('history_date', desc=True)
+    context.txt_writer(histories[0].amount)
+
+    left = calculate_deadline(account_bill.amount) + curr_net_balance_bill.amount
+    context.txt_writer(left)
+
+    url = context.custom_config["host"] + 'api/index/users/'
+    session = context.super_user
+
+    users = session.get(url).json()
+    users_rate = []
+    for user in users:
+        user_id = user['id']
+        total_net = get_total_net(user_id, from_date)
+        users_rate.append((user_id, total_net))
+
+    users_rate = sorted(users_rate, key=lambda key: key[1],reverse=True)
+    actual_rate = None
+    for rate, user in enumerate(users_rate):
+        if user[0] == 90001:
+            actual_rate = rate + 1
+    context.txt_writer(actual_rate)
+
+@step("get user's data from smartbase")
+def step_impl(context):
+    user_id = context.custom_config['manager_id']['user_id']
+    user = User.get(id=user_id)
+
+    session = context.sb
+    url = f'https://hrtest-server.sg.com.ua/api/contact/{user.sb_id}'
+    smart_base_user_data = session.get(url).json()
+    birthday = datetime.strptime(smart_base_user_data['birthday'], '%d.%m.%Y %H:%M:%S')
+    who_brought = smart_base_user_data['whatLedInCompany']
+    phone = smart_base_user_data['phone']
+    first_working_date = datetime.strptime(smart_base_user_data['firstWorkingDate'], '%d.%m.%Y %H:%M:%S')
+
+    profile = TraderProfile.get(user_id=user_id)
+    profile.trading_partners = 'my partner'
+    profile.save()
+
+    context.exp_data = {
+        'birthday': birthday.strftime('%Y-%m-%d'),
+        'date_of_start': first_working_date.strftime('%Y-%m-%d'),
+        'phone': phone,
+        'trading_partners': profile.trading_partners,
+        'who_brought': who_brought,
+    }
+
+@step("Get expected last performance block data")
+def step_impl(context):
+    from_date = datetime.today() - timedelta(days=23)
+
+    adj_net_per_days = get_adj_net_per_days(90001, from_date)
+
+    result = {}
+    counter = 0
+    for effective_date, amount in adj_net_per_days.items():
+        result[counter] = {
+            'adj_net': amount,
+            'effective_date': effective_date.strftime('%Y-%m-%d'),
+        }
+        counter += 1
+    # context.txt_writer(result)
+
+
+def get_total_net_per_account(user_id, date_from):
+    trading_accounts = ReconciliationUserPropaccounts.filter(user_id=user_id)
+    results = {account.account: 0 for account in trading_accounts}
+    adj_nets = UserPropaccounts.filter(
+        user_id=user_id,
+        effective_date__gte=date_from.date()
+    )
+
+    refine_adj_nets = [part for part in adj_nets if part.daily_adj_net]
+    for adj_net in refine_adj_nets:
+        results[adj_net.account] += float(adj_net.daily_adj_net)
+
+    return results
+
+
+@step("Get expected propreports block data")
+def step_impl(context):
+    from_date = first_day_curr_month()
+    accounts = get_total_net_per_account(90001, from_date)
+    context.txt_writer(accounts)
+
+@step("Get expected risk block 1 data")
+def step_impl(context, user_id=90001):
+    from_date = datetime.today() - relativedelta(months=6)
+    adj_net_per_days = get_adj_net_per_days2(user_id, from_date)
+
+    all_adj_net = [adj_net for adj_net in adj_net_per_days.values() if adj_net != None]
+    positive_adj_net = list(filter(lambda x: x > 0, all_adj_net))
+    negative_adj_net = list(filter(lambda x: x <= 0, all_adj_net))
+
+    context.risk_block_one = {
+        'average_day': round(get_math_average(all_adj_net), 2),
+        'avg_down': round(get_math_average(negative_adj_net), 2),
+        'avg_up': round(get_math_average(positive_adj_net), 2),
+        'down_count': len(negative_adj_net),
+        'sigma': get_sigma(all_adj_net),
+        'up_count': len(positive_adj_net),
+        'user_id': user_id,
+        'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
+    }
+
+    context.txt_writer(context.risk_block_one)
+
+
+def get_last_quarters(start_date, quarter_qty):
+    quarters = {
+        0: {'date_from': (1, 1), 'date_to': (3, 31)},
+        1: {'date_from': (4, 1), 'date_to': (6, 30)},
+        2: {'date_from': (7, 1), 'date_to': (9, 30)},
+        3: {'date_from': (10, 1), 'date_to': (12, 31)},
+    }
+    quarter_number = pandas.Timestamp(start_date).quarter - 1
+    start_year = start_date.year
+    quarters_result = {}
+    for i in range(quarter_qty):
+        from_date = quarters[quarter_number]['date_from']
+        to_date = quarters[quarter_number]['date_to']
+        quarters_result[quarter_qty-i] = {
+            'from_quarter': datetime(year=start_year, month=from_date[0], day=from_date[1]),
+            'to_quarter': datetime(year=start_year, month=to_date[0], day=to_date[1])
+        }
+        quarter_number = (quarter_number + 3) % 4
+        if quarter_number == 3:
+            start_year -= 1
+    return quarters_result
+
+
+@step("Get performance chart data")
+def step_impl(context, user_id=172):
+    today = datetime.today()
+
+    # quarters
+    curr_quarters = get_last_quarters(today, 5)
+    quarters = {}
+    for key, dates in curr_quarters.items():
+        adj_net_per_days = get_adj_net_per_days2(user_id, dates['from_quarter'], dates['to_quarter'])
+
+        all_adj_net = [adj_net for adj_net in adj_net_per_days.values() if adj_net != None]
+        positive_adj_net = list(filter(lambda x: x > 0, all_adj_net))
+        negative_adj_net = list(filter(lambda x: x <= 0, all_adj_net))
+        quarters[key] = {
+            'average_day': get_math_average(all_adj_net),
+            'date_from': dates['from_quarter'].strftime('%Y-%m-%d'),
+            'date_to': dates['to_quarter'].strftime('%Y-%m-%d'),
+            'sigma': get_sigma(all_adj_net),
+            'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
+        }
+
+    # chart
+    today_year_ago = today - relativedelta(years=1)
+    days = (today - today_year_ago).days
+    adj_net_per_days = get_adj_net_per_days2(user_id, today_year_ago, today)
+
+    start_adj_net = 0
+    chart = {}
+    for day in range(days):
+        curr_day = (today_year_ago + timedelta(days=day)).date()
+        if adj_net_per_days[curr_day]:
+            start_adj_net += adj_net_per_days[curr_day]
+        chart[curr_day.strftime('%Y-%m-%d')] = start_adj_net
+
+    context.performance_chart = {
+        'data': {
+            'chart': chart,
+            'quarters': quarters,
+            'user_id': user_id,
+        },
+        'errors': []
+    }
+
+    context.txt_writer(context.performance_chart)
+
+
+@step("Get expected risk block 2 data as {role}")
+def step_impl(context, role, user_id=172):
+    if role == 'risk':
+        admin_username = context.custom_config['super_user']['username']
+        admin = User.get(username=admin_username)
+        period = RiskBlockPeriod.get(user_id=user_id, risk_manager_id=admin.id).riskblock2_period
+    else:
+        period = TraderProfile.get(user_id=user_id).riskblock2_period
+
+    from_date = datetime.today() - timedelta(days=360)
+    adj_net_per_days = get_adj_net_per_days2(user_id, from_date)
+
+    all_adj_net = [adj_net for adj_net in adj_net_per_days.values() if adj_net != None]
+    period_positive_adj_net = list(filter(lambda x: x > 0, all_adj_net))[-period:]
+    period_negative_adj_net = list(filter(lambda x: x <= 0, all_adj_net))[-period:]
+
+    period_adj_net = all_adj_net[-period:]
+    positive_adj_net = list(filter(lambda x: x > 0, period_adj_net))
+    negative_adj_net = list(filter(lambda x: x <= 0, period_adj_net))
+
+    context.risk_block_two = {
+        'average_day': get_math_average(period_adj_net),
+        'avg_down': get_math_average(period_negative_adj_net),
+        'avg_up': get_math_average(period_positive_adj_net),
+        'down_count': len(negative_adj_net),
+        'sigma': get_sigma(period_adj_net),
+        'up_count': len(positive_adj_net),
+        'user_id': user_id,
+        'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
+    }
+
+    context.txt_writer(context.risk_block_two)
+
+
+@step("Get expected risk block 3 data")
+def step_impl(context):
+    today = date.today()
+    user_id = context.custom_config['manager_id']['user_id']
+    all_logs = Log.filter(user_id=user_id).sorted_by('created_date', desc=True)
+    actual_logs = []
+    for log in all_logs:
+        end_date = log.created_date + relativedelta(months=log.months_active)
+        if end_date > today:
+            actual_logs.append(log)
+
+    if actual_logs:
+        shown_log = actual_logs[0]
+        expired = False
+    elif all_logs:
+        shown_log = all_logs[0]
+        expired = True
+    else:
+        assert False
+
+    context.risk_block_three = {
+        'auto_close': shown_log.auto_close,
+        'c_loss': shown_log.c_loss,
+        'overdue': expired,
+        'pos_auto_cls': shown_log.pos_auto_cls,
+        'pos_inv': shown_log.pos_inv,
+        'poss_loss': shown_log.poss_loss,
+    }
+
+    context.txt_writer(context.risk_block_three)
 
 

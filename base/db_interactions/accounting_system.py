@@ -16,21 +16,25 @@ class Broker(Model):
     id_atr = IntField(blank=True)
     name_atr = TextField()
 
+
 class Clearing(Model):
     table_name = 'accounting_system_clearing'
     id_atr = IntField(blank=True)
     name_atr = TextField()
+
 
 class Company(Model):
     table_name = 'accounting_system_company'
     id_atr = IntField(blank=True)
     name_atr = TextField()
 
+
 class PropreportsSubdomain(Model):
     table_name = 'accounting_system_propreportssubdomain'
     id_atr = IntField(blank=True)
     subdomain_atr = TextField()
     secrets_section_atr = TextField()
+
 
 class AccountType(Model):
     table_name = 'accounting_system_accounttype'
@@ -41,10 +45,12 @@ class AccountType(Model):
     clearing_id_atr = ForeignKeyField(Clearing)
     propreports_subdomain_id_atr = ForeignKeyField(PropreportsSubdomain)
 
+
 class UserBillType(Model):
     table_name = 'accounting_system_userbilltypes'
     id_atr = IntField(blank=True)
     name_atr = TextField()
+
 
 class UserBill(Model):
     table_name = 'accounting_system_userbill'
@@ -53,17 +59,20 @@ class UserBill(Model):
     bill_id_atr = ForeignKeyField(UserBillType)
     user_id_atr = ForeignKeyField(User)
 
+
 class CompanyBill(Model):
     table_name = 'accounting_system_companybill'
     id_atr = IntField(blank=True)
     name_atr = TextField()
     amount_atr = FloatField(is_encoded=False)
 
+
 class ASProcess(Model):
     table_name = 'accounting_system_asprocess'
     id_atr = IntField(blank=True)
     name_atr = TextField()
     description_atr = TextField()
+
 
 class Entry(Model):
     table_name = 'accounting_system_entry'
@@ -72,6 +81,7 @@ class Entry(Model):
     description_atr = TextField(blank=True)
     status_atr = IntField()
     created_atr = DateTimeField()
+
 
 class Transaction(Model):
     table_name = 'accounting_system_transaction'
@@ -92,6 +102,7 @@ class Transaction(Model):
     account_type_id_atr = ForeignKeyField(AccountType, blank=True)
     account_atr = TextField(is_encoded=False, blank=True)
 
+
 class HistoryUserBill(Model):
     table_name = 'accounting_system_historyuserbill'
     id_atr = IntField(blank=True)
@@ -106,6 +117,7 @@ class HistoryUserBill(Model):
     entry_id_atr = ForeignKeyField(Entry, blank=True)
     user_id_atr = ForeignKeyField(User)
 
+
 class HistoryCompanyBill(Model):
     table_name = 'accounting_system_historycompanybill'
     id_atr = IntField(blank=True)
@@ -118,6 +130,7 @@ class HistoryCompanyBill(Model):
     amount_atr = FloatField(is_encoded=False)
     name_atr = TextField()
     entry_id_atr = ForeignKeyField(Entry, blank=True)
+
 
 class UserMainData(Model):
     table_name = 'accounting_system_usermaindata'

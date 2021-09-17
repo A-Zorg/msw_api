@@ -21,20 +21,20 @@ def before_all(context):
         host = 'test'
     get_custom_config(context, host)
 
-    """create data set"""
-    generate_data(10, context)
-
-    """upload dataset to the server"""
-    upload_files_server(context)
-
-    """upload dataset to msw"""
-    runner(context, "loader.py")
-
-    """upload data to SERV&COMP table"""
-    update_gs()
-
-    """create file FEES to upload through riskbot"""
-    create_riskbot_fees()
+    # """create data set"""
+    # generate_data(10, context)
+    #
+    # """upload dataset to the server"""
+    # upload_files_server(context)
+    #
+    # """upload dataset to msw"""
+    # runner(context, "loader.py")
+    #
+    # """upload data to SERV&COMP table"""
+    # update_gs()
+    #
+    # """create file FEES to upload through riskbot"""
+    # create_riskbot_fees()
 
     """create sessions of users"""
     use_fixture(session, context)
@@ -42,8 +42,8 @@ def before_all(context):
     # """make precondition steps to check ACCOUNTING"""
     # make_accounting_precondition(context)
     #
-    """perform reconciliation"""
-    finish_reconciliation_process(context)
+    # """perform reconciliation"""
+    # finish_reconciliation_process(context)
 
     # """perform dr calculation"""
     # perform_dr_calculation(

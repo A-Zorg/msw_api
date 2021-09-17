@@ -40,6 +40,7 @@ class GetRequest():
                 return False
         return True
 
+
 def random_filter_generator(item_list, patern):
     copy_list = item_list[:]
     qty = random.randint(1, len(copy_list))
@@ -49,6 +50,7 @@ def random_filter_generator(item_list, patern):
         copy_list.remove(new_list[-1])
     url_parts = [f'{patern}[]={i}&' for i in new_list]
     return ''.join(url_parts), new_list
+
 
 def random_filter_generator_with_none(item_list, patern):
     copy_list = item_list[:]
@@ -60,6 +62,7 @@ def random_filter_generator_with_none(item_list, patern):
     url_parts = [f'{patern}[]={i}&' for i in new_list]
     return ''.join(url_parts), new_list
 
+
 def prev_current_date():
     current_date = date.today()
     prev_month_date = current_date.replace(day=1) - timedelta(days=1)
@@ -70,8 +73,9 @@ def prev_current_date():
         'prev_year': prev_month_date.year,
         'current_day': current_date.day,
         "prev_month_day": prev_month_date.day
-}
+    }
     return date_dict
+
 
 def check_comming_entries(entries, subject_dict, key):
     with open('./xxx.txt', 'a') as file:
@@ -91,6 +95,7 @@ def check_comming_entries(entries, subject_dict, key):
             return False
     return True
 
+
 def get_token(session, url, key='csrftoken'):
     headers = {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,'
@@ -103,6 +108,7 @@ def get_token(session, url, key='csrftoken'):
         token = re.findall('csrfToken: "([a-zA-Z0-9]*)"', html.text)[0]
     return token
 
+
 def find_button(messages, button_name):
     for message in messages:
         if message.buttons == None:
@@ -111,6 +117,7 @@ def find_button(messages, button_name):
             for button in butt_row:
                 if re.search(button_name,button.text ):
                     return button
+
 
 def run_periodic_task(session, task_name):#sdfsdfsdfsdfsdf
     """run periodic task"""
@@ -128,6 +135,7 @@ def run_periodic_task(session, task_name):#sdfsdfsdfsdfsdf
     response = session.post(url, data=recon_dict, headers={"Referer": url})
 
     return response.ok
+
 
 def correct_py_file(file_name, old_new_parts):
     """change part in file"""
@@ -181,6 +189,7 @@ def get_last_email(username, password):
                             except:
                                 pass
 
+
 def get_custom_config(context, host):
     if host == "test":
         context.custom_config = {
@@ -223,6 +232,7 @@ def get_custom_config(context, host):
             "pg_key": config['pg_key']['key'],
         }
 
+
 """divide the number to the list of number which sum is equal to the initial number"""
 def get_parts_from_number(number, qty):
     numbers_list=[]
@@ -235,24 +245,23 @@ def get_parts_from_number(number, qty):
     return numbers_list
 
 
-
-import paramiko
-def download_from_server2(file_name):
-    """download"""
-    host = config["server"]["host"]
-    port = config["server"]["port"]
-    username = config["server"]["username"]
-    password = config["server"]["password"]
-
-    with paramiko.Transport((host, int(port))) as transport:
-        transport.connect(username=username, password=password)
-        sftp = paramiko.SFTPClient.from_transport(transport)
-
-        remotepath = f'/home/alex_zatushevkiy/msw_api/{file_name}'
-        localpath = f'./base/files_for_ssh/{file_name}'
-        sftp.get(remotepath, localpath)
-
-        sftp.close()
+# import paramiko
+# def download_from_server2(file_name):
+#     """download"""
+#     host = config["server"]["host"]
+#     port = config["server"]["port"]
+#     username = config["server"]["username"]
+#     password = config["server"]["password"]
+#
+#     with paramiko.Transport((host, int(port))) as transport:
+#         transport.connect(username=username, password=password)
+#         sftp = paramiko.SFTPClient.from_transport(transport)
+#
+#         remotepath = f'/home/alex_zatushevkiy/msw_api/{file_name}'
+#         localpath = f'./base/files_for_ssh/{file_name}'
+#         sftp.get(remotepath, localpath)
+#
+#         sftp.close()
 
 
 # def get_payout_rate(amount):

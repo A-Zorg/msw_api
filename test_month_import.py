@@ -76,7 +76,24 @@ config.read("cred/config.ini")
 
 
 from  base.main_functions import get_token
-# session = create_user_session(config['host']['host_9999'], **config['super_user_9999'])
+session = create_user_session(config['host']['host_9999'], **config['super_user_9999'])
+print(session.cookies)
+# response = session.get('https://mytest-server.sg.com.ua:9999/api/accounting_system/account_type/')
+# print(response.text)
+
+while True:
+    print('question')
+    asd = input()
+    if asd == 'exit':
+        break
+    elif asd == 'yes':
+        response = session.get('https://mytest-server.sg.com.ua:9999/api/accounting_system/account_type/', headers={'Refresh-Session': ''})
+        print(response.status_code)
+        print(response.cookies)
+    else:
+        response = session.get('https://mytest-server.sg.com.ua:9999/api/accounting_system/account_type/')
+        print(response.status_code)
+        print(response.cookies)
 # for i in range(3):
 #     url = 'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/'
 #     request = {
@@ -94,13 +111,13 @@ from  base.main_functions import get_token
 #     print(response.text)
 #     entry = response.json()['entry']
 #     time.sleep(0.1)
-    # url = f'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/cancel/{entry}/'
-    # response = session.get(url)
-    # print(response.text)
+#     url = f'https://mytest-server.sg.com.ua:9999/api/accounting_system/entry/cancel/{entry}/'
+#     response = session.get(url)
+#     print(response.text)
 
-import requests
-
-
+# import requests
+#
+#
 # url = 'https://mytest-server.sg.com.ua:9999/api/token/'
 # session = requests.Session()
 #
@@ -125,26 +142,26 @@ import requests
 # print(resp.status_code)
 # print(resp.text)
 
-url = "https://test.pinesoftware.com.cy:9443/contacts/"
-session = requests.Session()
-token = get_token(session, url)
-body = {
-    'csrfmiddlewaretoken': token,
-    'first_name': 'asdasdsdg',
-    'last_name': 'fjfgj',
-    'email': 'asd@gmail.com',
-    'telephone': '+56784938456',
-    'text': 'asdgasdgasdg',
-    'contacts': '',
-    'file': '',
-}
-response = session.post(url, data=body, headers={"Referer": url})
-
-print(response.text)
-print(response.status_code)
-
-
-
+# url = "https://test.pinesoftware.com.cy:9443/contacts/"
+# session = requests.Session()
+# token = get_token(session, url)
+# body = {
+#     'csrfmiddlewaretoken': token,
+#     'first_name': 'asdasdsdg',
+#     'last_name': 'fjfgj',
+#     'email': 'asd@gmail.com',
+#     'telephone': '+56784938456',
+#     'text': 'asdgasdgasdg',
+#     'contacts': '',
+#     'file': '',
+# }
+# response = session.post(url, data=body, headers={"Referer": url})
+#
+# print(response.text)
+# print(response.status_code)
+#
+#
+#
 
 
 
