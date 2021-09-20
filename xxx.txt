@@ -1,3 +1,0 @@
-date:2021-09-17 16:57:14.149587: {'auto_close': 83, 'c_loss': 86, 'overdue': False, 'pos_auto_cls': 53, 'pos_inv': -3, 'poss_loss': 91} 
-date:2021-09-17 16:57:53.855407: {'auto_close': 15, 'c_loss': 16, 'overdue': True, 'pos_auto_cls': 43, 'pos_inv': -5, 'poss_loss': 60} 
-date:2021-09-17 16:58:47.286800: {'auto_close': 88, 'c_loss': 44, 'overdue': False, 'pos_auto_cls': 0, 'pos_inv': -8, 'poss_loss': 50} 

@@ -3,12 +3,13 @@ import math
 import pandas
 from base64 import b64decode
 from dateutil.relativedelta import relativedelta
+import holidays
 from behave import *
 
 from datetime import date, datetime, timedelta
 from base.db_interactions.trader_profile import TraderProfile, RiskBlockPeriod, Log
 from base.db_interactions.index import User
-from base.db_interactions.reconciliation import UserPropaccounts, ReconciliationUserPropaccounts
+from base.db_interactions.reconciliation import UserPropaccounts, ReconciliationUserPropaccounts, Services
 from base.db_interactions.accounting_system import HistoryUserBill, UserBill
 from base.main_functions import get_token
 
@@ -323,9 +324,18 @@ def get_adj_net_per_days2(user_id, date_from, date_to=datetime.today()):
 def get_total_net(user_id, date_from):
     adj_nets = UserPropaccounts.filter(
         user_id=user_id,
-        effective_date__gte=date_from.date()
+        effective_date__gte=date_from
     )
     return float(sum([part.daily_adj_net for part in adj_nets if part.daily_adj_net]))
+
+
+def get_total_service(user_id, date_from):
+    services = Services.filter(
+        user_id=user_id,
+        service_type__in=['compensation', 'service'],
+        effective_datetime__gte=date_from
+    )
+    return float(sum([part.amount for part in services if part.amount]))
 
 
 def first_day_curr_month():
@@ -346,11 +356,20 @@ def calculate_deadline(account):
     return deadline
 
 
-@step("sjdhgfjshdgf")
-def step_impl(context):
-    from_date = datetime.today() - timedelta(days=40)
+def get_last_holiday(holiday_name):
+    today = datetime.today()
+    us_holidays = holidays.UnitedStates(years=[today.year, today.year - 1])
+    last_holidays = us_holidays.get_named(holiday_name)
+    if today.date() >= last_holidays[1]:
+        last_holiday = last_holidays[1]
+    else:
+        last_holiday = last_holidays[0]
 
-    adj_net_per_days = get_adj_net_per_days(90001, from_date)
+    return last_holiday
+
+
+def get_pb_sigma(user_id, from_date):
+    adj_net_per_days = get_adj_net_per_days(user_id, from_date)
     sigma = get_sigma(adj_net_per_days.values())
 
     max_net = - math.inf
@@ -360,46 +379,75 @@ def step_impl(context):
             curr_net += adj_net_per_day
             if curr_net > max_net:
                 max_net = curr_net
+    return round((max_net - curr_net) / sigma, 2)
 
-    context.txt_writer((max_net-curr_net)/sigma)
 
-    curr_net_balance_bill = UserBill.get(user_id=90001, bill_id__name='Current Net balance')
-    context.txt_writer(curr_net_balance_bill.amount)
-    account_bill = UserBill.get(user_id=90001, bill_id__name='Account')
-    context.txt_writer(account_bill.amount)
+def get_rate_of_user(user_id, users):
+    thanksgiving_date = get_last_holiday('Thanksgiving')
+    users_rate = []
+    for user in users:
+        ur_id = user['id']
+        total_net = get_total_net(ur_id, thanksgiving_date)
+        total_services = get_total_service(ur_id, thanksgiving_date)
+        users_rate.append((ur_id, total_net + total_services))
+
+    users_rate = sorted(users_rate, key=lambda key: key[1], reverse=True)
+    actual_rate = None
+    for rate, user in enumerate(users_rate):
+        if user[0] == user_id:
+            actual_rate = rate + 1
+
+    return actual_rate
+
+
+@step("get expected PRIMARY RISK BLOCK data of user: {user_id:Number}")
+def step_impl(context, user_id=193):
+    today = datetime.today()
+    from_date = today - timedelta(days=40)
+
+    pb_sigm = get_pb_sigma(user_id, from_date)
+
+    curr_net_balance_bill = UserBill.get(user_id=user_id, bill_id__name='Current Net balance')
+    cur_net_balance = curr_net_balance_bill.amount
+
+    account_bill = UserBill.get(user_id=user_id, bill_id__name='Account')
+    account = account_bill.amount
 
     histories = HistoryUserBill.filter(
-        user_id=90001,
+        user_id=user_id,
         model_id=curr_net_balance_bill.id,
         history_date__lt=first_day_curr_month()
     ).sorted_by('history_date', desc=True)
-    context.txt_writer(histories[0].amount)
+    last_month_net = histories[0].amount
 
     left = calculate_deadline(account_bill.amount) + curr_net_balance_bill.amount
-    context.txt_writer(left)
 
     url = context.custom_config["host"] + 'api/index/users/'
     session = context.super_user
-
     users = session.get(url).json()
-    users_rate = []
-    for user in users:
-        user_id = user['id']
-        total_net = get_total_net(user_id, from_date)
-        users_rate.append((user_id, total_net))
+    rating = get_rate_of_user(user_id, users)
 
-    users_rate = sorted(users_rate, key=lambda key: key[1],reverse=True)
-    actual_rate = None
-    for rate, user in enumerate(users_rate):
-        if user[0] == 90001:
-            actual_rate = rate + 1
-    context.txt_writer(actual_rate)
+    context.exp_data = {
+        "data":
+            {
+                "user_id": user_id,
+                "cur_net_balance": f'{cur_net_balance:.2f}',
+                "account": f'{account:.2f}',
+                "last_month_net": f'{last_month_net:.2f}',
+                "month_net": f'{(cur_net_balance - last_month_net):.2f}',
+                "pb_sigm": f'{pb_sigm:.2f}',
+                "left": f'{left:.2f}',
+                "rating": rating
+            },
+        "errors": []
+    }
 
-@step("get user's data from smartbase")
+
+@step("get user's HR BLOCK data from smartbase")
 def step_impl(context):
     user_id = context.custom_config['manager_id']['user_id']
     user = User.get(id=user_id)
-
+    context.txt_writer('context.exp_data')
     session = context.sb
     url = f'https://hrtest-server.sg.com.ua/api/contact/{user.sb_id}'
     smart_base_user_data = session.get(url).json()
@@ -420,21 +468,24 @@ def step_impl(context):
         'who_brought': who_brought,
     }
 
-@step("Get expected last performance block data")
-def step_impl(context):
+
+@step("get expected LAST PERFORMANCE BLOCK data of user: {user_id}")
+def step_impl(context, user_id):
     from_date = datetime.today() - timedelta(days=23)
 
-    adj_net_per_days = get_adj_net_per_days(90001, from_date)
+    adj_net_per_days = get_adj_net_per_days2(user_id, from_date)
 
-    result = {}
+    result = []
     counter = 0
     for effective_date, amount in adj_net_per_days.items():
-        result[counter] = {
-            'adj_net': amount,
-            'effective_date': effective_date.strftime('%Y-%m-%d'),
-        }
+        result.append(
+            {
+                'effective_date': effective_date.strftime('%Y-%m-%d'),
+                'adj_net': amount
+            }
+        )
         counter += 1
-    # context.txt_writer(result)
+    context.exp_data = result
 
 
 def get_total_net_per_account(user_id, date_from):
@@ -447,19 +498,19 @@ def get_total_net_per_account(user_id, date_from):
 
     refine_adj_nets = [part for part in adj_nets if part.daily_adj_net]
     for adj_net in refine_adj_nets:
-        results[adj_net.account] += float(adj_net.daily_adj_net)
+        results[adj_net.account] += adj_net.daily_adj_net
 
-    return results
+    return [{'account': acc_name, 'month_adj_net': f'{amount:.2f}'} for acc_name, amount in results.items()]
 
 
-@step("Get expected propreports block data")
-def step_impl(context):
+@step("get expected PROPREPORTS BLOCK data of user: {user_id}")
+def step_impl(context, user_id):
     from_date = first_day_curr_month()
-    accounts = get_total_net_per_account(90001, from_date)
-    context.txt_writer(accounts)
+    context.exp_data = get_total_net_per_account(user_id, from_date)
 
-@step("Get expected risk block 1 data")
-def step_impl(context, user_id=90001):
+
+@step("get expected RISK BLOCK I data of user: {user_id:Number}")
+def step_impl(context, user_id):
     from_date = datetime.today() - relativedelta(months=6)
     adj_net_per_days = get_adj_net_per_days2(user_id, from_date)
 
@@ -467,18 +518,20 @@ def step_impl(context, user_id=90001):
     positive_adj_net = list(filter(lambda x: x > 0, all_adj_net))
     negative_adj_net = list(filter(lambda x: x <= 0, all_adj_net))
 
-    context.risk_block_one = {
-        'average_day': round(get_math_average(all_adj_net), 2),
-        'avg_down': round(get_math_average(negative_adj_net), 2),
-        'avg_up': round(get_math_average(positive_adj_net), 2),
-        'down_count': len(negative_adj_net),
-        'sigma': get_sigma(all_adj_net),
-        'up_count': len(positive_adj_net),
-        'user_id': user_id,
-        'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
+    context.exp_data = {
+        'data':
+            {
+                'user_id': user_id,
+                'average_day': f'{get_math_average(all_adj_net):.2f}',
+                'sigma': f'{get_sigma(all_adj_net):.2f}',
+                'win_loss': f'{get_win_loss(positive_adj_net, negative_adj_net):.2f}',
+                'avg_up': f'{get_math_average(positive_adj_net):.2f}',
+                'avg_down': f'{get_math_average(negative_adj_net):.2f}',
+                'up_count': len(positive_adj_net),
+                'down_count': len(negative_adj_net),
+            },
+        'errors': []
     }
-
-    context.txt_writer(context.risk_block_one)
 
 
 def get_last_quarters(start_date, quarter_qty):
@@ -504,12 +557,9 @@ def get_last_quarters(start_date, quarter_qty):
     return quarters_result
 
 
-@step("Get performance chart data")
-def step_impl(context, user_id=172):
+def get_quarters(user_id, qty=5):
     today = datetime.today()
-
-    # quarters
-    curr_quarters = get_last_quarters(today, 5)
+    curr_quarters = get_last_quarters(today, qty)
     quarters = {}
     for key, dates in curr_quarters.items():
         adj_net_per_days = get_adj_net_per_days2(user_id, dates['from_quarter'], dates['to_quarter'])
@@ -517,41 +567,52 @@ def step_impl(context, user_id=172):
         all_adj_net = [adj_net for adj_net in adj_net_per_days.values() if adj_net != None]
         positive_adj_net = list(filter(lambda x: x > 0, all_adj_net))
         negative_adj_net = list(filter(lambda x: x <= 0, all_adj_net))
-        quarters[key] = {
+        quarters[str(key)] = {
+            'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
             'average_day': get_math_average(all_adj_net),
+            'sigma': get_sigma(all_adj_net),
             'date_from': dates['from_quarter'].strftime('%Y-%m-%d'),
             'date_to': dates['to_quarter'].strftime('%Y-%m-%d'),
-            'sigma': get_sigma(all_adj_net),
-            'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
         }
 
-    # chart
+    return quarters
+
+
+def get_chart(user_id):
+    today = datetime.today()
     today_year_ago = today - relativedelta(years=1)
-    days = (today - today_year_ago).days
-    adj_net_per_days = get_adj_net_per_days2(user_id, today_year_ago, today)
+    all_time = today - relativedelta(years=2)
+    days = (today - all_time).days + 1
+    adj_net_per_days = get_adj_net_per_days2(user_id, all_time, today)
 
     start_adj_net = 0
-    chart = {}
+    total_chart = {}
     for day in range(days):
-        curr_day = (today_year_ago + timedelta(days=day)).date()
-        if adj_net_per_days[curr_day]:
+        curr_day = (all_time + timedelta(days=day)).date()
+        if adj_net_per_days.get(curr_day):
             start_adj_net += adj_net_per_days[curr_day]
-        chart[curr_day.strftime('%Y-%m-%d')] = start_adj_net
+        total_chart[curr_day.strftime('%Y-%m-%d')] = start_adj_net
 
-    context.performance_chart = {
+    chart = {datum: amount for datum, amount in total_chart.items()
+             if datetime.strptime(datum, '%Y-%m-%d').date() >= today_year_ago.date()}
+
+    return chart
+
+
+@step("get PERFORMANCE CHART data of user: {user_id:Number}")
+def step_impl(context, user_id):
+    context.exp_data = {
         'data': {
-            'chart': chart,
-            'quarters': quarters,
             'user_id': user_id,
+            'quarters': get_quarters(user_id),
+            'chart': get_chart(user_id),
         },
         'errors': []
     }
 
-    context.txt_writer(context.performance_chart)
 
-
-@step("Get expected risk block 2 data as {role}")
-def step_impl(context, role, user_id=172):
+@step("get expected RISK BLOCK II of user: {user_id:Number} data as {role}")
+def step_impl(context, user_id, role):
     if role == 'risk':
         admin_username = context.custom_config['super_user']['username']
         admin = User.get(username=admin_username)
@@ -570,21 +631,23 @@ def step_impl(context, role, user_id=172):
     positive_adj_net = list(filter(lambda x: x > 0, period_adj_net))
     negative_adj_net = list(filter(lambda x: x <= 0, period_adj_net))
 
-    context.risk_block_two = {
-        'average_day': get_math_average(period_adj_net),
-        'avg_down': get_math_average(period_negative_adj_net),
-        'avg_up': get_math_average(period_positive_adj_net),
-        'down_count': len(negative_adj_net),
-        'sigma': get_sigma(period_adj_net),
-        'up_count': len(positive_adj_net),
-        'user_id': user_id,
-        'win_loss': get_win_loss(positive_adj_net, negative_adj_net),
+    context.exp_data = {
+        'data':
+            {
+                'user_id': user_id,
+                'average_day': f'{get_math_average(period_adj_net):.2f}',
+                'sigma': f'{get_sigma(period_adj_net):.2f}',
+                'win_loss': f'{get_win_loss(positive_adj_net, negative_adj_net):.2f}',
+                'avg_up': f'{get_math_average(period_positive_adj_net):.2f}',
+                'avg_down': f'{get_math_average(period_negative_adj_net):.2f}',
+                'up_count': len(positive_adj_net),
+                'down_count': len(negative_adj_net),
+            },
+        'errors': []
     }
 
-    context.txt_writer(context.risk_block_two)
 
-
-@step("Get expected risk block 3 data")
+@step("get expected RISK BLOCK III data")
 def step_impl(context):
     today = date.today()
     user_id = context.custom_config['manager_id']['user_id']
@@ -604,15 +667,86 @@ def step_impl(context):
     else:
         assert False
 
-    context.risk_block_three = {
-        'auto_close': shown_log.auto_close,
+    context.exp_data = {
         'c_loss': shown_log.c_loss,
-        'overdue': expired,
+        'auto_close': shown_log.auto_close,
+        'poss_loss': shown_log.poss_loss,
         'pos_auto_cls': shown_log.pos_auto_cls,
         'pos_inv': shown_log.pos_inv,
-        'poss_loss': shown_log.poss_loss,
+        'overdue': expired,
     }
 
-    context.txt_writer(context.risk_block_three)
+
+@step("get actual PRIMARY RISK BLOCK data of user: {user_id}")
+def step_impl(context, user_id):
+    session = context.super_user
+    url = context.custom_config["host"] + f'api/trader/risk_block/{user_id}/'
+
+    context.act_data = session.get(url).json()
 
 
+@step("get actual HR BLOCK data")
+def step_impl(context):
+    user_id = context.custom_config['manager_id']['user_id']
+    url = context.custom_config["host"] + f'api/trader/hr_block/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual LAST PERFORMANCE BLOCK data of user: {user_id}")
+def step_impl(context, user_id):
+    url = context.custom_config["host"] + f'api/trader/last_performance/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual PROPREPORTS BLOCK data of user: {user_id}")
+def step_impl(context, user_id):
+    url = context.custom_config["host"] + f'api/trader/propreports/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual RISK BLOCK I data of user: {user_id}")
+def step_impl(context, user_id):
+    url = context.custom_config["host"] + f'api/trader/risk_block1/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual PERFORMANCE CHART data of user: {user_id}")
+def step_impl(context, user_id):
+    url = context.custom_config["host"] + f'api/trader/performance_chart/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual RISK BLOCK II data of user: {user_id}")
+def step_impl(context, user_id):
+    url = context.custom_config["host"] + f'api/trader/risk_block2/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("get actual RISK BLOCK III data")
+def step_impl(context):
+    user_id = context.custom_config['manager_id']['user_id']
+    url = context.custom_config["host"] + f'api/trader/risk_block3/{user_id}/'
+    session = context.super_user
+
+    context.act_data = session.get(url).json()
+
+
+@step("{endpoint}: compare actual and expected data")
+def step_impl(context, endpoint):
+    if context.act_data != context.exp_data:
+        context.txt_writer(endpoint.upper())
+        context.txt_writer(context.act_data)
+        context.txt_writer(context.exp_data)
+        assert False
